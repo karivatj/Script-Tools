@@ -31,6 +31,12 @@ $RECYCLE.BIN/
 # Thumbnails
 ._*
 
+#CSV files
+*.csv
+
+#PYC files
+*.pyc
+
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
 .fseventsd
