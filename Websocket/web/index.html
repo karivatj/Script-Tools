@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<!--
+###############################################################################
+##
+##  Copyright (c) Crossbar.io Technologies GmbH and/or collaborators. All rights reserved.
+## 
+##  Redistribution and use in source and binary forms, with or without
+##  modification, are permitted provided that the following conditions are met:
+## 
+##  1. Redistributions of source code must retain the above copyright notice,
+##     this list of conditions and the following disclaimer.
+## 
+##  2. Redistributions in binary form must reproduce the above copyright notice,
+##     this list of conditions and the following disclaimer in the documentation
+##     and/or other materials provided with the distribution.
+## 
+##  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+##  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+##  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+##  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+##  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+##  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+##  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+##  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+##  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+##  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+##  POSSIBILITY OF SUCH DAMAGE.
+##
+###############################################################################
+-->
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ambulance Case sensor & location information</title>
+    <link rel="stylesheet" href="stylesheet.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+    $( function() {
+    $( "#accordion" ).accordion({
+        collapsible: true,
+        activate: function(event, ui) {
+        }
+        });
+    } );
+    </script>
+</head>
+    <body>
+        <h2>Ambulance Case sensor & location information</h2>
+        <div id="accordion">
+          <h3 id='withings_user1'>Test Patient 1</h3>
+          <div>
+            <table>
+            <td><div id="12762571_energy" style="width: 512px; height: 384px; align: left;"></div></td>
+            <td><div id="12762571_activity" style="width: 512px; height: 384px; align: left;"></td>
+            <td><div id="12762571_sleep" style="width: 512px; height: 384px; align: left;"></td>
+            <td></td>
+            </tr>
+            <tr>
+            <td><div id="12762571_bloodpressure" style="width: 512px; height: 384px; align: left;"></td>
+            <td><div id="12762571_bodytemp" style="width: 512px; height: 384px; align: left;"></td>
+            <td><div id="12762571_heartrate" style="width: 512px; height: 384px; align: left;"></td>
+            <td></td>
+            </tr>
+            </table>
+          </div>
+          <h3 id='withings_user2'>Test Patient 2</h3>
+          <div>
+            <table>
+            <td><div id="12762562_energy" style="width: 512px; height: 384px; align: left;"></div></td>
+            <td><div id="12762562_activity" style="width: 512px; height: 384px; align: left;"></td>
+            <td><div id="12762562_sleep" style="width: 512px; height: 384px; align: left;"></td>
+            <td></td>
+            </tr>
+            <tr>
+            <td><div id="12762562_bloodpressure" style="width: 512px; height: 384px; align: left;"></td>
+            <td><div id="12762562_bodytemp" style="width: 512px; height: 384px; align: left;"></td>
+            <td><div id="12762562_heartrate" style="width: 512px; height: 384px; align: left;"></td>
+            <td></td>
+            </tr>
+            </table>
+          </div>
+          <h3 id='withings_user3'>Test Patient 3</h3>
+          <div>
+            <table>
+            <td><div id="12762926_energy" style="width: 512px; height: 384px; align: left;"></div></td>
+            <td><div id="12762926_activity" style="width: 512px; height: 384px; align: left;"></td>
+            <td><div id="12762926_sleep" style="width: 512px; height: 384px; align: left;"></td>
+            <td></td>
+            </tr>
+            <tr>
+            <td><div id="12762926_bloodpressure" style="width: 512px; height: 384px; align: left;"></td>
+            <td><div id="12762926_bodytemp" style="width: 512px; height: 384px; align: left;"></td>
+            <td><div id="12762926_heartrate" style="width: 512px; height: 384px; align: left;"></td>
+            <td></td>
+            </tr>
+            </table>
+          </div>
+          <h3 id='haltian'>Ambulance Location</h3>
+          <div id="map"></div>      
+        </div>
+        <script src="http://autobahn.s3.amazonaws.com/autobahnjs/latest/autobahn.min.jgz"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>      
+        <script>
+         // the URL of the WAMP Router (Crossbar.io)
+         var wsuri;
+         if (document.location.origin == "file://") {
+            wsuri = "ws://127.0.0.1:8080/ws";
+
+         } else {
+            wsuri = (document.location.protocol === "http:" ? "ws:" : "wss:") + "//" + document.location.host + "/ws";
+         }
+
+         // the WAMP connection to the Router
+         var connection = new autobahn.Connection({
+            url: wsuri,
+            realm: "realm1"
+         });
+
+        function format_and_create_line_plot(data, title, xaxis_title, yaxis_title, target_div)
+        {
+            //Format data
+            for (name in data) { 
+                data[name][0].data[0].mode = 'lines'
+                data[name][0].data[0].name = 'Date'
+                data[name][0].data[0].line = { color: 'rgb(0, 176, 219)', width: 3 }
+                data[name][0].layout = {
+                               title: title,
+                               xaxis: {
+                                 title: xaxis_title,
+                                 showgrid: false,
+                                 zeroline: false
+                               },
+                               yaxis: {
+                                 title: yaxis_title,
+                                 showline: false
+                               }
+                             };  
+                Plotly.newPlot(name + target_div, data[name][0].data, data[name][0].layout);
+            }
+        }
+
+        function format_and_create_bar_plot(data, title, xaxis_title, yaxis_title, target_div)
+        {
+            //Format data
+            for (name in data) { 
+                data[name][0].data[0].type = 'bar'
+                data[name][0].data[0].name = 'Date'
+                data[name][0].data[0].marker = { color: 'rgb(0, 176, 219)' }
+                data[name][0].layout = {
+                               title: title,
+                               xaxis: {
+                                 title: xaxis_title,
+                                 showgrid: false,
+                                 zeroline: false
+                               },
+                               yaxis: {
+                                 title: yaxis_title,
+                                 showline: false
+                               }
+                             };  
+                Plotly.newPlot(name + target_div, data[name][0].data, data[name][0].layout);
+            }        
+        }
+
+        function handle_energy(data) {
+            format_and_create_line_plot(JSON.parse(data), "Energy Consumption", "Date", "Calories", "_energy")
+        }
+        function handle_activity(data) {
+            format_and_create_line_plot(JSON.parse(data), "Activity Statistics", "Date", "Activity", "_activity")
+        }
+        function handle_sleep(data) {
+            format_and_create_line_plot(JSON.parse(data), "Sleep Duration", "Date", "Hours", "_sleep")
+        }
+        function handle_bloodpressure(data) {
+            data = JSON.parse(data)
+            //Format data
+            for (name in data) { 
+                data[name][0].data[0].type = 'bar'
+                data[name][0].data[0].name = 'Date'
+                data[name][0].data[0].marker = { color: 'rgb(0, 176, 219)' }
+                data[name][0].layout = {
+                               title: "Blood Pressure",
+                               xaxis: {
+                                 title: "Systolic",
+                                 showgrid: false,
+                                 zeroline: false
+                               },
+                               yaxis: {
+                                 title: "Diastolic",
+                                 showline: false
+                               }
+                             };  
+                Plotly.newPlot(name + "_bloodpressure", data[name][0].data, data[name][0].layout);
+            }        
+        }
+        function handle_heartrate(data) {
+            format_and_create_bar_plot(JSON.parse(data), "Average Heartrate", "Date", "BPM", "_heartrate")
+        }
+        function handle_bodytemp(data) {
+            format_and_create_line_plot(JSON.parse(data), "Body Temperature", "Date", "Celcius", "_bodytemp")
+        }
+
+         // fired when connection is established and session attached
+         connection.onopen = function (session, details) {
+
+            console.log("Connected");
+
+            // GET initial data sets
+            // CALL remote procedures. Returns a promise.
+            session.call('com.testlab.withings_energy', ["plotly"]).then(
+               function (res) { //Success
+                  handle_energy(res)
+               },
+               function (err) { //Failure
+                  console.log("Error while calling Energy API: ", err);
+               }
+            );
+            session.call('com.testlab.withings_activity', ["plotly"]).then(
+               function (res) { //Success
+                  handle_activity(res)
+               },
+               function (err) { //Failure
+                  console.log("Error while calling Activity API: ", err);
+               }
+            );
+            session.call('com.testlab.withings_sleep', ["plotly"]).then(
+               function (res) { //Success
+                  handle_sleep(res)
+               },
+               function (err) { //Failure
+                  console.log("Error while calling Sleep API: ", err);
+               }
+            );
+            session.call('com.testlab.withings_bloodpressure', ["plotly"]).then(
+               function (res) { //Success
+                  handle_bloodpressure(res)
+               },
+               function (err) { //Failure
+                  console.log("Error while calling BP API: ", err);
+               }
+            );                                    
+            session.call('com.testlab.withings_bodytemperature', ["plotly"]).then(
+               function (res) { //Success
+                  handle_bodytemp(res)
+               },
+               function (err) { //Failure
+                  console.log("Error while calling BodyTemp API: ", err);
+               }
+            );
+            session.call('com.testlab.withings_average_heartrate', ["plotly"]).then(
+               function (res) { //Success
+                  handle_heartrate(res)
+               },
+               function (err) { //Failure
+                  console.log("Error while calling HR API: ", err);
+               }
+            );
+
+            // SUBSCRIPTION handler functions
+            function on_withings_energy_update (args) {
+               var counter = args[0];
+               console.log("on_withings_energy_update() event received: " + counter);
+            }
+            function on_withings_activity_update (args) {
+               var counter = args[0];
+               console.log("on_withings_activity_update() event received: " + counter);
+            }
+            function on_withings_sleep_update (args) {
+               var counter = args[0];
+               console.log("on_withings_sleep_update() event received: " + counter);
+            }
+            function on_withings_bodytemp_update (args) {
+               var counter = args[0];
+               console.log("on_withings_bodytemp_update() event received: " + counter);
+            }
+            function on_withings_heartrate_update (args) {
+               var counter = args[0];
+               console.log("on_withings_heartrate_update() event received: " + counter);
+            }
+            function on_withings_bloodpressure_update (args) {
+               var counter = args[0];
+               console.log("on_withings_bloodpressure_update() event received: " + counter);
+            }
+
+            // SUBSCRIBE to topics and receive events                                                                        
+            session.subscribe('com.testlab.withings_energy_update', on_withings_energy_update).then(
+               function (sub) {
+                  console.log('subscribed to topic Withings Energy Updates');
+               },
+               function (err) {
+                  console.log('failed to subscribe to topic!', err);
+               }
+            );
+            session.subscribe('com.testlab.withings_activity_update', on_withings_activity_update).then(
+               function (sub) {
+                  console.log('subscribed to topic Withings Activity Updates');
+               },
+               function (err) {
+                  console.log('failed to subscribe to topic!', err);
+               }
+            );
+            session.subscribe('com.testlab.withings_sleep_update', on_withings_sleep_update).then(
+               function (sub) {
+                  console.log('subscribed to topic Withings Sleep Updates');
+               },
+               function (err) {
+                  console.log('failed to subscribe to topic!', err);
+               }
+            );
+            session.subscribe('com.testlab.withings_bodytemp_update', on_withings_bodytemp_update).then(
+               function (sub) {
+                  console.log('subscribed to topic Withings Bodytemp Updates');
+               },
+               function (err) {
+                  console.log('failed to subscribe to topic!', err);
+               }
+            );
+            session.subscribe('com.testlab.withings_heartrate_update', on_withings_heartrate_update).then(
+               function (sub) {
+                  console.log('subscribed to topic Withings HR Updates');
+               },
+               function (err) {
+                  console.log('failed to subscribe to topic!', err);
+               }
+            );
+            session.subscribe('com.testlab.withings_bloodpressure_update', on_withings_energy_update).then(
+               function (sub) {
+                  console.log('subscribed to topic Withings BP Updates');
+               },
+               function (err) {
+                  console.log('failed to subscribe to topic!', err);
+               }
+            );
+
+         };
+
+         // fired when connection was lost (or could not be established)
+         connection.onclose = function (reason, details) {
+            console.log("Connection lost: " + reason);
+         }
+
+         // now actually open the connection
+         connection.open();
+      </script>
+   </body>
+</html>

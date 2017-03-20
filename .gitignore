@@ -54,3 +54,5 @@ Temporary Items
 
 #Withings access tokens
 tlab_tokens.py
+
+*.priv
