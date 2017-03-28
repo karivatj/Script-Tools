@@ -85,7 +85,7 @@ if __name__ == "__main__":
         if("TestLab" in calendar):
             calendar_name = "OYS TestLab"
         elif("Aortta" in calendar):
-            calendar_name = "Aortta"
+            calendar_name = "Aortta (Big Room)"
         elif("Cave" in calendar):
             calendar_name = "Cave"
         elif("Lappa" in calendar):
@@ -125,18 +125,24 @@ if __name__ == "__main__":
         else:
             logging.debug("Response OK. Parsing data...")        
             tree = ElementTree.fromstring(response.content)
+            today = datetime.datetime.now()
+            timedelta = 2
+
+            if today > datetime.datetime(datetime.date.today().year, 3, 26, 3, 0, 0) and today < datetime.datetime(datetime.date.today().year, 10, 29, 4, 0, 0):
+                timedelta = 3    
 
             for elem in tree.iter(tag='{http://schemas.microsoft.com/exchange/services/2006/types}CalendarItem'):
                 for child in elem:
+                    print(child.text)
                     if("Subject" in child.tag):
                         calendar_data[calendar_name].append(child.text)
                     elif("Start" in child.tag):
                         date = parse(child.text)
-                        date = date + datetime.timedelta(hours=2) #add timedifference
+                        date = date + datetime.timedelta(hours=timedelta) #add timedifference
                         calendar_data[calendar_name].append(date.strftime("%H:%M"))
                     elif("End" in child.tag):
-                        date = parse(child.text)
-                        date = date + datetime.timedelta(hours=2) #add timedifference
+                        date = parse(child.text)                   
+                        date = date + datetime.timedelta(hours=timedelta) #add timedifference
                         calendar_data[calendar_name].append(date.strftime("%H:%M"))
         logging.debug("Success!")
         print()
@@ -166,27 +172,27 @@ if __name__ == "__main__":
                 primary_event_found = False
                 secondary_event_found = False
                 f.write("<tr>\n")
-                f.write("<td class=\"meetingroom\" data-swiper-parallax=\"-200\">" + calendar + "</td>\n")
+                f.write("<td class=\"meetingroom\">" + calendar + "</td>\n")
 
                 for item in range(0, len(calendar_data[calendar]), 3):
                     end_date = parse(calendar_data[calendar][item+2])
                     if(now < end_date and primary_event_found == False):
                         primary_event_found = True
-                        f.write("<td class=\"event_primary\" data-swiper-parallax=\"-200\">" + calendar_data[calendar][item] + "</td>\n")
-                        f.write("<td class=\"eventdate_primary\" data-swiper-parallax=\"-200\">"+ calendar_data[calendar][item+1] + " - " + calendar_data[calendar][item+2] + "</td>\n")
+                        f.write("<td class=\"event_primary\">" + calendar_data[calendar][item] + "</td>\n")
+                        f.write("<td class=\"eventdate_primary\">"+ calendar_data[calendar][item+1] + " - " + calendar_data[calendar][item+2] + "</td>\n")
 
                     elif(now < end_date and secondary_event_found == False):
                         secondary_event_found = True
-                        f.write("<td class=\"event_secondary\" data-swiper-parallax=\"-200\">" + calendar_data[calendar][item] + "</td>\n")
-                        f.write("<td class=\"eventdate_secondary\" data-swiper-parallax=\"-200\">"+ calendar_data[calendar][item+1] + " - " + calendar_data[calendar][item+2] + "</td>\n")
+                        f.write("<td class=\"event_secondary\">" + calendar_data[calendar][item] + "</td>\n")
+                        f.write("<td class=\"eventdate_secondary\">"+ calendar_data[calendar][item+1] + " - " + calendar_data[calendar][item+2] + "</td>\n")
                         break
          
                 if(primary_event_found != True):
-                    f.write("<td class=\"event_primary\" data-swiper-parallax=\"-200\">Vapaa</td>\n")
-                    f.write("<td class=\"eventdate_primary\" data-swiper-parallax=\"-200\"></td>\n")
+                    f.write("<td class=\"event_primary\">Vapaa</td>\n")
+                    f.write("<td class=\"eventdate_primary\"></td>\n")
                 if(secondary_event_found != True):
-                    f.write("<td class=\"event_secondary\" data-swiper-parallax=\"-200\">Vapaa</td>\n")
-                    f.write("<td class=\"eventdate_secondary\" data-swiper-parallax=\"-200\"></td>\n")
+                    f.write("<td class=\"event_secondary\">Vapaa</td>\n")
+                    f.write("<td class=\"eventdate_secondary\"></td>\n")
 
                 f.write("</tr>\n")
             f.write("</table>")
