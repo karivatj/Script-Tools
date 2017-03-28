@@ -37,7 +37,6 @@ from autobahn.twisted.wamp import ApplicationSession
 from autobahn.wamp.exception import ApplicationError
 
 from dateutil.parser import parse
-from withings_api import WithingsCredentials, WithingsApi
 import logging
 import datetime
 import time
@@ -45,9 +44,9 @@ import codecs
 import sys
 import time 
 import json
+import requests
 
-def get_location(user_id, client):
-    pass
+location_data = {}
 
 class AppSession(ApplicationSession):
 
@@ -55,5 +54,25 @@ class AppSession(ApplicationSession):
 
     @inlineCallbacks
     def onJoin(self, details):
+
+        # REGISTER a procedure for remote calling. Return location information
+        def haltian_location():
+            self.log.info("haltian_location() called. Delivering payload")
+            return json.dumps(location_data)
+
+        yield self.register(haltian_location, 'com.testlab.haltian_location')
+        self.log.info("procedure haltian_location() registered")  
+
+        url = 'https://tmuvee.com/wp-json/tmuvee-wot/v1/d3m0-w1ll3'
+        headers = {'Authorization': 'Basic aXNlZXNvbWV0aGluZ3M6ZG95YT8=', 'Content-Type': 'application/json'}
+
         while True:
-            yield sleep(1)
+            #get location information
+            r = requests.post(url, data=None, headers=headers)
+            if r.status_code == 404:
+                self.log.error("404 Error. Check connectivity and / or connection parameters and try again!")
+            else:
+                self.log.info("publishing Thingsee location")
+                location_data = r.text
+                yield self.publish('com.testlab.haltian_location_update', json.dumps(location_data))                
+            yield sleep(300)
