@@ -84,7 +84,21 @@
                         },
                         "url": "ws://127.0.0.1:8080/ws"
                     }                    
-                }
+                },
+                {
+                    "type": "class",
+                    "classname": "ekg_node.AppSession",
+                    "realm": "realm1",
+                    "transport": {
+                        "type": "websocket",
+                        "endpoint": {
+                            "type": "tcp",
+                            "host": "127.0.0.1",
+                            "port": 8080
+                        },
+                        "url": "ws://127.0.0.1:8080/ws"
+                    }                    
+                }                
             ]
         }
     ]
