@@ -128,6 +128,10 @@ def format_data_to_plotly(data, key):
     t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d'))
     return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1] for T in t ] } ] } ]
 
+def format_bloodpressure_data_to_plotly(data, key):
+    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d'))    
+    return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1][0] for T in t ] }, { 'x': [ T[0] for T in t ], 'y': [ T[1][1] for T in t ] }] } ]
+
 class AppSession(ApplicationSession):
 
     log = Logger()
@@ -201,7 +205,7 @@ class AppSession(ApplicationSession):
             self.log.info("withings_bloodpressure() called. Delivering payload")
             if data_format in "plotly": #send plotly compatible data   
                 for x in bloodpressure_data:
-                    data[x] = format_data_to_plotly(bloodpressure_data, x)
+                    data[x] = format_bloodpressure_data_to_plotly(bloodpressure_data, x)
                 return json.dumps(data)
             else:
                 return json.dumps(bloodpressure_data)
@@ -257,7 +261,6 @@ class AppSession(ApplicationSession):
             heartrate_data[user_id], bloodpressure_data[user_id], bodytemperature_data[user_id] = get_measurement_data(user_ids[i], client)
                 
         while True:
-            start = datetime.time() 
             for i in range (0, len(user_ids)):                  
                 user_id = str(user_ids[i])
                 if user_id == '0':
@@ -279,7 +282,7 @@ class AppSession(ApplicationSession):
                     temp_activity = client.get_activity(date=today)
                     temp_sleep = client.get_sleepsummary(startdateymd=today - datetime.timedelta(days=1), enddateymd=today)
                     for m in meastype: measures.append(client.get_measures(limit=1, meastype=m))
-                except ConnectionError:
+                except ApplicationError:
                     yield sleep(30)
                     continue
 
@@ -348,7 +351,7 @@ class AppSession(ApplicationSession):
                                 if len([item for item in bodytemperature_data[user_id] if item[0] == date]) >= 1:
                                     if bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1] != value:
                                         self.log.info("publishing to 'Withings BodyTemp Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1], result=value)                                            
-                                        bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1] = normalize_value
+                                        bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1] = value
                                         yield self.publish('com.testlab.withings_bodytemp_update', [user_id, date, value])
                                 else:
                                     bodytemperature_data[user_id].append([date, value])
