@@ -34,15 +34,7 @@ from twisted.logger import Logger
 
 from autobahn.twisted.util import sleep
 from autobahn.twisted.wamp import ApplicationSession
-from autobahn.wamp.exception import ApplicationError
 
-from dateutil.parser import parse
-import logging
-import datetime
-import time
-import codecs
-import sys
-import time 
 import json
 import requests
 
@@ -73,6 +65,6 @@ class AppSession(ApplicationSession):
                 self.log.error("404 Error. Check connectivity and / or connection parameters and try again!")
             else:
                 self.log.info("publishing Thingsee location")
-                location_data = r.text
+                location_data = json.loads(r.text)
                 yield self.publish('com.testlab.haltian_location_update', json.dumps(location_data))                
             yield sleep(300)
