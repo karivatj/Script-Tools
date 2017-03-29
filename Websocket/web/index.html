@@ -30,323 +30,567 @@
 -->
 
 <html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ambulance Case sensor & location information</title>
     <link rel="stylesheet" href="stylesheet.css">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="./dist/autobahn.min.js"></script>
+    <script src="./dist/plotly-latest.min.js"></script>
+    <script src="./dist/jquery-1.12.4.js"></script>
+    <script src="./dist/jquery-ui.js"></script>
     <script>
-    $( function() {
-    $( "#accordion" ).accordion({
-        collapsible: true,
-        activate: function(event, ui) {
-        }
+        $(function() {
+            $("#accordion").accordion({
+                collapsible: true,
+                activate: function(event, ui) {
+                    google.maps.event.trigger(map, 'resize');
+                }
+            });
         });
-    } );
     </script>
 </head>
-    <body>
-        <h2>Ambulance Case sensor & location information</h2>
-        <div id="accordion">
-          <h3 id='withings_user1'>Test Patient 1</h3>
-          <div>
+
+<body>
+    <h2>Ambulance Case sensor & location information</h2>
+    <div id="accordion">
+        <h3 id='withings_user1'>Test Patient 1</h3>
+        <div>
             <table>
-            <td><div id="12762571_energy" style="width: 512px; height: 384px; align: left;"></div></td>
-            <td><div id="12762571_activity" style="width: 512px; height: 384px; align: left;"></td>
-            <td><div id="12762571_sleep" style="width: 512px; height: 384px; align: left;"></td>
-            <td></td>
-            </tr>
-            <tr>
-            <td><div id="12762571_bloodpressure" style="width: 512px; height: 384px; align: left;"></td>
-            <td><div id="12762571_bodytemp" style="width: 512px; height: 384px; align: left;"></td>
-            <td><div id="12762571_heartrate" style="width: 512px; height: 384px; align: left;"></td>
-            <td></td>
-            </tr>
+                <td>
+                    <div id="12762571_energy" style="width: 512px; height: 384px; align: left;"></div>
+                </td>
+                <td>
+                    <div id="12762571_activity" style="width: 512px; height: 384px; align: left;"></div>
+                </td>
+                <td>
+                    <div id="12762571_sleep" style="width: 512px; height: 384px; align: left;"></div>
+                </td>
+                <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div id="12762571_bloodpressure" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762571_bodytemp" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762571_heartrate" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td></td>
+                </tr>
             </table>
-          </div>
-          <h3 id='withings_user2'>Test Patient 2</h3>
-          <div>
-            <table>
-            <td><div id="12762562_energy" style="width: 512px; height: 384px; align: left;"></div></td>
-            <td><div id="12762562_activity" style="width: 512px; height: 384px; align: left;"></td>
-            <td><div id="12762562_sleep" style="width: 512px; height: 384px; align: left;"></td>
-            <td></td>
-            </tr>
-            <tr>
-            <td><div id="12762562_bloodpressure" style="width: 512px; height: 384px; align: left;"></td>
-            <td><div id="12762562_bodytemp" style="width: 512px; height: 384px; align: left;"></td>
-            <td><div id="12762562_heartrate" style="width: 512px; height: 384px; align: left;"></td>
-            <td></td>
-            </tr>
-            </table>
-          </div>
-          <h3 id='withings_user3'>Test Patient 3</h3>
-          <div>
-            <table>
-            <td><div id="12762926_energy" style="width: 512px; height: 384px; align: left;"></div></td>
-            <td><div id="12762926_activity" style="width: 512px; height: 384px; align: left;"></td>
-            <td><div id="12762926_sleep" style="width: 512px; height: 384px; align: left;"></td>
-            <td></td>
-            </tr>
-            <tr>
-            <td><div id="12762926_bloodpressure" style="width: 512px; height: 384px; align: left;"></td>
-            <td><div id="12762926_bodytemp" style="width: 512px; height: 384px; align: left;"></td>
-            <td><div id="12762926_heartrate" style="width: 512px; height: 384px; align: left;"></td>
-            <td></td>
-            </tr>
-            </table>
-          </div>
-          <h3 id='haltian'>Ambulance Location</h3>
-          <div id="map"></div>      
         </div>
-        <script src="http://autobahn.s3.amazonaws.com/autobahnjs/latest/autobahn.min.jgz"></script>
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>      
-        <script>
-         // the URL of the WAMP Router (Crossbar.io)
-         var wsuri;
-         if (document.location.origin == "file://") {
+
+        <h3 id='withings_user2'>Test Patient 2</h3>
+        <div>
+            <table>
+                <td>
+                    <div id="12762562_energy" style="width: 512px; height: 384px; align: left;"></div>
+                </td>
+                <td>
+                    <div id="12762562_activity" style="width: 512px; height: 384px; align: left;"></div>
+                </td>
+                <td>
+                    <div id="12762562_sleep" style="width: 512px; height: 384px; align: left;"></div>
+                </td>
+                <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div id="12762562_bloodpressure" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762562_bodytemp" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762562_heartrate" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        <h3 id='withings_user3'>Test Patient 3</h3>
+        <div>
+            <table>
+                <td>
+                    <div id="12762926_energy" style="width: 512px; height: 384px; align: left;"></div>
+                </td>
+                <td>
+                    <div id="12762926_activity" style="width: 512px; height: 384px; align: left;"></div>
+                </td>
+                <td>
+                    <div id="12762926_sleep" style="width: 512px; height: 384px; align: left;"></div>
+                </td>
+                <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div id="12762926_bloodpressure" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762926_bodytemp" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762926_heartrate" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        <h3 id='haltian'>Ambulance Location</h3>
+        <div id="map"></div>
+
+        <h3 id='ecg'>Beta ECG Curve</h3>
+        <div id="ecg_curve" style="width: 100%; height: 100%; align: left;"></div>
+    </div>
+
+    <script>
+        // data structures holding the data
+        var energy_data = [];
+        var activity_data = [];
+        var sleep_data = [];
+        var bloodpressure_data = [];
+        var bodytemp_data = [];
+        var heartrate_data = [];
+        var ecg_data = [];
+
+        // the URL of the WAMP Router (Crossbar.io)
+        var wsuri;
+
+        // timers used
+        haltianTimer = 0
+
+        // Google Maps object
+        map = null
+
+        if (document.location.origin == "file://") {
             wsuri = "ws://127.0.0.1:8080/ws";
-
-         } else {
+        } else {
             wsuri = (document.location.protocol === "http:" ? "ws:" : "wss:") + "//" + document.location.host + "/ws";
-         }
-
-         // the WAMP connection to the Router
-         var connection = new autobahn.Connection({
+        }
+        // the WAMP connection to the Router
+        var connection = new autobahn.Connection({
             url: wsuri,
             realm: "realm1"
-         });
+        });
 
-        function format_and_create_line_plot(data, title, xaxis_title, yaxis_title, target_div)
-        {
-            //Format data
-            for (name in data) { 
-                data[name][0].data[0].mode = 'lines'
-                data[name][0].data[0].name = 'Date'
-                data[name][0].data[0].line = { color: 'rgb(0, 176, 219)', width: 3 }
-                data[name][0].layout = {
-                               title: title,
-                               xaxis: {
-                                 title: xaxis_title,
-                                 showgrid: false,
-                                 zeroline: false
-                               },
-                               yaxis: {
-                                 title: yaxis_title,
-                                 showline: false
-                               }
-                             };  
+        function create_line_plot(data, target_div) {
+            for (name in data) {
+                Plotly.newPlot(name + target_div, data[name][0].data, data[name][0].layout);
+            }
+        }
+        function create_ecg_plot(data, target_div) {
+            Plotly.newPlot(target_div, data[0].data, data[0].layout);
+        }                        
+
+        function create_bar_plot(data, target_div) {
+            for (name in data) {
                 Plotly.newPlot(name + target_div, data[name][0].data, data[name][0].layout);
             }
         }
 
-        function format_and_create_bar_plot(data, title, xaxis_title, yaxis_title, target_div)
-        {
-            //Format data
-            for (name in data) { 
+        function create_tuple_bar_plot(data, target_div) {
+            for (name in data) {
+                Plotly.newPlot(name + "_bloodpressure", data[name][0].data, data[name][0].layout);
+            }
+        }
+
+        function format_line_plot(data, title, xaxis_title, yaxis_title) {
+            for (name in data) {
+                data[name][0].data[0].mode = 'lines'
+                data[name][0].data[0].name = 'Date'
+                data[name][0].data[0].line = {
+                    color: 'rgb(0, 176, 219)',
+                    width: 3
+                }
+                data[name][0].layout = {
+                    title: title,
+                    xaxis: {
+                        title: xaxis_title,
+                        showgrid: false,
+                        zeroline: false
+                    },
+                    yaxis: {
+                        title: yaxis_title,
+                        showline: false
+                    }
+                };
+            }
+
+            return data
+        }
+
+        function format_bar_plot(data, title, xaxis_title, yaxis_title) {
+            for (name in data) {
                 data[name][0].data[0].type = 'bar'
                 data[name][0].data[0].name = 'Date'
-                data[name][0].data[0].marker = { color: 'rgb(0, 176, 219)' }
+                data[name][0].data[0].marker = {
+                    color: 'rgb(0, 176, 219)'
+                }
                 data[name][0].layout = {
-                               title: title,
-                               xaxis: {
-                                 title: xaxis_title,
-                                 showgrid: false,
-                                 zeroline: false
-                               },
-                               yaxis: {
-                                 title: yaxis_title,
-                                 showline: false
-                               }
-                             };  
-                Plotly.newPlot(name + target_div, data[name][0].data, data[name][0].layout);
-            }        
+                    title: title,
+                    xaxis: {
+                        title: xaxis_title,
+                        showgrid: false,
+                        zeroline: false,
+                    },
+                    yaxis: {
+                        title: yaxis_title,
+                        showline: false,
+                    }
+                };
+            }
+
+            return data
+        }
+
+        function format_tuple_bar_plot(data, title, a_title, b_title, xaxis_title, yaxis_title) {
+            for (name in data) {
+                data[name][0].data[0].type = 'bar'
+                data[name][0].data[0].name = a_title
+                data[name][0].data[0].marker = {
+                    color: 'rgb(0, 176, 219)'
+                }
+                data[name][0].data[1].type = 'bar'
+                data[name][0].data[1].name = b_title
+                data[name][0].data[1].marker = {
+                    color: 'rgb(234, 14, 125)'
+                }
+                data[name][0].layout = {
+                    title: title,
+                    xaxis: {
+                        title: xaxis_title,
+                        showgrid: false,
+                        zeroline: false
+                    },
+                    yaxis: {
+                        title: yaxis_title,
+                        showline: false
+                    }
+                };
+            }
+
+            return data
         }
 
         function handle_energy(data) {
-            format_and_create_line_plot(JSON.parse(data), "Energy Consumption", "Date", "Calories", "_energy")
-        }
-        function handle_activity(data) {
-            format_and_create_line_plot(JSON.parse(data), "Activity Statistics", "Date", "Activity", "_activity")
-        }
-        function handle_sleep(data) {
-            format_and_create_line_plot(JSON.parse(data), "Sleep Duration", "Date", "Hours", "_sleep")
-        }
-        function handle_bloodpressure(data) {
-            data = JSON.parse(data)
-            //Format data
-            for (name in data) { 
-                data[name][0].data[0].type = 'bar'
-                data[name][0].data[0].name = 'Date'
-                data[name][0].data[0].marker = { color: 'rgb(0, 176, 219)' }
-                data[name][0].layout = {
-                               title: "Blood Pressure",
-                               xaxis: {
-                                 title: "Systolic",
-                                 showgrid: false,
-                                 zeroline: false
-                               },
-                               yaxis: {
-                                 title: "Diastolic",
-                                 showline: false
-                               }
-                             };  
-                Plotly.newPlot(name + "_bloodpressure", data[name][0].data, data[name][0].layout);
-            }        
-        }
-        function handle_heartrate(data) {
-            format_and_create_bar_plot(JSON.parse(data), "Average Heartrate", "Date", "BPM", "_heartrate")
-        }
-        function handle_bodytemp(data) {
-            format_and_create_line_plot(JSON.parse(data), "Body Temperature", "Date", "Celcius", "_bodytemp")
+            energy_data = JSON.parse(data)
+            format_line_plot(energy_data, "Energy Consumption", "Date", "Calories", "_energy")
+            create_line_plot(energy_data, "_energy")
         }
 
-         // fired when connection is established and session attached
-         connection.onopen = function (session, details) {
+        function handle_activity(data) {
+            activity_data = JSON.parse(data)
+            format_line_plot(activity_data, "Activity Statistics", "Date", "Activity")
+            create_line_plot(activity_data, "_activity")
+        }
+
+        function handle_sleep(data) {
+            sleep_data = JSON.parse(data)
+            format_line_plot(sleep_data, "Sleep Duration", "Date", "Hours")
+            create_line_plot(sleep_data, "_sleep")
+        }
+
+        function handle_bloodpressure(data) {
+            bloodpressure_data = JSON.parse(data)
+            format_tuple_bar_plot(bloodpressure_data, "Sleep Duration", "Systolic", "Diastolic", "Date", "mmHg")
+            create_tuple_bar_plot(bloodpressure_data, "_bloodpressure")
+        }
+
+        function handle_heartrate(data) {
+            heartrate_data = JSON.parse(data)
+            format_bar_plot(heartrate_data, "Average Heartrate", "Date", "BPM")
+            create_bar_plot(heartrate_data, "_heartrate")
+        }
+
+        function handle_bodytemp(data) {
+            bodytemp_data = JSON.parse(data)
+            format_line_plot(bodytemp_data, "Body Temperature", "Date", "Celcius")
+            create_line_plot(bodytemp_data, "_bodytemp")
+        }
+
+        function initGoogleMaps() {
+            console.log("Initializing Google Maps");
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 10,
+                center: {
+                    lat: 65.0066601,
+                    lng: 25.5235996
+                }
+            });
+            google.maps.event.trigger(map, 'resize');
+        }
+
+        function update_data(data, value) {
+            index = jQuery.inArray(value[1], data[value[0]][0].data[0].x)
+            if(index > -1) {
+                if(value[2] instanceof Array) { //this value is related to bloodpressure
+                    data[value[0]][0].data[0].y[index] = value[2][0]
+                    data[value[0]][0].data[1].y[index] = value[2][1]
+                }
+                else {
+                    data[value[0]][0].data[0].y[index] = value[2];  
+                }
+            }
+            else {
+                data[value[0]][0].data[0].x.push(value[1]);
+                if(value[2] instanceof Array) { //this value is related to bloodpressure
+                    data[value[0]][0].data[0].y.push(value[2][0]);
+                    data[value[0]][0].data[1].y.push(value[2][1]);
+                }
+                else {
+                    data[value[0]][0].data[0].y.push(value[2]);
+                }
+            }
+
+            return data
+        }
+
+        function updateGoogleMaps(data) {
+            thingsee_location = new google.maps.LatLng(data[0].lat, data[0].lon)
+            marker = new google.maps.Marker({
+                position: thingsee_location,
+                map: map
+            });
+
+            map.setCenter(thingsee_location)
+        }
+
+        function initialize_ecg_data(data) {
+            temp = [{
+                    data : [{
+                        mode : 'lines',
+                        name : '',
+                        line : {
+                            color: 'rgb(0, 176, 219)',
+                            width: 3
+                        },
+                        x : [],
+                        y : []
+                    }],
+
+                    layout : {
+                        title: "ECG Readout",
+                        xaxis: {
+                            title: '',
+                            showgrid: false,
+                            zeroline: false,
+                            showticklabels: false,                            
+                        },
+                        yaxis: {
+                            title: '',
+                            showline: false,
+                            showticklabels: false                            
+                        }
+                    }
+                }]
+            return temp                       
+        }
+        // fired when connection is established and session attached
+        connection.onopen = function(session, details) {
 
             console.log("Connected");
 
-            // GET initial data sets
-            // CALL remote procedures. Returns a promise.
+            // GET data about ThingseeOne location
+            session.call('com.testlab.haltian_location').then(
+                function(res) { //Success
+                    updateGoogleMaps(JSON.parse(res));
+                },
+                function(err) { //Failure
+                    console.log("Error while calling Halian Location service: ", err);
+                }
+            );
+
+            // GET initial data sets from Withings
             session.call('com.testlab.withings_energy', ["plotly"]).then(
-               function (res) { //Success
-                  handle_energy(res)
-               },
-               function (err) { //Failure
-                  console.log("Error while calling Energy API: ", err);
-               }
+                function(res) { //Success
+                    handle_energy(res)
+                },
+                function(err) { //Failure
+                    console.log("Error while calling Energy API: ", err);
+                }
             );
             session.call('com.testlab.withings_activity', ["plotly"]).then(
-               function (res) { //Success
-                  handle_activity(res)
-               },
-               function (err) { //Failure
-                  console.log("Error while calling Activity API: ", err);
-               }
+                function(res) { //Success
+                    handle_activity(res)
+                },
+                function(err) { //Failure
+                    console.log("Error while calling Activity API: ", err);
+                }
             );
             session.call('com.testlab.withings_sleep', ["plotly"]).then(
-               function (res) { //Success
-                  handle_sleep(res)
-               },
-               function (err) { //Failure
-                  console.log("Error while calling Sleep API: ", err);
-               }
+                function(res) { //Success
+                    handle_sleep(res)
+                },
+                function(err) { //Failure
+                    console.log("Error while calling Sleep API: ", err);
+                }
             );
             session.call('com.testlab.withings_bloodpressure', ["plotly"]).then(
-               function (res) { //Success
-                  handle_bloodpressure(res)
-               },
-               function (err) { //Failure
-                  console.log("Error while calling BP API: ", err);
-               }
-            );                                    
+                function(res) { //Success
+                    handle_bloodpressure(res)
+                },
+                function(err) { //Failure
+                    console.log("Error while calling BP API: ", err);
+                }
+            );
             session.call('com.testlab.withings_bodytemperature', ["plotly"]).then(
-               function (res) { //Success
-                  handle_bodytemp(res)
-               },
-               function (err) { //Failure
-                  console.log("Error while calling BodyTemp API: ", err);
-               }
+                function(res) { //Success
+                    handle_bodytemp(res)
+                },
+                function(err) { //Failure
+                    console.log("Error while calling BodyTemp API: ", err);
+                }
             );
             session.call('com.testlab.withings_average_heartrate', ["plotly"]).then(
-               function (res) { //Success
-                  handle_heartrate(res)
-               },
-               function (err) { //Failure
-                  console.log("Error while calling HR API: ", err);
-               }
+                function(res) { //Success
+                    handle_heartrate(res)
+                },
+                function(err) { //Failure
+                    console.log("Error while calling HR API: ", err);
+                }
             );
 
             // SUBSCRIPTION handler functions
-            function on_withings_energy_update (args) {
-               var counter = args[0];
-               console.log("on_withings_energy_update() event received: " + counter);
-            }
-            function on_withings_activity_update (args) {
-               var counter = args[0];
-               console.log("on_withings_activity_update() event received: " + counter);
-            }
-            function on_withings_sleep_update (args) {
-               var counter = args[0];
-               console.log("on_withings_sleep_update() event received: " + counter);
-            }
-            function on_withings_bodytemp_update (args) {
-               var counter = args[0];
-               console.log("on_withings_bodytemp_update() event received: " + counter);
-            }
-            function on_withings_heartrate_update (args) {
-               var counter = args[0];
-               console.log("on_withings_heartrate_update() event received: " + counter);
-            }
-            function on_withings_bloodpressure_update (args) {
-               var counter = args[0];
-               console.log("on_withings_bloodpressure_update() event received: " + counter);
+            function on_haltian_location_update(args) {
+                updateGoogleMaps(JSON.parse(res));
+                console.log("on_haltian_location_update() event received: " + value);
             }
 
-            // SUBSCRIBE to topics and receive events                                                                        
+            function on_withings_energy_update(args) {
+                var value = args[0];
+                energy_data = update_data(energy_data, value)                                    
+                create_line_plot(energy_data, "_energy")                                  
+                console.log("on_withings_energy_update() event received: " + value);
+            }
+
+            function on_withings_activity_update(args) {
+                var value = args[0];
+                activity_data = update_data(activity_data, value)                                    
+                create_line_plot(activity_data, "_activity")                                  
+                console.log("on_withings_activity_update() event received: " + value);
+            }
+
+            function on_withings_sleep_update(args) {
+                var value = args[0];
+                sleep_data = update_data(sleep_data, value)                                    
+                create_line_plot(sleep_data, "_sleep")                                
+                console.log("on_withings_sleep_update() event received: " + value);
+            }
+
+            function on_withings_bodytemp_update(args) {
+                var value = args[0];
+                bodytemp_data = update_data(bodytemp_data, value)                                    
+                create_line_plot(bodytemp_data, "_bodytemp")
+                console.log("on_withings_bodytemp_update() event received: " + value);
+            }
+
+            function on_withings_heartrate_update(args) {
+                var value = args[0];
+                heartrate_data = update_data(heartrate_data, value)                                    
+                create_bar_plot(heartrate_data, "_heartrate")                                  
+                console.log("on_withings_heartrate_update() event received: " + value);
+            }
+
+            function on_withings_bloodpressure_update(args) {
+                var value = args[0];
+                bloodpressure_data = update_data(bloodpressure_data, value)                                    
+                create_tuple_bar_plot(bloodpressure_data, "_bloodpressure")
+                console.log("on_withings_bloodpressure_update() event received: " + value);
+            }
+
+            function on_ecg_update(args) {
+                var value = JSON.parse(args[0]);
+                ecg_data[0].data[0].x.push(value[0])   
+                ecg_data[0].data[0].y.push(value[1])
+                //console.log(ecg_data[0].data[0].x)
+                create_ecg_plot(ecg_data, "ecg_curve")
+            }
+
+            // SUBSCRIBE to topics and receive events
+            session.subscribe('com.testlab.haltian_location_update', on_haltian_location_update).then(
+                function(sub) {
+                    console.log('subscribed to topic Haltian Location Updates');
+                },
+                function(err) {
+                    console.log('failed to subscribe to topic!', err);
+                }
+            );
             session.subscribe('com.testlab.withings_energy_update', on_withings_energy_update).then(
-               function (sub) {
-                  console.log('subscribed to topic Withings Energy Updates');
-               },
-               function (err) {
-                  console.log('failed to subscribe to topic!', err);
-               }
+                function(sub) {
+                    console.log('subscribed to topic Withings Energy Updates');
+                },
+                function(err) {
+                    console.log('failed to subscribe to topic!', err);
+                }
             );
             session.subscribe('com.testlab.withings_activity_update', on_withings_activity_update).then(
-               function (sub) {
-                  console.log('subscribed to topic Withings Activity Updates');
-               },
-               function (err) {
-                  console.log('failed to subscribe to topic!', err);
-               }
+                function(sub) {
+                    console.log('subscribed to topic Withings Activity Updates');
+                },
+                function(err) {
+                    console.log('failed to subscribe to topic!', err);
+                }
             );
             session.subscribe('com.testlab.withings_sleep_update', on_withings_sleep_update).then(
-               function (sub) {
-                  console.log('subscribed to topic Withings Sleep Updates');
-               },
-               function (err) {
-                  console.log('failed to subscribe to topic!', err);
-               }
+                function(sub) {
+                    console.log('subscribed to topic Withings Sleep Updates');
+                },
+                function(err) {
+                    console.log('failed to subscribe to topic!', err);
+                }
             );
             session.subscribe('com.testlab.withings_bodytemp_update', on_withings_bodytemp_update).then(
-               function (sub) {
-                  console.log('subscribed to topic Withings Bodytemp Updates');
-               },
-               function (err) {
-                  console.log('failed to subscribe to topic!', err);
-               }
+                function(sub) {
+                    console.log('subscribed to topic Withings Bodytemp Updates');
+                },
+                function(err) {
+                    console.log('failed to subscribe to topic!', err);
+                }
             );
             session.subscribe('com.testlab.withings_heartrate_update', on_withings_heartrate_update).then(
-               function (sub) {
-                  console.log('subscribed to topic Withings HR Updates');
-               },
-               function (err) {
-                  console.log('failed to subscribe to topic!', err);
-               }
+                function(sub) {
+                    console.log('subscribed to topic Withings HR Updates');
+                },
+                function(err) {
+                    console.log('failed to subscribe to topic!', err);
+                }
             );
-            session.subscribe('com.testlab.withings_bloodpressure_update', on_withings_energy_update).then(
-               function (sub) {
-                  console.log('subscribed to topic Withings BP Updates');
-               },
-               function (err) {
-                  console.log('failed to subscribe to topic!', err);
-               }
+            session.subscribe('com.testlab.withings_bloodpressure_update', on_withings_bloodpressure_update).then(
+                function(sub) {
+                    console.log('subscribed to topic Withings BP Updates');
+                },
+                function(err) {
+                    console.log('failed to subscribe to topic!', err);
+                }
             );
+            session.subscribe('com.testlab.ecg_update', on_ecg_update).then(
+                function(sub) {
+                    console.log('subscribed to topic ECG Updates');
+                    ecg_data = initialize_ecg_data()
+                },
+                function(err) {
+                    console.log('failed to subscribe to topic!', err);
+                }
+            );                            
+        };
 
-         };
-
-         // fired when connection was lost (or could not be established)
-         connection.onclose = function (reason, details) {
+        // fired when connection was lost (or could not be established)
+        connection.onclose = function(reason, details) {
             console.log("Connection lost: " + reason);
-         }
+            clearTimeout(haltianTimer)
+        }
 
-         // now actually open the connection
-         connection.open();
-      </script>
-   </body>
+        // now actually open the connection
+        connection.open();
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9mV0Epe5stYJC0_DR-HHlzbMwM4WComs&callback=initGoogleMaps">
+    </script>
+</body>
+
 </html>
