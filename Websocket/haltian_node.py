@@ -59,8 +59,14 @@ class AppSession(ApplicationSession):
         headers = {'Authorization': 'Basic aXNlZXNvbWV0aGluZ3M6ZG95YT8=', 'Content-Type': 'application/json'}
 
         while True:
-            #get location information
-            r = requests.post(url, data=None, headers=headers)
+            try:
+                #get location information
+                r = requests.post(url, data=None, headers=headers)
+            except requests.exceptions.ConnectionError:
+                self.log.error("Connection Error. Check connectivity and / or connection parameters and try again!")
+                yield sleep(300)
+                continue
+
             if r.status_code == 404:
                 self.log.error("404 Error. Check connectivity and / or connection parameters and try again!")
             else:
