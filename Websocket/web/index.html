@@ -44,6 +44,7 @@
         $(function() {
             $("#accordion").accordion({
                 collapsible: true,
+                heightStyle: "content",
                 activate: function(event, ui) {
                     google.maps.event.trigger(map, 'resize');
                 }
@@ -55,19 +56,21 @@
 <body>
     <h2>Ambulance Case sensor & location information</h2>
     <div id="accordion">
+        <h3 id='ecg'>Beta ECG Curve</h3>
+        <div id="ecg_curve" style="width: 100%; height: 400px; align: left;"></div>        
         <h3 id='withings_user1'>Test Patient 1</h3>
         <div>
             <table>
-                <td>
-                    <div id="12762571_energy" style="width: 512px; height: 384px; align: left;"></div>
-                </td>
-                <td>
-                    <div id="12762571_activity" style="width: 512px; height: 384px; align: left;"></div>
-                </td>
-                <td>
-                    <div id="12762571_sleep" style="width: 512px; height: 384px; align: left;"></div>
-                </td>
-                <td></td>
+                <tr>
+                    <td>
+                        <div id="12762571_energy" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762571_activity" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762571_sleep" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
                 </tr>
                 <tr>
                     <td>
@@ -79,7 +82,6 @@
                     <td>
                         <div id="12762571_heartrate" style="width: 512px; height: 384px; align: left;"></div>
                     </td>
-                    <td></td>
                 </tr>
             </table>
         </div>
@@ -87,16 +89,16 @@
         <h3 id='withings_user2'>Test Patient 2</h3>
         <div>
             <table>
-                <td>
-                    <div id="12762562_energy" style="width: 512px; height: 384px; align: left;"></div>
-                </td>
-                <td>
-                    <div id="12762562_activity" style="width: 512px; height: 384px; align: left;"></div>
-                </td>
-                <td>
-                    <div id="12762562_sleep" style="width: 512px; height: 384px; align: left;"></div>
-                </td>
-                <td></td>
+                <tr>
+                    <td>
+                        <div id="12762562_energy" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762562_activity" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762562_sleep" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
                 </tr>
                 <tr>
                     <td>
@@ -108,7 +110,6 @@
                     <td>
                         <div id="12762562_heartrate" style="width: 512px; height: 384px; align: left;"></div>
                     </td>
-                    <td></td>
                 </tr>
             </table>
         </div>
@@ -116,16 +117,16 @@
         <h3 id='withings_user3'>Test Patient 3</h3>
         <div>
             <table>
-                <td>
-                    <div id="12762926_energy" style="width: 512px; height: 384px; align: left;"></div>
-                </td>
-                <td>
-                    <div id="12762926_activity" style="width: 512px; height: 384px; align: left;"></div>
-                </td>
-                <td>
-                    <div id="12762926_sleep" style="width: 512px; height: 384px; align: left;"></div>
-                </td>
-                <td></td>
+                <tr>
+                    <td>
+                        <div id="12762926_energy" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762926_activity" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
+                    <td>
+                        <div id="12762926_sleep" style="width: 512px; height: 384px; align: left;"></div>
+                    </td>
                 </tr>
                 <tr>
                     <td>
@@ -137,16 +138,12 @@
                     <td>
                         <div id="12762926_heartrate" style="width: 512px; height: 384px; align: left;"></div>
                     </td>
-                    <td></td>
                 </tr>
             </table>
         </div>
 
         <h3 id='haltian'>Ambulance Location</h3>
-        <div id="map"></div>
-
-        <h3 id='ecg'>Beta ECG Curve</h3>
-        <div id="ecg_curve" style="width: 100%; height: 100%; align: left;"></div>
+        <div id="map" style="width: 100%; height: 512px;"></div>
     </div>
 
     <script>
@@ -184,9 +181,16 @@
                 Plotly.newPlot(name + target_div, data[name][0].data, data[name][0].layout);
             }
         }
+
         function create_ecg_plot(data, target_div) {
             Plotly.newPlot(target_div, data[0].data, data[0].layout);
         }                        
+
+        function update_ecg_plot(data, target_div) {
+            console.log("Updating")
+            console.log(data)
+            //Plotly.update(target_div, data[0].data, data[0].layout);
+        }
 
         function create_bar_plot(data, target_div) {
             for (name in data) {
@@ -200,6 +204,7 @@
             }
         }
 
+        //Utility functions used in formatting various of plots used in the web page
         function format_line_plot(data, title, xaxis_title, yaxis_title) {
             for (name in data) {
                 data[name][0].data[0].mode = 'lines'
@@ -251,16 +256,27 @@
 
         function format_tuple_bar_plot(data, title, a_title, b_title, xaxis_title, yaxis_title) {
             for (name in data) {
-                data[name][0].data[0].type = 'bar'
-                data[name][0].data[0].name = a_title
-                data[name][0].data[0].marker = {
-                    color: 'rgb(0, 176, 219)'
+
+                data[name][0].data[0] = {
+                    x: data[name][0].data[0].x,
+                    y: data[name][0].data[0].y,
+                    type: 'bar',
+                    name: a_title,
+                    marker: {
+                        color: 'rgb(0, 176, 219)'
+                    }
                 }
-                data[name][0].data[1].type = 'bar'
-                data[name][0].data[1].name = b_title
-                data[name][0].data[1].marker = {
-                    color: 'rgb(234, 14, 125)'
+
+                data[name][0].data[1] = {
+                    x: data[name][0].data[1].x,
+                    y: data[name][0].data[1].y,                    
+                    type: 'bar',
+                    name: b_title,
+                    marker: {
+                        color: 'rgb(234, 14, 125)'
+                    }
                 }
+
                 data[name][0].layout = {
                     title: title,
                     xaxis: {
@@ -278,39 +294,79 @@
             return data
         }
 
+        function format_ecg_data(data) {
+            temp = [{
+                    data : [{
+                        type :'scatter',
+                        mode : 'lines',
+                        name : '',
+                        line : {
+                            color: 'rgb(190,240,11)',
+                            width: 3
+                        },
+                        x : [],
+                        y : []
+                    }],
+
+                    layout : {
+                        title: "ECG Readout",
+                        height : '400',
+                        plot_bgcolor : 'black',
+                        xaxis: {
+                            title: 'Time',
+                            showgrid: true,
+                            gridcolor: '#bdbdbd',
+                            zeroline: false,
+                            showticklabels: false,
+                            showaxeslabels: false                            
+                        },
+                        yaxis: {
+                            title: 'mV',
+                            showgrid: true,
+                            gridcolor: '#bdbdbd',
+                            showticklabels: false,      
+                            showaxeslabels: false                                                  
+                        }
+                    }
+                }]
+            return temp                       
+        }
+
+        //Handler functions for handling new deltas received from the server
         function handle_energy(data) {
             energy_data = JSON.parse(data)
-            format_line_plot(energy_data, "Energy Consumption", "Date", "Calories", "_energy")
+            energy_data = format_line_plot(energy_data, "Energy Consumption", "Date", "Calories", "_energy")
             create_line_plot(energy_data, "_energy")
         }
 
         function handle_activity(data) {
             activity_data = JSON.parse(data)
-            format_line_plot(activity_data, "Activity Statistics", "Date", "Activity")
+            activity_data = format_line_plot(activity_data, "Activity Statistics", "Date", "Activity")
             create_line_plot(activity_data, "_activity")
         }
 
         function handle_sleep(data) {
             sleep_data = JSON.parse(data)
-            format_line_plot(sleep_data, "Sleep Duration", "Date", "Hours")
+            sleep_data = format_line_plot(sleep_data, "Sleep Duration", "Date", "Hours")
             create_line_plot(sleep_data, "_sleep")
         }
 
         function handle_bloodpressure(data) {
             bloodpressure_data = JSON.parse(data)
-            format_tuple_bar_plot(bloodpressure_data, "Sleep Duration", "Systolic", "Diastolic", "Date", "mmHg")
+            bloodpressure_data = format_tuple_bar_plot(bloodpressure_data, "Sleep Duration", "Systolic", "Diastolic", "Date", "mmHg")
+            console.log(bloodpressure_data)
             create_tuple_bar_plot(bloodpressure_data, "_bloodpressure")
         }
 
         function handle_heartrate(data) {
             heartrate_data = JSON.parse(data)
-            format_bar_plot(heartrate_data, "Average Heartrate", "Date", "BPM")
+            heartrate_data = format_bar_plot(heartrate_data, "Average Heartrate", "Date", "BPM")
             create_bar_plot(heartrate_data, "_heartrate")
         }
 
         function handle_bodytemp(data) {
             bodytemp_data = JSON.parse(data)
-            format_line_plot(bodytemp_data, "Body Temperature", "Date", "Celcius")
+            bodytemp_data = format_line_plot(bodytemp_data, "Body Temperature", "Date", "Celcius")
             create_line_plot(bodytemp_data, "_bodytemp")
         }
 
@@ -326,7 +382,18 @@
             google.maps.event.trigger(map, 'resize');
         }
 
-        function update_data(data, value) {
+        function updateGoogleMaps(data) {
+            thingsee_location = new google.maps.LatLng(data[0].lat, data[0].lon)
+            marker = new google.maps.Marker({
+                position: thingsee_location,
+                map: map
+            });
+
+            map.setCenter(thingsee_location)
+        }
+
+        //Utility function to update or add a new value to a existing data set
+        function update_axis_data(data, value) {
             index = jQuery.inArray(value[1], data[value[0]][0].data[0].x)
             if(index > -1) {
                 if(value[2] instanceof Array) { //this value is related to bloodpressure
@@ -351,50 +418,11 @@
             return data
         }
 
-        function updateGoogleMaps(data) {
-            thingsee_location = new google.maps.LatLng(data[0].lat, data[0].lon)
-            marker = new google.maps.Marker({
-                position: thingsee_location,
-                map: map
-            });
-
-            map.setCenter(thingsee_location)
-        }
-
-        function initialize_ecg_data(data) {
-            temp = [{
-                    data : [{
-                        mode : 'lines',
-                        name : '',
-                        line : {
-                            color: 'rgb(0, 176, 219)',
-                            width: 3
-                        },
-                        x : [],
-                        y : []
-                    }],
-
-                    layout : {
-                        title: "ECG Readout",
-                        xaxis: {
-                            title: '',
-                            showgrid: false,
-                            zeroline: false,
-                            showticklabels: false,                            
-                        },
-                        yaxis: {
-                            title: '',
-                            showline: false,
-                            showticklabels: false                            
-                        }
-                    }
-                }]
-            return temp                       
-        }
         // fired when connection is established and session attached
         connection.onopen = function(session, details) {
 
             console.log("Connected");
+            ecg_curve_initialized = false
 
             // GET data about ThingseeOne location
             session.call('com.testlab.haltian_location').then(
@@ -402,7 +430,7 @@
                     updateGoogleMaps(JSON.parse(res));
                 },
                 function(err) { //Failure
-                    console.log("Error while calling Halian Location service: ", err);
+                    console.log("Error while calling Haltian Location service: ", err);
                 }
             );
 
@@ -464,42 +492,42 @@
 
             function on_withings_energy_update(args) {
                 var value = args[0];
-                energy_data = update_data(energy_data, value)                                    
+                energy_data = update_axis_data(energy_data, value)                                    
                 create_line_plot(energy_data, "_energy")                                  
                 console.log("on_withings_energy_update() event received: " + value);
             }
 
             function on_withings_activity_update(args) {
                 var value = args[0];
-                activity_data = update_data(activity_data, value)                                    
+                activity_data = update_axis_data(activity_data, value)                                    
                 create_line_plot(activity_data, "_activity")                                  
                 console.log("on_withings_activity_update() event received: " + value);
             }
 
             function on_withings_sleep_update(args) {
                 var value = args[0];
-                sleep_data = update_data(sleep_data, value)                                    
+                sleep_data = update_axis_data(sleep_data, value)                                    
                 create_line_plot(sleep_data, "_sleep")                                
                 console.log("on_withings_sleep_update() event received: " + value);
             }
 
             function on_withings_bodytemp_update(args) {
                 var value = args[0];
-                bodytemp_data = update_data(bodytemp_data, value)                                    
+                bodytemp_data = update_axis_data(bodytemp_data, value)                                    
                 create_line_plot(bodytemp_data, "_bodytemp")
                 console.log("on_withings_bodytemp_update() event received: " + value);
             }
 
             function on_withings_heartrate_update(args) {
                 var value = args[0];
-                heartrate_data = update_data(heartrate_data, value)                                    
+                heartrate_data = update_axis_data(heartrate_data, value)                                    
                 create_bar_plot(heartrate_data, "_heartrate")                                  
                 console.log("on_withings_heartrate_update() event received: " + value);
             }
 
             function on_withings_bloodpressure_update(args) {
                 var value = args[0];
-                bloodpressure_data = update_data(bloodpressure_data, value)                                    
+                bloodpressure_data = update_axis_data(bloodpressure_data, value)                                    
                 create_tuple_bar_plot(bloodpressure_data, "_bloodpressure")
                 console.log("on_withings_bloodpressure_update() event received: " + value);
             }
@@ -508,10 +536,33 @@
                 var value = JSON.parse(args[0]);
                 ecg_data[0].data[0].x.push(value[0])   
                 ecg_data[0].data[0].y.push(value[1])
-                //console.log(ecg_data[0].data[0].x)
-                create_ecg_plot(ecg_data, "ecg_curve")
-            }
+                array_length = ecg_data[0].data[0].x.length
 
+                if(ecg_data[0].data[0].x.length > 500) {
+                    ecg_data[0].data[0].x.shift();
+                    ecg_data[0].data[0].y.shift();
+                }
+                               
+                ecg_data[0].layout.xaxis = {
+                            title: 'Time',
+                            showgrid: true,
+                            gridcolor: 'grey',
+                            zeroline: false,
+                            showticklabels: false,
+                            showaxeslabels: false,
+                            range: [value[0] - 400, value[0]]
+                        }
+                ecg_data[0].layout.yaxis = {
+                            title: 'mV',
+                            showgrid: true,
+                            gridcolor: 'grey',
+                            zeroline: false,
+                            showticklabels: false,
+                            showaxeslabels: false,
+                            range: [1350, 3200]                      
+                        }
+                Plotly.update("ecg_curve", ecg_data[0].data, ecg_data[0].layout);
+            }
             // SUBSCRIBE to topics and receive events
             session.subscribe('com.testlab.haltian_location_update', on_haltian_location_update).then(
                 function(sub) {
@@ -572,7 +623,8 @@
             session.subscribe('com.testlab.ecg_update', on_ecg_update).then(
                 function(sub) {
                     console.log('subscribed to topic ECG Updates');
-                    ecg_data = initialize_ecg_data()
+                    ecg_data = format_ecg_data()
+                    create_ecg_plot(ecg_data, "ecg_curve")                                         
                 },
                 function(err) {
                     console.log('failed to subscribe to topic!', err);
@@ -584,6 +636,7 @@
         connection.onclose = function(reason, details) {
             console.log("Connection lost: " + reason);
             clearTimeout(haltianTimer)
+            ecg_data = []
         }
 
         // now actually open the connection
