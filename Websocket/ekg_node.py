@@ -60,4 +60,4 @@ class AppSession(ApplicationSession):
             while True:
                 counter += 1
                 yield self.publish('com.testlab.ecg_update', json.dumps([counter, int(next(value))]))                
-                yield sleep(0.25)
+                yield sleep(0.05)
