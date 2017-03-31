@@ -38,6 +38,8 @@ from autobahn.wamp.exception import ApplicationError
 
 from dateutil.parser import parse
 from withings import WithingsCredentials, WithingsApi
+from requests import ConnectionError
+
 import datetime
 import json
 
@@ -105,7 +107,7 @@ def get_measurement_data(user_id, client):
                     temp_bloodpressure[date].append(value)
                 elif(result["type"] == 9): #Diastolic BP                        
                     temp_bloodpressure[date].append(value)     
-                    if len([item for item in bloodpressure if item[0] == date]) == 0:                    
+                    if len([item for item in bloodpressure if item[0] == date]) == 0:
                         bloodpressure.append([date, temp_bloodpressure[date]])
 
     return heartrate, bloodpressure, bodytemp
@@ -125,6 +127,10 @@ def get_list_index(list, index, value):
     raise ValueError("list.index(x): x not in list")
 
 def format_data_to_plotly(data, key):
+    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d'))
+    return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1] for T in t ] } ] } ]
+
+def format_measurement_data_to_plotly(data, key):
     t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d'))
     return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1] for T in t ] } ] } ]
 
@@ -219,7 +225,7 @@ class AppSession(ApplicationSession):
             self.log.info("withings_bodytemperature() called. Delivering payload")
             if data_format in "plotly": #send plotly compatible data   
                 for x in bodytemperature_data:
-                    data[x] = format_data_to_plotly(bodytemperature_data, x)
+                    data[x] = format_measurement_data_to_plotly(bodytemperature_data, x)
                 return json.dumps(data)
             else:
                 return json.dumps(bodytemperature_data)
@@ -233,7 +239,7 @@ class AppSession(ApplicationSession):
             self.log.info("withings_average_heartrate() called. Delivering payload")
             if data_format in "plotly": #send plotly compatible data   
                 for x in heartrate_data:
-                    data[x] = format_data_to_plotly(heartrate_data, x)
+                    data[x] = format_measurement_data_to_plotly(heartrate_data, x)
                 return json.dumps(data)
             else:
                 return json.dumps(heartrate_data)
@@ -282,8 +288,9 @@ class AppSession(ApplicationSession):
                     temp_activity = client.get_activity(date=today)
                     temp_sleep = client.get_sleepsummary(startdateymd=today - datetime.timedelta(days=1), enddateymd=today)
                     for m in meastype: measures.append(client.get_measures(limit=1, meastype=m))
-                except ApplicationError:
-                    yield sleep(30)
+                except ConnectionError:
+                    self.log.error("Connection Error. Check connectivity and / or connection parameters and try again!")
+                    yield sleep(60)
                     continue
 
                 #parse for updates in activity and energy and publish data
