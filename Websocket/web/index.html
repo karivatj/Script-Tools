@@ -38,6 +38,7 @@
     <link rel="stylesheet" href="stylesheet.css">
     <script src="./dist/autobahn.min.js"></script>
     <script src="./dist/plotly-latest.min.js"></script>
+    <script src="./dist/smoothie.js"></script>
     <script src="./dist/jquery-1.12.4.js"></script>
     <script src="./dist/jquery-ui.js"></script>
     <script>
@@ -50,6 +51,11 @@
                 }
             });
         });
+        $( window ).resize(function() {
+            var y = $(window).width();
+            $('#ecg_canvas').attr('width', y-100 ); //Adjust ECG curve width
+        });
+    var test = 600;
     </script>
 </head>
 
@@ -57,90 +63,44 @@
     <h2>Ambulance Case sensor & location information</h2>
     <div id="accordion">
         <h3 id='ecg'>Beta ECG Curve</h3>
-        <div id="ecg_curve" style="width: 100%; height: 400px; align: left;"></div>        
+        <canvas id="ecg_canvas" width=$(window).width() height="250"></canvas>
         <h3 id='withings_user1'>Test Patient 1</h3>
-        <div>
-            <table>
-                <tr>
-                    <td>
-                        <div id="12762571_energy" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762571_activity" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762571_sleep" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div id="12762571_bloodpressure" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762571_bodytemp" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762571_heartrate" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                </tr>
-            </table>
-        </div>
+        <table>
+            <colgroup>
+               <col span="1" style="width: 33%;">
+               <col span="1" style="width: 33%;">
+               <col span="1" style="width: 33%;">
+            </colgroup>            
+            <tr>
+                <td><div id="12762571_energy"></div></td>
+                <td><div id="12762571_activity"></div></td>
+                <td><div id="12762571_sleep"></div></td>
+            </tr>
+            <tr>
+                <td><div id="12762571_bloodpressure"></div></td>
+                <td><div id="12762571_bodytemp"></div></td>
+                <td><div id="12762571_heartrate"></div></td>
+            </tr>
+        </table>
 
         <h3 id='withings_user2'>Test Patient 2</h3>
-        <div>
-            <table>
-                <tr>
-                    <td>
-                        <div id="12762562_energy" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762562_activity" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762562_sleep" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div id="12762562_bloodpressure" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762562_bodytemp" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762562_heartrate" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <h3 id='withings_user3'>Test Patient 3</h3>
-        <div>
-            <table>
-                <tr>
-                    <td>
-                        <div id="12762926_energy" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762926_activity" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762926_sleep" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div id="12762926_bloodpressure" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762926_bodytemp" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                    <td>
-                        <div id="12762926_heartrate" style="width: 512px; height: 384px; align: left;"></div>
-                    </td>
-                </tr>
-            </table>
-        </div>
+        <table>
+            <colgroup>
+               <col span="1" style="width: 33%;">
+               <col span="1" style="width: 33%;">
+               <col span="1" style="width: 33%;">
+            </colgroup>                
+            <tr>
+                <td><div id="12762926_energy"></div></td>
+                <td><div id="12762926_activity"></div></td>
+                <td><div id="12762926_sleep"></div></td>
+            </tr>
+            <tr>
+                <td><div id="12762926_bloodpressure"></div></td>
+                <td><div id="12762926_bodytemp"></div></td>
+                <td><div id="12762926_heartrate"></div></td>
+            </tr>
+        </table>
 
         <h3 id='haltian'>Ambulance Location</h3>
         <div id="map" style="width: 100%; height: 512px;"></div>
@@ -148,6 +108,8 @@
 
     <script>
         // data structures holding the data
+        var ecg_streaming_chart = new SmoothieChart();
+        var ecg_line_series = new TimeSeries();
         var energy_data = [];
         var activity_data = [];
         var sleep_data = [];
@@ -166,7 +128,7 @@
         map = null
 
         if (document.location.origin == "file://") {
-            wsuri = "ws://127.0.0.1:8080/ws";
+            wsuri = "ws://localhost:8080/ws";
         } else {
             wsuri = (document.location.protocol === "http:" ? "ws:" : "wss:") + "//" + document.location.host + "/ws";
         }
@@ -178,29 +140,25 @@
 
         function create_line_plot(data, target_div) {
             for (name in data) {
-                Plotly.newPlot(name + target_div, data[name][0].data, data[name][0].layout);
+                if(document.getElementById(name + target_div) != null) {
+                    Plotly.newPlot(name + target_div, data[name][0].data, data[name][0].layout);
+                }
             }
-        }
-
-        function create_ecg_plot(data, target_div) {
-            Plotly.newPlot(target_div, data[0].data, data[0].layout);
-        }                        
-
-        function update_ecg_plot(data, target_div) {
-            console.log("Updating")
-            console.log(data)
-            //Plotly.update(target_div, data[0].data, data[0].layout);
-        }
+        }                     
 
         function create_bar_plot(data, target_div) {
             for (name in data) {
-                Plotly.newPlot(name + target_div, data[name][0].data, data[name][0].layout);
+                if(document.getElementById(name + target_div) != null) {
+                    Plotly.newPlot(name + target_div, data[name][0].data, data[name][0].layout);
+                }
             }
         }
 
         function create_tuple_bar_plot(data, target_div) {
             for (name in data) {
-                Plotly.newPlot(name + "_bloodpressure", data[name][0].data, data[name][0].layout);
+                if(document.getElementById(name + target_div) != null) {
+                    Plotly.newPlot(name + "_bloodpressure", data[name][0].data, data[name][0].layout);
+                }
             }
         }
 
@@ -294,44 +252,6 @@
             return data
         }
 
-        function format_ecg_data(data) {
-            temp = [{
-                    data : [{
-                        type :'scatter',
-                        mode : 'lines',
-                        name : '',
-                        line : {
-                            color: 'rgb(190,240,11)',
-                            width: 3
-                        },
-                        x : [],
-                        y : []
-                    }],
-
-                    layout : {
-                        title: "ECG Readout",
-                        height : '400',
-                        plot_bgcolor : 'black',
-                        xaxis: {
-                            title: 'Time',
-                            showgrid: true,
-                            gridcolor: '#bdbdbd',
-                            zeroline: false,
-                            showticklabels: false,
-                            showaxeslabels: false                            
-                        },
-                        yaxis: {
-                            title: 'mV',
-                            showgrid: true,
-                            gridcolor: '#bdbdbd',
-                            showticklabels: false,      
-                            showaxeslabels: false                                                  
-                        }
-                    }
-                }]
-            return temp                       
-        }
-
         //Handler functions for handling new deltas received from the server
         function handle_energy(data) {
             energy_data = JSON.parse(data)
@@ -354,7 +274,6 @@
         function handle_bloodpressure(data) {
             bloodpressure_data = JSON.parse(data)
             bloodpressure_data = format_tuple_bar_plot(bloodpressure_data, "Sleep Duration", "Systolic", "Diastolic", "Date", "mmHg")
-            console.log(bloodpressure_data)
             create_tuple_bar_plot(bloodpressure_data, "_bloodpressure")
         }
 
@@ -401,7 +320,8 @@
                     data[value[0]][0].data[1].y[index] = value[2][1]
                 }
                 else {
-                    data[value[0]][0].data[0].y[index] = value[2];  
+                    data[value[0]][0].data[0].y[index] = value[2][0]
+                    data[value[0]][0].data[1].y[index] = value[2][1]                    
                 }
             }
             else {
@@ -411,8 +331,8 @@
                     data[value[0]][0].data[1].y.push(value[2][1]);
                 }
                 else {
-                    data[value[0]][0].data[0].y.push(value[2]);
-                }
+                    data[value[0]][0].data[0].y[index] = value[2][0]
+                    data[value[0]][0].data[1].y[index] = value[2][1]                }
             }
 
             return data
@@ -486,8 +406,9 @@
 
             // SUBSCRIPTION handler functions
             function on_haltian_location_update(args) {
-                updateGoogleMaps(JSON.parse(res));
-                console.log("on_haltian_location_update() event received: " + value);
+                var value = args[0];                
+                console.log("on_haltian_location_update() event received")
+                updateGoogleMaps(JSON.parse(value));
             }
 
             function on_withings_energy_update(args) {
@@ -534,35 +455,9 @@
 
             function on_ecg_update(args) {
                 var value = JSON.parse(args[0]);
-                ecg_data[0].data[0].x.push(value[0])   
-                ecg_data[0].data[0].y.push(value[1])
-                array_length = ecg_data[0].data[0].x.length
-
-                if(ecg_data[0].data[0].x.length > 500) {
-                    ecg_data[0].data[0].x.shift();
-                    ecg_data[0].data[0].y.shift();
-                }
-                               
-                ecg_data[0].layout.xaxis = {
-                            title: 'Time',
-                            showgrid: true,
-                            gridcolor: 'grey',
-                            zeroline: false,
-                            showticklabels: false,
-                            showaxeslabels: false,
-                            range: [value[0] - 400, value[0]]
-                        }
-                ecg_data[0].layout.yaxis = {
-                            title: 'mV',
-                            showgrid: true,
-                            gridcolor: 'grey',
-                            zeroline: false,
-                            showticklabels: false,
-                            showaxeslabels: false,
-                            range: [1350, 3200]                      
-                        }
-                Plotly.update("ecg_curve", ecg_data[0].data, ecg_data[0].layout);
+                ecg_line_series.append(new Date().getTime(), value[1])
             }
+
             // SUBSCRIBE to topics and receive events
             session.subscribe('com.testlab.haltian_location_update', on_haltian_location_update).then(
                 function(sub) {
@@ -620,23 +515,31 @@
                     console.log('failed to subscribe to topic!', err);
                 }
             );
+            
             session.subscribe('com.testlab.ecg_update', on_ecg_update).then(
                 function(sub) {
                     console.log('subscribed to topic ECG Updates');
-                    ecg_data = format_ecg_data()
-                    create_ecg_plot(ecg_data, "ecg_curve")                                         
+
+                    canvas = document.getElementById("ecg_canvas")
+                    canvas.width = $(window).width() - 100;
+                    canvas.height = 250       
+
+                    ecg_line_series = new TimeSeries();
+                    ecg_streaming_chart = new SmoothieChart({strokeStyle: 'rgb(144, 238, 144)', fillStyle: 'rgb(0, 0, 0)', millisPerPixel:3,maxValueScale:0.97,grid:{sharpLines:true},timestampFormatter:SmoothieChart.timeFormatter,maxValue:3300,minValue: 1200})
+                    ecg_streaming_chart.addTimeSeries(ecg_line_series, { strokeStyle: 'rgb(0, 255, 0)', lineWidth: 3 });
+                    ecg_streaming_chart.streamTo(canvas);
                 },
                 function(err) {
-                    console.log('failed to subscribe to topic!', err);
+                    console.log('*/failed to subscribe to topic!', err);
                 }
-            );                            
+            );                                   
         };
 
         // fired when connection was lost (or could not be established)
         connection.onclose = function(reason, details) {
             console.log("Connection lost: " + reason);
             clearTimeout(haltianTimer)
-            ecg_data = []
+            ecg_data = null
         }
 
         // now actually open the connection
