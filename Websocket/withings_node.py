@@ -54,7 +54,7 @@ heartrate_data       = {}
 bloodpressure_data   = {}
 bodytemperature_data = {}
 
-timedelta = datetime.date.today() - datetime.timedelta(days=30)
+timedelta = datetime.date.today() - datetime.timedelta(days=60)
 
 meastype = [10, 9, 11, 71] #weight (1), systolic / diastolic blood pressure (10 & 9), average pulse (11), body temperature (71)                  
 user_ids = [0, 12762562, 12762571, 12762926]
@@ -72,14 +72,13 @@ def get_energy_and_activity(user_id, client):
 
 def get_sleep(user_id, client):
     sleep_summary = client.get_sleepsummary(startdateymd=timedelta, enddateymd=datetime.date.today()) #get sleep summary statistics    
-    last_measurement = datetime.date.fromtimestamp(0)
-    this_measurement = None
     sleep = []
+    last_measurement = datetime.datetime.fromtimestamp(0)
+    this_measurement = None
     for record in sleep_summary['series']:
-        date = parse(record['date'])
-        this_measurement = date.date()
+        this_measurement = parse(record['date'])
         if last_measurement < this_measurement:
-            sleep.append([date.strftime('%Y-%m-%d'), (record['data']['deepsleepduration'] + record['data']['lightsleepduration']) / 60 / 60])
+            sleep.append([this_measurement.strftime('%Y-%m-%d'), (record['data']['deepsleepduration'] + record['data']['lightsleepduration']) / 60 / 60])
         last_measurement = this_measurement    
     return sleep
 
