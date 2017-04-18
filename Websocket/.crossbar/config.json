@@ -32,6 +32,21 @@
             ],
             "transports": [
                 {
+                    "id": "mqtt_1",
+                    "type": "mqtt",
+                    "endpoint": {
+                        "type": "tcp",
+                        "port": 1883
+                    },
+                    "options": {
+                        "realm": "mqtt_realm",
+                        "role": "mqtt_client"
+                    }
+                }
+            ],
+
+            "transports": [
+                {
                     "type": "web",
                     "endpoint": {
                         "type": "tcp",
@@ -65,10 +80,10 @@
                         "type": "websocket",
                         "endpoint": {
                             "type": "tcp",
-                            "host": "127.0.0.1",
+                            "host": "localhost",
                             "port": 8080
                         },
-                        "url": "ws://127.0.0.1:8080/ws"
+                        "url": "ws://localhost:8080/ws"
                     }
                 },
                 {
@@ -79,10 +94,10 @@
                         "type": "websocket",
                         "endpoint": {
                             "type": "tcp",
-                            "host": "127.0.0.1",
+                            "host": "localhost",
                             "port": 8080
                         },
-                        "url": "ws://127.0.0.1:8080/ws"
+                        "url": "ws://localhost:8080/ws"
                     }                    
                 },
                 {
@@ -93,10 +108,10 @@
                         "type": "websocket",
                         "endpoint": {
                             "type": "tcp",
-                            "host": "127.0.0.1",
+                            "host": "localhost",
                             "port": 8080
                         },
-                        "url": "ws://127.0.0.1:8080/ws"
+                        "url": "ws://localhost:8080/ws"
                     }                    
                 }                
             ]
