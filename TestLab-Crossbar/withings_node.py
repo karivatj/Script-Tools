@@ -37,7 +37,8 @@ from autobahn.twisted.wamp import ApplicationSession
 from autobahn.wamp.exception import ApplicationError
 
 from dateutil.parser import parse
-from withings import WithingsCredentials, WithingsApi
+from withings_api import WithingsCredentials, WithingsApi
+from data_formatter import *
 from requests import ConnectionError
 
 import datetime
@@ -125,18 +126,6 @@ def get_list_index(list, index, value):
     # Matches behavior of list.index
     raise ValueError("list.index(x): x not in list")
 
-def format_data_to_plotly(data, key):
-    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d'))
-    return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1] for T in t ] } ] } ]
-
-def format_measurement_data_to_plotly(data, key):
-    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d'))
-    return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1] for T in t ] } ] } ]
-
-def format_bloodpressure_data_to_plotly(data, key):
-    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d'))    
-    return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1][0] for T in t ] }, { 'x': [ T[0] for T in t ], 'y': [ T[1][1] for T in t ] }] } ]
-
 class AppSession(ApplicationSession):
 
     log = Logger()
@@ -168,7 +157,7 @@ class AppSession(ApplicationSession):
             self.log.info("withings_energy() called. Delivering payload")
             if data_format in "plotly": #send plotly compatible data   
                 for x in energy_data:
-                    data[x] = format_data_to_plotly(energy_data, x)
+                    data[x] = format_measurement_data_to_plotly(energy_data, x)
                 return json.dumps(data)
             else:
                 return json.dumps(energy_data) 
@@ -182,7 +171,7 @@ class AppSession(ApplicationSession):
             self.log.info("withings_activity() called. Delivering payload")
             if data_format in "plotly": #send plotly compatible data   
                 for x in activity_data:
-                    data[x] = format_data_to_plotly(activity_data, x)
+                    data[x] = format_measurement_data_to_plotly(activity_data, x)
                 return json.dumps(data)
             else:
                 return json.dumps(activity_data) 
@@ -196,7 +185,7 @@ class AppSession(ApplicationSession):
             self.log.info("withings_sleep() called. Delivering payload")
             if data_format in "plotly": #send plotly compatible data   
                 for x in sleep_data:
-                    data[x] = format_data_to_plotly(sleep_data, x)
+                    data[x] = format_measurement_data_to_plotly(sleep_data, x)
                 return json.dumps(data)
             else:
                 return json.dumps(sleep_data)
@@ -298,23 +287,25 @@ class AppSession(ApplicationSession):
                         date = parse(record['date']).strftime('%Y-%m-%d')
                         steps = record['steps']
                         calories = record['calories'] + record['totalcalories']
-                        if date in activity_data[user_id]: #check if this key exists in our maintained dataset
-                            if activity_data[user_id][get_list_index(activity_data[user_id], 0, date)][1] != steps:
-                                self.log.info("publishing to 'Withings Activity Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=activity_data[user_id][date], result=steps)                                                                                                                    
+                        try:
+                            position = get_list_index(activity_data[user_id], 0, date) #raises ValueError if date is not found
+                            if activity_data[user_id][position][1] != steps:
+                                self.log.info("publishing to 'Withings Activity Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=activity_data[user_id][position][1], result=steps)                                                                                                                    
                                 activity_data[user_id] = update_list_entry(activity_data[user_id], date, steps)
                                 yield self.publish('com.testlab.withings_activity_update', [user_id, date, steps])
-                        else:
-                            activity_data[user_id][get_list_index(activity_data[user_id], 0, date)][1] = steps
+                        except ValueError:
+                            activity_data[user_id].append([date, steps])
                             yield self.publish('com.testlab.withings_activity_update', [user_id, date, steps])
                             self.log.info("publishing to 'Withings Activity Update' with {userid} {date} {result}", userid=user_id, date=date, result=steps)                        
 
-                        if date in energy_data[user_id]: #check if this key exists in our maintained datase[user_id]t
-                            if energy_data[user_id][get_list_index(activity_data[user_id], 0, date)][1] != calories:
-                                self.log.info("publishing to 'Withings Energy Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=energy_data[user_id][date], result=calories)                                                                                                                    
+                        try:    
+                            position = get_list_index(energy_data[user_id], 0, date) #raises ValueError if date is not found
+                            if energy_data[user_id][position][1] != calories:
+                                self.log.info("publishing to 'Withings Energy Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=energy_data[user_id][position][1], result=calories)                                                                                                                    
                                 energy_data[user_id][get_list_index(activity_data[user_id], 0, date)][1] = calories
                                 yield self.publish('com.testlab.withings_energy_update', [user_id, date, calories])
-                        else:
-                            energy_data[user_id][get_list_index(activity_data[user_id], 0, date)][1] = calories
+                        except ValueError:
+                            energy_data[user_id].append([date, calories])
                             yield self.publish('com.testlab.withings_energy_update', [user_id, date, calories])
                             self.log.info("publishing to 'Withings Energy Update' with {userid} {date} {result}", userid=user_id, date=date, result=calories)
                 except KeyError:
@@ -325,13 +316,14 @@ class AppSession(ApplicationSession):
                     for record in temp_sleep['series']:
                         date = parse(record['date']).strftime('%Y-%m-%d')
                         duration = (record['data']['deepsleepduration'] + record['data']['lightsleepduration']) / 60 / 60
-                        if date in sleep_data[user_id]:
-                            if sleep_data[user_id][get_list_index(sleep_data[user_id], 0, date)][1] != duration: #and the value is different than current
-                                self.log.info("publishing to 'Withings Sleep Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=sleep_data[user_id][get_list_index(sleep_data[user_id], 0, date)][1], result=duration)                                                                                    
-                                sleep_data[user_id][get_list_index(sleep_data[user_id], 0, date)][1] = duration #update the field and publish
+                        try:    
+                            position = get_list_index(sleep_data[user_id], 0, date) #raises ValueError if date is not found
+                            if sleep_data[user_id][position][1] != duration: #and the value is different than current
+                                self.log.info("publishing to 'Withings Sleep Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=sleep_data[user_id][position][1], result=duration)                                                                                    
+                                sleep_data[user_id][position][1] = duration #update the field and publish
                                 yield self.publish('com.testlab.withings_sleep_update', [user_id, date, duration])
-                        else:
-                            sleep_data[user_id][get_list_index(sleep_data[user_id], 0, date)][1] = duration
+                        except ValueError:
+                            sleep_data[user_id].append([date, duration])
                             yield self.publish('com.testlab.withings_sleep_update', [user_id, date, duration])
                             self.log.info("publishing to 'Withings Sleep Update' with {userid} {date} {result}", userid=user_id, date=date, result=duration)     
                 except KeyError:
