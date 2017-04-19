@@ -48,6 +48,7 @@
                 heightStyle: "content",
                 activate: function(event, ui) {
                     google.maps.event.trigger(map, 'resize');
+                    centerGoogleMaps(thingsee_location);
                 }
             });
         });
@@ -55,15 +56,14 @@
             var y = $(window).width();
             $('#ecg_canvas').attr('width', y-100 ); //Adjust ECG curve width
         });
-    var test = 600;
     </script>
 </head>
 
 <body>
     <h2>Ambulance Case sensor & location information</h2>
     <div id="accordion">
-        <h3 id='ecg'>Beta ECG Curve</h3>
-        <canvas id="ecg_canvas" width=$(window).width() height="250"></canvas>
+        <h3 id='ecg'>Real-time ECG Curve</h3>
+        <canvas id="ecg_canvas"></canvas>
         <h3 id='withings_user1'>Test Patient 1</h3>
         <table>
             <colgroup>
@@ -110,6 +110,7 @@
         // data structures holding the data
         var ecg_streaming_chart = new SmoothieChart();
         var ecg_line_series = new TimeSeries();
+
         var energy_data = [];
         var activity_data = [];
         var sleep_data = [];
@@ -122,10 +123,11 @@
         var wsuri;
 
         // timers used
-        haltianTimer = 0
+        var haltianTimer = 0
+        var thingsee_location = null
 
         // Google Maps object
-        map = null
+        var map = null
 
         if (document.location.origin == "file://") {
             wsuri = "ws://localhost:8080/ws";
@@ -291,13 +293,15 @@
 
         function initGoogleMaps() {
             console.log("Initializing Google Maps");
+            thingsee_location = new google.maps.LatLng(65.0066601, 25.5235996)
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 10,
                 center: {
-                    lat: 65.0066601,
-                    lng: 25.5235996
+                    lat: thingsee_location.lat(),
+                    lng: thingsee_location.lng()
                 }
             });
+
             google.maps.event.trigger(map, 'resize');
         }
 
@@ -308,7 +312,11 @@
                 map: map
             });
 
-            map.setCenter(thingsee_location)
+            centerGoogleMaps(thingsee_location)
+        }
+
+        function centerGoogleMaps(location) {
+            map.setCenter(location)
         }
 
         //Utility function to update or add a new value to a existing data set
@@ -524,13 +532,12 @@
                     canvas.width = $(window).width() - 100;
                     canvas.height = 250       
 
-                    ecg_line_series = new TimeSeries();
                     ecg_streaming_chart = new SmoothieChart({strokeStyle: 'rgb(144, 238, 144)', fillStyle: 'rgb(0, 0, 0)', millisPerPixel:3,maxValueScale:0.97,grid:{sharpLines:true},timestampFormatter:SmoothieChart.timeFormatter,maxValue:3300,minValue: 1200})
                     ecg_streaming_chart.addTimeSeries(ecg_line_series, { strokeStyle: 'rgb(0, 255, 0)', lineWidth: 3 });
                     ecg_streaming_chart.streamTo(canvas);
                 },
                 function(err) {
-                    console.log('*/failed to subscribe to topic!', err);
+                    console.log('failed to subscribe to topic!', err);
                 }
             );                                   
         };
