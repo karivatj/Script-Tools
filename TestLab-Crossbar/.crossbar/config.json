@@ -5,7 +5,7 @@
             "type": "router",
             "realms": [
                 {
-                    "name": "realm1",
+                    "name": "realm2",
                     "roles": [
                         {
                             "name": "anonymous",
@@ -42,10 +42,8 @@
                         "realm": "mqtt_realm",
                         "role": "mqtt_client"
                     }
-                }
-            ],
+                },
 
-            "transports": [
                 {
                     "type": "web",
                     "endpoint": {
@@ -59,8 +57,13 @@
                         },
                         "ws": {
                             "type": "websocket"
-                        }
-                    }
+                        },
+                        "call": {
+                            "type": "caller",
+                            "realm": "realm2",
+                            "role": "anonymous"
+                        } 
+                    }                 
                 }
             ]
         },
@@ -75,43 +78,57 @@
                 {
                     "type": "class",
                     "classname": "withings_node.AppSession",
-                    "realm": "realm1",
+                    "realm": "realm2",
+                    "extra": {
+                        "subscriptions": [
+                            {
+                                "url": "http://web.testlab.local:9980",
+                                "topic": "com.testlab.withings_bloodpressure_update"
+                            },
+                            {
+                                "url": "http://web.testlab.local:9980",
+                                "topic": "com.testlab.withings_bodytemp_update"
+                            }                            
+                        ],
+                        "method": "POST",
+                        "expectedcode": 200
+                    },
                     "transport": {
                         "type": "websocket",
                         "endpoint": {
                             "type": "tcp",
-                            "host": "localhost",
+                            "host": "web.testlab.local",
                             "port": 8080
                         },
-                        "url": "ws://localhost:8080/ws"
+                        "url": "ws://web.testlab.local:8080/ws"
                     }
                 },
                 {
                     "type": "class",
                     "classname": "haltian_node.AppSession",
-                    "realm": "realm1",
+                    "realm": "realm2",
                     "transport": {
                         "type": "websocket",
                         "endpoint": {
                             "type": "tcp",
-                            "host": "localhost",
+                            "host": "web.testlab.local",
                             "port": 8080
                         },
-                        "url": "ws://localhost:8080/ws"
+                        "url": "ws://web.testlab.local:8080/ws"
                     }                    
                 },
                 {
                     "type": "class",
                     "classname": "ekg_node.AppSession",
-                    "realm": "realm1",
+                    "realm": "realm2",
                     "transport": {
                         "type": "websocket",
                         "endpoint": {
                             "type": "tcp",
-                            "host": "localhost",
+                            "host": "web.testlab.local",
                             "port": 8080
                         },
-                        "url": "ws://localhost:8080/ws"
+                        "url": "ws://web.testlab.local:8080/ws"
                     }                    
                 }                
             ]
