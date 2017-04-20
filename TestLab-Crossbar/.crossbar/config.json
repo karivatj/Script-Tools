@@ -62,8 +62,17 @@
                             "type": "caller",
                             "realm": "realm2",
                             "role": "anonymous"
-                        } 
-                    }                 
+                        },
+
+                        "publish": {
+                            "type": "publisher",
+                            "realm": "realm2",
+                            "role": "anonymous",
+                            "options": {
+                                "debug": true
+                            }
+                        }                        
+                    }
                 }
             ]
         },
@@ -82,16 +91,13 @@
                     "extra": {
                         "subscriptions": [
                             {
-                                "url": "http://web.testlab.local:9980",
-                                "topic": "com.testlab.withings_bloodpressure_update"
-                            },
-                            {
-                                "url": "http://web.testlab.local:9980",
-                                "topic": "com.testlab.withings_bodytemp_update"
-                            }                            
+                                "url": "http://httpbin.org/post",
+                                "topic": "com.testlab.withings_healthconnect_bodytemp_update"
+                            }
                         ],
                         "method": "POST",
-                        "expectedcode": 200
+                        "expectedcode": 200,
+                        "debug": true
                     },
                     "transport": {
                         "type": "websocket",
@@ -115,7 +121,7 @@
                             "port": 8080
                         },
                         "url": "ws://web.testlab.local:8080/ws"
-                    }                    
+                    }
                 },
                 {
                     "type": "class",
@@ -129,8 +135,8 @@
                             "port": 8080
                         },
                         "url": "ws://web.testlab.local:8080/ws"
-                    }                    
-                }                
+                    }
+                }
             ]
         }
     ]
