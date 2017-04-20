@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 ###############################################################################
 #
 # Copyright (c) Crossbar.io Technologies GmbH and/or collaborators. All rights reserved.
@@ -31,18 +34,22 @@ from __future__ import unicode_literals
 
 import datetime
 
-def format_measurement_data_to_plotly(data, key):
+def format_data_to_plotly(data, key):
     t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d'))
     return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1] for T in t ] } ] } ]
 
+def format_measurement_data_to_plotly(data, key):
+    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d %H:%M:%S'))
+    return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1] for T in t ] } ] } ]
+
 def format_bloodpressure_data_to_plotly(data, key):
-    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d'))    
+    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d %H:%M:%S'))
     return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1][0] for T in t ] }, { 'x': [ T[0] for T in t ], 'y': [ T[1][1] for T in t ] }] } ]
 
 def format_measurement_data_to_intersystems(data, key, meastype):
-    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d'))
+    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d %H:%M:%S'))
     return { 'userId': key, 'measurements': [ { 'type' : meastype, 'dateTime' : T[0], 'value': T[1] } for T in t ] }
 
 def format_bloodpressure_data_to_intersystems(data, key, meastype):
-    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d'))   
-    return { 'userId': key, 'measurements': [ { 'type' : meastype, 'dateTime' : T[0], 'value': [T[1][0], T[1][1]] } for T in t ] } 
+    t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d %H:%M:%S'))
+    return { 'userId': key, 'measurements': [ { 'type' : meastype, 'dateTime' : T[0], 'value': [T[1][0], T[1][1]] } for T in t ] }
