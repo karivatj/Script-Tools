@@ -158,7 +158,6 @@ class AppSession(ApplicationSession):
         '''
         self.log.info("Connecting to HTTP Bridge")
         crossbar_client = crossbarhttp.Client('http://web.testlab.local:8080/publish')
-        print(type(crossbar_client))
 
         # REGISTER a procedure for remote calling. Return Energy Consumption rates
         def withings_energy(data_format):
@@ -360,15 +359,30 @@ class AppSession(ApplicationSession):
                             value = normalize_value(result['value'], result['unit'])
 
                             if(result["type"] == 11): #Average Heartrate
+
+                                #form a temp data variable from this update for InterSystems
+                                temp_data = {}
+                                temp_data[user_id] = []
+                                temp_data[user_id].append([date, value])                                        
+                                temp_data = format_measurement_data_to_intersystems(temp_data, user_id, "avgHeartRate")                
+                                               
                                 if len([item for item in heartrate_data[user_id] if item[0] == date]) >= 1:
                                     if heartrate_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1] != value:
                                         self.log.info("publishing to 'Withings HR Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=heartrate_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1], result=value)
                                         heartrate_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1] = value
                                         yield self.publish('com.testlab.withings_heartrate_update', [user_id, date, value])
+
+                                        #send data to intersystems over the http-bridge
+                                        self.log.info("publishing to Intersystems a new Avg. HR reading")                                        
+                                        result = crossbar_client.publish('com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(temp_data))                                 
                                 else:
                                     self.log.info("publishing to 'Withings HR Update' with {userid} {date} {result}", userid=user_id, date=date, result=value)
                                     heartrate_data[user_id].append([date, value])
                                     yield self.publish('com.testlab.withings_heartrate_update', [user_id, date, value])
+
+                                    #send data to intersystems over the http-bridge
+                                    self.log.info("publishing to Intersystems a new Avg. HR reading")                                        
+                                    result = crossbar_client.publish('com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(temp_data))                                      
 
                             elif(result["type"] == 71): #Body Temperature
 
@@ -384,21 +398,17 @@ class AppSession(ApplicationSession):
                                         bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1] = value
                                         yield self.publish('com.testlab.withings_bodytemp_update', [user_id, date, value])
 
+                                        #send data to intersystems over the http-bridge
                                         self.log.info("publishing to Intersystems a new Temp reading")
-                                        print(json.dumps(temp_data))    
-                                        result = crossbar_client.publish('com.testlab.withings_healthconnect_bodytemp_update', ["test"])#json.dumps(temp_data))  
-                                        print(result)                  
-                                        #yield self.publish('com.testlab.withings_healthconnect_bodytemp_update', json.dumps(temp_data))
+                                        result = crossbar_client.publish('com.testlab.withings_healthconnect_bodytemp_update',json.dumps(temp_data))  
                                 else:
                                     self.log.info("publishing to 'Withings BodyTemp Update' with {userid} {date} {result}", userid=user_id, date=date, result=value)
                                     bodytemperature_data[user_id].append([date, value])
                                     yield self.publish('com.testlab.withings_bodytemp_update', [user_id, date, value])
 
+                                    #send data to intersystems over the http-bridge
                                     self.log.info("publishing to Intersystems a new Temp reading")
-                                    print(json.dumps(temp_data))       
-                                    result = crossbar_client.publish('com.testlab.withings_healthconnect_bodytemp_update', ["test"])#json.dumps(temp_data))  
-                                    print(result)                 
-                                    #yield self.publish('com.testlab.withings_healthconnect_bodytemp_update', json.dumps(temp_data))
+                                    result = crossbar_client.publish('com.testlab.withings_healthconnect_bodytemp_update', json.dumps(temp_data))                                      
 
                             elif(result["type"] == 10): #Systolic BP
                                 temp_bloodpressure[date] = []
@@ -421,8 +431,7 @@ class AppSession(ApplicationSession):
 
                                         #send data to intersystems over the http-bridge
                                         self.log.info("publishing to Intersystems a new BP reading")
-                                        result = crossbar_client.publish('com.testlab.withings_healthconnect_bloodpressure_update', event=json.dumps(temp_data))
-                                        #yield self.publish('com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(temp_data))
+                                        result = crossbar_client.publish('com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(temp_data))
                                 else:
                                     self.log.info("publishing to 'Withings BP Update' with {userid} {date} {result}", userid=user_id, date=date, result=temp_bloodpressure[date])
                                     bloodpressure_data[user_id].append([date, temp_bloodpressure[date]])
@@ -430,6 +439,5 @@ class AppSession(ApplicationSession):
 
                                     #send data to intersystems over the http-bridge
                                     self.log.info("publishing to Intersystems a new BP reading")
-                                    result = crossbar_client.publish('com.testlab.withings_healthconnect_bloodpressure_update', event=json.dumps(temp_data))
-                                    #yield self.publish('com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(temp_data))
+                                    result = crossbar_client.publish('com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(temp_data))
             yield sleep(30)
