@@ -1,5 +1,6 @@
 {
     "version": 2,
+    "controller": {},
     "workers": [
         {
             "type": "router",
@@ -32,46 +33,37 @@
             ],
             "transports": [
                 {
-                    "id": "mqtt_1",
-                    "type": "mqtt",
-                    "endpoint": {
-                        "type": "tcp",
-                        "port": 1883
-                    },
-                    "options": {
-                        "realm": "mqtt_realm",
-                        "role": "mqtt_client"
-                    }
-                },
-
-                {
-                    "type": "web",
+                    "type": "universal",
                     "endpoint": {
                         "type": "tcp",
                         "port": 8080
                     },
-                    "paths": {
-                        "/": {
-                            "type": "static",
-                            "directory": "../web"
-                        },
+                    "rawsocket": {
+                    },
+                    "websocket": {
                         "ws": {
                             "type": "websocket"
-                        },
-                        "call": {
-                            "type": "caller",
-                            "realm": "realm2",
-                            "role": "anonymous"
-                        },
-
-                        "publish": {
-                            "type": "publisher",
-                            "realm": "realm2",
-                            "role": "anonymous",
-                            "options": {
-                                "debug": true
-                            }
-                        }                        
+                        }
+                    },
+                    "web": {
+                        "paths": {
+                            "/": {
+                                "type": "static",
+                                "directory": "../web"
+                            },
+                            "call": {
+                                "type": "caller",
+                                "realm": "realm2",
+                                "role": "anonymous"
+                            },
+                            "publish": {
+                                "type": "publisher",
+                                "realm": "realm2",
+                                "role": "anonymous",
+                                "options": {
+                                }
+                            }                        
+                        }
                     }
                 }
             ]
@@ -83,22 +75,44 @@
                     ".."
                 ]
             },
-            "components": [
+            "components": [                
                 {
                     "type": "class",
-                    "classname": "withings_node.AppSession",
+                    "classname": "crossbar.adapter.rest.MessageForwarder",
                     "realm": "realm2",
                     "extra": {
                         "subscriptions": [
                             {
-                                "url": "http://httpbin.org/post",
+                                "url": "http://web.testlab.local:9500",
                                 "topic": "com.testlab.withings_healthconnect_bodytemp_update"
-                            }
+                            },
+                            {
+                                "url": "http://web.testlab.local:9500",
+                                "topic": "com.testlab.withings_healthconnect_bloodpressure_update"
+                            },
+                            {
+                                "url": "http://web.testlab.local:9500",
+                                "topic": "com.testlab.withings_healthconnect_avgheartrate_update"
+                            }                                       
                         ],
                         "method": "POST",
                         "expectedcode": 200,
-                        "debug": true
+                        "debug": false
                     },
+                    "transport": {
+                        "type": "websocket",
+                        "endpoint": {
+                            "type": "tcp",
+                            "host": "web.testlab.local",
+                            "port": 8080
+                        },
+                        "url": "ws://web.testlab.local:8080/ws"
+                    }
+                },
+                {
+                    "type": "class",
+                    "classname": "withings_node.AppSession",
+                    "realm": "realm2",
                     "transport": {
                         "type": "websocket",
                         "endpoint": {
