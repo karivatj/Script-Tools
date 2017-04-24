@@ -39,8 +39,6 @@ from requests import ConnectionError
 import json
 import requests
 
-location_data = {}
-
 class AppSession(ApplicationSession):
 
     log = Logger()
@@ -59,6 +57,10 @@ class AppSession(ApplicationSession):
         url = 'https://tmuvee.com/wp-json/tmuvee-wot/v1/d3m0-w1ll3'
         headers = {'Authorization': 'Basic aXNlZXNvbWV0aGluZ3M6ZG95YT8=', 'Content-Type': 'application/json'}
 
+        #two dictionaries to hold the current and previous location
+        location_data = {}
+        last_location = {}
+
         while True:
             try:
                 #get location information
@@ -71,14 +73,17 @@ class AppSession(ApplicationSession):
             if r.status_code == 404:
                 self.log.error("404 Error. Check connectivity and / or connection parameters and try again!")
             else:
-                self.log.info("publishing Thingsee location")
                 data = r.text
-
                 try:
                     location_data = json.loads(r.text)
                 except ValueError:
                     self.log.error("Error while decoding JSON data. Trying again later.")
                 else:
-                    yield self.publish('com.testlab.haltian_location_update', json.dumps(location_data))                
+                    if location_data == last_location:
+                        pass
+                    else:
+                        last_location = location_data
+                        self.log.info("publishing Thingsee location")
+                        yield self.publish('com.testlab.haltian_location_update', json.dumps(location_data))                
 
             yield sleep(300)
