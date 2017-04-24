@@ -60,7 +60,7 @@ heartrate_data       = {}
 bloodpressure_data   = {}
 bodytemperature_data = {}
 
-timedelta = datetime.date.today() - datetime.timedelta(days=60)
+timedelta = datetime.date.today() - datetime.timedelta(days=30)
 
 meastype = [10, 9, 11, 71] #weight (1), systolic / diastolic blood pressure (10 & 9), average pulse (11), body temperature (71)
 user_ids = [0, 12762562, 12762571, 12762926]
@@ -216,8 +216,7 @@ class AppSession(ApplicationSession):
             elif data_format in "intersystems": #return intersystems compatible data via HTTP bridge
                 for x in bloodpressure_data:
                     data[x] = format_bloodpressure_data_to_intersystems(bloodpressure_data, x, "bloodPressure")
-                    #return json.dumps(data)
-                return json.dumps(data) #Testing: return first user back
+                return json.dumps(data)
             else:
                 return json.dumps(bloodpressure_data)
 
@@ -235,8 +234,7 @@ class AppSession(ApplicationSession):
             elif data_format in "intersystems": #return intersystems compatible data via HTTP bridge
                 for x in bodytemperature_data:
                     data[x] = format_measurement_data_to_intersystems(bodytemperature_data, x, "bodyTemp")
-                    #return json.dumps(data)
-                return json.dumps(data) #Testing: return first user back
+                return json.dumps(data) 
             else:
                 return json.dumps(bodytemperature_data)
 
@@ -251,6 +249,10 @@ class AppSession(ApplicationSession):
                 for x in heartrate_data:
                     data[x] = format_measurement_data_to_plotly(heartrate_data, x)
                 return json.dumps(data)
+            elif data_format in "intersystems": #return intersystems compatible data via HTTP bridge
+                for x in heartrate_data:
+                    data[x] = format_measurement_data_to_intersystems(heartrate_data, x, "avgHeartRate")
+                return json.dumps(data)                 
             else:
                 return json.dumps(heartrate_data)
 
