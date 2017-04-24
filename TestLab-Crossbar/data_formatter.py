@@ -40,11 +40,11 @@ def format_data_to_plotly(data, key):
 
 def format_measurement_data_to_plotly(data, key):
     t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d %H:%M:%S'))
-    return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1] for T in t ] } ] } ]
+    return [ { 'data': [ { 'x': [ T[0].split(" ")[0] for T in t ], 'y': [ T[1] for T in t ] } ] } ]
 
 def format_bloodpressure_data_to_plotly(data, key):
     t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d %H:%M:%S'))
-    return [ { 'data': [ { 'x': [ T[0] for T in t ], 'y': [ T[1][0] for T in t ] }, { 'x': [ T[0] for T in t ], 'y': [ T[1][1] for T in t ] }] } ]
+    return [ { 'data': [ { 'x': [ T[0].split(" ")[0] for T in t ], 'y': [ T[1][0] for T in t ] }, { 'x': [ T[0].split(" ")[0] for T in t ], 'y': [ T[1][1] for T in t ] }] } ]
 
 def format_measurement_data_to_intersystems(data, key, meastype):
     t = sorted(data[key], key=lambda T: datetime.datetime.strptime(T[0], '%Y-%m-%d %H:%M:%S'))
