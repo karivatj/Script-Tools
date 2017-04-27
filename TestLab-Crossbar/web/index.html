@@ -37,7 +37,7 @@
     <title>Ambulance Case sensor & location information</title>
     <link rel="stylesheet" href="stylesheet.css">
     <script src="./dist/autobahn.min.js"></script>
-    <script src="./dist/plotly-latest.js"></script>
+    <script src="./dist/plotly-latest.min.js"></script>
     <script src="./dist/smoothie.js"></script>
     <script src="./dist/jquery-1.12.4.js"></script>
     <script src="./dist/jquery-ui.js"></script>
@@ -346,32 +346,29 @@
         function update_axis_data(data, value) {
             index = jQuery.inArray(value[1], data[value[0]][0].data[0].x)
             if(index > -1) {
-                console.log("index found")
                 if(value[2] instanceof Array) { //this value is related to bloodpressure
-                    console.log("seems to be bp: " + value[2][0] + " / " + value[2][1])
                     data[value[0]][0].data[0].y[index] = value[2][0]
                     data[value[0]][0].data[1].y[index] = value[2][1]
                 }
                 else {
-                    console.log("seems to be something else: " + value[2][0])
-                    data[value[0]][0].data[0].y[index] = value[2][0]
+                    console.log("Updating data with: " + value[1] + " : " + value[2])                                 
+                    data[value[0]][0].data[0].y[index] = Math.round10(value[2])
                 }
             }
-            else {
-                console.log("index not found")
-                data[value[0]][0].data[0].x.push(value[1]);
+            else { //new information
                 if(value[2] instanceof Array) { //this value is related to bloodpressure
-                    console.log("bp")
+                    data[value[0]][0].data[0].x.push(value[1]);
+                    data[value[0]][0].data[1].x.push(value[1]);                    
                     data[value[0]][0].data[0].y.push(value[2][0]);
                     data[value[0]][0].data[1].y.push(value[2][1]);
                 }
                 else {
-                    console.log("other")
-                    data[value[0]][0].data[0].y[index] = value[2][0]
+                    console.log("Adding new data: " + value[1] + " : " + value[2])             
+                    data[value[0]][0].data[0].x.push(value[1])
+                    data[value[0]][0].data[0].y.push(value[2])
                 }
             }
 
-            console.log("data added. returning")
             return data
         }
 
@@ -561,7 +558,15 @@
                     canvas.width = $(window).width() * 0.981;
                     canvas.height = 250       
 
-                    ecg_streaming_chart = new SmoothieChart({strokeStyle: 'rgb(144, 238, 144)', fillStyle: 'rgb(0, 0, 0)', millisPerPixel:3,maxValueScale:0.97,grid:{sharpLines:true},timestampFormatter:SmoothieChart.timeFormatter,maxValue:3300,minValue: 1200})
+                    ecg_streaming_chart = new SmoothieChart({   strokeStyle: 'rgb(144, 238, 144)', 
+                                                                fillStyle: 'rgb(0, 0, 0)', 
+                                                                millisPerPixel: 3,
+                                                                maxValueScale: 0.97,
+                                                                grid:{sharpLines: true},
+                                                                timestampFormatter:SmoothieChart.timeFormatter,
+                                                                maxValue: 3300,
+                                                                minValue: 1200  })
+
                     ecg_streaming_chart.addTimeSeries(ecg_line_series, { strokeStyle: 'rgb(0, 255, 0)', lineWidth: 1 });
                     ecg_streaming_chart.streamTo(canvas);
                 },
@@ -587,7 +592,7 @@
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9mV0Epe5stYJC0_DR-HHlzbMwM4WComs&callback=initGoogleMaps">
     </script>
     <div 
-        id="footer"><a href="#" onClick="MyWindow=window.open('https://testlab.videoneukkari.com/room/725','Video Connection',width='600',height='300'); return false;" class="no-underline"><div class="footer-text">Call Patient</div></a> 
+        id="footer"><a href="#" onClick="MyWindow=window.open('https://testlab.videoneukkari.com/room/725','Video Connection',width='600',height='300'); return false;" class="no-underline"><div class="footer-text">Call Doctor</div></a> 
     </div>
     <!--<div class="footer"></div>-->
 </body>
