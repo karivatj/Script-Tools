@@ -107,8 +107,9 @@ class WithingsApi(object):
         else:
             r = self.client.request(method, '%s/%s' % (self.URL, service), params=params)
         response = json.loads(r.text)
-        if response['status'] != 0:
-            raise Exception("Error code %s" % response['status'])
+        status = response['status']
+        if status != 0:
+            raise WithingsAPIError("%d" % status)
         return response.get('body', None)
 
     def get_user(self):
@@ -191,3 +192,24 @@ class WithingsMeasureGroup(object):
             if m['type'] == measure_type:
                 return m['value'] * pow(10, m['unit'])
         return None
+
+class WithingsException(Exception):
+    pass
+
+class WithingsAPIError(WithingsException):
+    DESCRIPTIONS = {
+        100: 'The hash is missing, invalid, or does not match the provided email',
+        247: 'The userid is absent, or incorrect',
+        250: 'The userid and publickey do not match, or the user does not share its data',
+        264: 'The email address provided is either unknown or invalid',
+        286: 'No such subscription was found',
+        293: 'The callback URL is either absent or incorrect',
+        294: 'No such subscription could be deleted',
+        304: 'The comment is either absent or incorrect',
+        2555: 'An unknown error occured',
+    }
+
+    def __init__(self, status=2555):
+        self.status = status
+        self.message = self.DESCRIPTIONS.get(status, 'unknown status')
+
