@@ -304,6 +304,11 @@ class AppSession(ApplicationSession):
                     self.log.error("Connection Error. Check connectivity and / or connection parameters and try again!")
                     yield sleep(60)
                     continue
+                except WithingsAPIError as w:
+                    self.log.error("Withings API: {}".format(w.message))
+                    yield sleep(60)
+                    continue
+
 
                 #parse for updates in activity and energy and publish data
                 try:
