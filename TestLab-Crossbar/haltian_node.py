@@ -35,6 +35,7 @@ from twisted.logger import Logger
 from autobahn.twisted.util import sleep
 from autobahn.twisted.wamp import ApplicationSession
 from requests import ConnectionError
+from access_tokens import *
 
 import json
 import requests
@@ -54,8 +55,7 @@ class AppSession(ApplicationSession):
         yield self.register(haltian_location, 'com.testlab.haltian_location')
         self.log.info("procedure haltian_location() registered")  
 
-        url = 'https://tmuvee.com/wp-json/tmuvee-wot/v1/d3m0-w1ll3'
-        headers = {'Authorization': 'Basic aXNlZXNvbWV0aGluZ3M6ZG95YT8=', 'Content-Type': 'application/json'}
+        headers = {'Authorization': haltian_pw, 'Content-Type': 'application/json'}
 
         #two dictionaries to hold the current and previous location
         location_data = {}
@@ -64,7 +64,7 @@ class AppSession(ApplicationSession):
         while True:
             try:
                 #get location information
-                r = requests.post(url, data=None, headers=headers)
+                r = requests.post(haltian_url, data=None, headers=headers)
             except ConnectionError:
                 self.log.error("Connection Error. Check connectivity and / or connection parameters and try again!")
                 yield sleep(300)
@@ -86,4 +86,4 @@ class AppSession(ApplicationSession):
                         self.log.info("publishing Thingsee location")
                         yield self.publish('com.testlab.haltian_location_update', json.dumps(location_data))                
 
-            yield sleep(300)
+            yield sleep(5)
