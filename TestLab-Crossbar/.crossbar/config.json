@@ -112,6 +112,20 @@
                 },
                 {
                     "type": "class",
+                    "classname": "mqtt_msgfwd.AppSession",
+                    "realm": "realm2",
+                    "transport": {
+                        "type": "websocket",
+                        "endpoint": {
+                            "type": "tcp",
+                            "host": "web.testlab.local",
+                            "port": 8080
+                        },
+                        "url": "ws://web.testlab.local:8080/ws"
+                    }
+                },                
+                {
+                    "type": "class",
                     "classname": "withings_node.AppSession",
                     "realm": "realm2",
                     "transport": {
