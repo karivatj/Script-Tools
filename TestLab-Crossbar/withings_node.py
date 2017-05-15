@@ -1,34 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-###############################################################################
-#
-# Copyright (c) Crossbar.io Technologies GmbH and/or collaborators. All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice,
-# this list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-# this list of conditions and the following disclaimer in the documentation
-# and/or other materials provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-###############################################################################
-
 from __future__ import print_function
 from __future__ import unicode_literals
 
@@ -142,6 +114,7 @@ class AppSession(ApplicationSession):
             self.log.error("HTTP Bridge unavailable")
             http_client_connected = False
 
+        #RPC implementations in withings_rpc_handlers
         yield self.register(withings_energy, 'com.testlab.withings_energy')
         self.log.info("procedure withings_energy() registered")
         yield self.register(withings_activity, 'com.testlab.withings_activity')
@@ -255,63 +228,47 @@ class AppSession(ApplicationSession):
 
                                 if(result["type"] == 11): #Average Heartrate
 
-                                    #form a temp data variable from this update for InterSystems
-                                    temp_data = {}
-                                    temp_data[user_id] = []
-                                    temp_data[user_id].append([date, value])                                        
-                                    temp_data = format_measurement_data_to_intersystems(temp_data, user_id, "avgHeartRate")                
+                                    #form a temp data variable from this update to be sent over HTTP bridge
+                                    http_payload = {}
+                                    http_payload[user_id] = []
+                                    http_payload[user_id].append([date, value])                                        
+                                    http_payload = format_measurement_data_to_intersystems(http_payload, user_id, "avgHeartRate")                
                                                    
                                     if len([item for item in heartrate_data[user_id] if item[0] == date]) >= 1:
                                         if heartrate_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1] != value:
                                             self.log.info("publishing to 'Withings HR Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=heartrate_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1], result=value)
                                             heartrate_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1] = value
                                             yield self.publish('com.testlab.withings_heartrate_update', [user_id, date, value])
-
-                                            #send data to intersystems over the http-bridge
-                                            self.log.info("publishing to Intersystems a new Avg. HR reading")                                        
-                                            result = http_client.publish('com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(temp_data))                         
+                                            self.log.info("publishing a new Avg. HR reading over HTTP bridge")
+                                            result = http_client.publish('com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(http_payload))                         
                                     else:
                                         self.log.info("publishing to 'Withings HR Update' with {userid} {date} {result}", userid=user_id, date=date, result=value)
                                         heartrate_data[user_id].append([date, value])
                                         yield self.publish('com.testlab.withings_heartrate_update', [user_id, date, value])
-
-                                        #send data to intersystems over the http-bridge
-                                        self.log.info("publishing to Intersystems a new Avg. HR reading")                                        
-                                        result = http_client.publish('com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(temp_data))
-
-                                        if mqtt_broker_connected:
-                                            self.log.info("Publishing data to MQTT Broker")                                            
-                                            mqtt_client.publish('com/testlab/user/' + user_id + '/avgheartrate', value)                                                                              
+                                        self.log.info("publishing a new Avg. HR reading over HTTP bridge")
+                                        result = http_client.publish('com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(http_payload))                                                                         
 
                                 elif(result["type"] == 71): #Body Temperature
 
                                     #form a temp data variable from this update for InterSystems
-                                    temp_data = {}
-                                    temp_data[user_id] = []
-                                    temp_data[user_id].append([date, value])                                        
-                                    temp_data = format_measurement_data_to_intersystems(temp_data, user_id, "bodyTemp")   
+                                    http_payload = {}
+                                    http_payload[user_id] = []
+                                    http_payload[user_id].append([date, value])                                        
+                                    http_payload = format_measurement_data_to_intersystems(http_payload, user_id, "bodyTemp")   
 
                                     if len([item for item in bodytemperature_data[user_id] if item[0] == date]) >= 1:
                                         if bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1] != value:
                                             self.log.info("publishing to 'Withings BodyTemp Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1], result=value)
                                             bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1] = value
                                             yield self.publish('com.testlab.withings_bodytemp_update', [user_id, date, value])
-
-                                            #send data to intersystems over the http-bridge
-                                            self.log.info("publishing to Intersystems a new Temp reading")
-                                            result = http_client.publish('com.testlab.withings_healthconnect_bodytemp_update',json.dumps(temp_data))  
+                                            self.log.info("publishing a new Temp reading over HTTP bridge")
+                                            result = http_client.publish('com.testlab.withings_healthconnect_bodytemp_update',json.dumps(http_payload))  
                                     else:
                                         self.log.info("publishing to 'Withings BodyTemp Update' with {userid} {date} {result}", userid=user_id, date=date, result=value)
                                         bodytemperature_data[user_id].append([date, value])
                                         yield self.publish('com.testlab.withings_bodytemp_update', [user_id, date, value])
-
-                                        #send data to intersystems over the http-bridge
-                                        self.log.info("publishing to Intersystems a new Temp reading")
-                                        result = http_client.publish('com.testlab.withings_healthconnect_bodytemp_update', json.dumps(temp_data))         
-
-                                        if mqtt_broker_connected:
-                                            self.log.info("Publishing data to MQTT Broker")
-                                            mqtt_client.publish('com/testlab/user/' + user_id + '/bodytemp', value)                                                                        
+                                        self.log.info("publishing a new Temp reading over HTTP bridge")
+                                        result = http_client.publish('com.testlab.withings_healthconnect_bodytemp_update', json.dumps(http_payload))                                                                              
 
                                 elif(result["type"] == 10): #Systolic BP
                                     temp_bloodpressure[date] = []
@@ -321,32 +278,24 @@ class AppSession(ApplicationSession):
                                     temp_bloodpressure[date].append(value)
 
                                     #form a temp data variable from this update for InterSystems
-                                    temp_data = {}
-                                    temp_data[user_id] = []
-                                    temp_data[user_id].append([date, temp_bloodpressure[date]])
-                                    temp_data = format_measurement_data_to_intersystems(temp_data, user_id, "bloodPressure")                               
+                                    http_payload = {}
+                                    http_payload[user_id] = []
+                                    http_payload[user_id].append([date, temp_bloodpressure[date]])
+                                    http_payload = format_measurement_data_to_intersystems(http_payload, user_id, "bloodPressure")                               
                                     
                                     if len([item for item in bloodpressure_data[user_id] if item[0] == date]) >= 1:
                                         if len(set(bloodpressure_data[user_id][get_list_index(bloodpressure_data[user_id], 0, date)][1]).intersection(temp_bloodpressure[date])) < 2: #check if bloodpressure readings are identical. If not, update
                                             self.log.info("publishing to 'Withings BP Update' with {date} {old} -> {result}", date=date, old=bloodpressure_data[user_id][get_list_index(bloodpressure_data[user_id], 0, date)][1], result=temp_bloodpressure[date])
                                             bloodpressure_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1] = temp_bloodpressure[date]
                                             yield self.publish('com.testlab.withings_bloodpressure_update', [user_id, date, temp_bloodpressure[date]])
-
-                                            #send data to intersystems over the http-bridge
-                                            self.log.info("publishing to Intersystems a new BP reading")
-                                            result = http_client.publish('com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(temp_data))
+                                            self.log.info("publishing a new BP reading over HTTP bridge")
+                                            result = http_client.publish('com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(http_payload))
                                     else:
                                         self.log.info("publishing to 'Withings BP Update' with {userid} {date} {result}", userid=user_id, date=date, result=temp_bloodpressure[date])
                                         bloodpressure_data[user_id].append([date, temp_bloodpressure[date]])
                                         yield self.publish('com.testlab.withings_bloodpressure_update', [user_id, date, temp_bloodpressure[date]])
-
-                                        #send data to intersystems over the http-bridge
-                                        self.log.info("publishing to Intersystems a new BP reading")
-                                        result = http_client.publish('com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(temp_data))
-
-                                        if mqtt_broker_connected:
-                                            self.log.info("Publishing data to MQTT Broker: " + str(temp_bloodpressure[date][0]) + " / " + str(temp_bloodpressure[date][1]))
-                                            mqtt_client.publish('com/testlab/user/' + user_id + '/bloodpressure', str(temp_bloodpressure[date][0]) + " / " + str(temp_bloodpressure[date][1]))                                           
+                                        self.log.info("publishing a new BP reading over HTTP bridge ")
+                                        result = http_client.publish('com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(http_payload))                                       
                 yield sleep(30)
             except KeyboardInterrupt:
                 self.log.info("Stopping...")
