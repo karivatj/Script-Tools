@@ -18,3 +18,5 @@ withings_api_secret = "7234060961cf43bff9064c2d5c4361bfb460227470c7506bc54dd77f0
 
 haltian_url = 'https://tmuvee.com/wp-json/tmuvee-wot/v1/d3m0-w1ll3'
 haltian_pw = 'Basic aXNlZXNvbWV0aGluZ3M6ZG95YT8='
+
+http_bridge_url = 'http://web.testlab.local:8080/publish'
