@@ -23,35 +23,36 @@ mqtt_client = mqtt.Client()
 def on_haltian_location(msg):
     print("event for 'on_haltian_location' received: {}".format(msg))
     msg = json.loads(msg)
-    userid = "12762562"
+    targetId = "vehicle4564"
     data = dict()
     data["lat"] = float(msg[0]["lat"])
     data["lon"] = float(msg[0]["lon"])
-    mqtt_client.publish('com/testlab/user/' + userid + '/LOC', json.dumps(data))   
+    data["level"] = 0 #floor number
+    mqtt_client.publish('com/testlab/user/' + targetId + '/LOC', json.dumps(data))   
 
 def on_withings_bp(msg):
     print("event for 'on_withings_bp' received: {}".format(msg))
-    userid = msg[0] 
+    targetId = msg[0] 
     payload = msg[2]
     data = dict()
     data["value"] = payload
-    mqtt_client.publish('com/testlab/user/' + userid + '/bloodpressure', json.dumps(data))        
+    mqtt_client.publish('com/testlab/user/' + targetId + '/bloodpressure', json.dumps(data))        
 
 def on_withings_heartrate(msg):
     print("event for 'on_withings_heartrate' received: {}".format(msg))
-    userid = msg[0] 
+    targetId = msg[0] 
     payload = msg[2]
     data = dict()
     data["value"] = payload
-    mqtt_client.publish('com/testlab/user/' + userid + '/avgheartrate', json.dumps(data))    
+    mqtt_client.publish('com/testlab/user/' + targetId + '/avgheartrate', json.dumps(data))    
 
 def on_withings_bodytemp(msg):
     print("event for 'on_withings_bodytemp' received: {}".format(msg))
-    userid = msg[0] 
+    targetId = msg[0] 
     payload = msg[2]
     data = dict()
     data["value"] = payload
-    mqtt_client.publish('com/testlab/user/' + userid + '/bodytemp', json.dumps(data))    
+    mqtt_client.publish('com/testlab/user/' + targetId + '/bodytemp', json.dumps(data))    
 
 def on_mqtt_connect(client, userdata, flags, rc):
     print("MQTT node up")
