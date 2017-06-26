@@ -45,9 +45,7 @@ class AppSession(ApplicationSession):
                 yield sleep(300)
                 continue
 
-            if r.status_code == 404:
-                self.log.error("404 Error. Check connectivity and / or connection parameters and try again!")
-            else:
+            if r.status_code == 200:
                 data = r.text
                 try:
                     location_data = json.loads(r.text)
@@ -60,5 +58,7 @@ class AppSession(ApplicationSession):
                         last_location = location_data
                         self.log.info("publishing Thingsee location")
                         yield self.publish('com.testlab.haltian_location_update', json.dumps(location_data))                
+            else:
+                self.log.error(r.status_code + " Error. Check connectivity and / or connection parameters and try again!")
 
             yield sleep(5)
