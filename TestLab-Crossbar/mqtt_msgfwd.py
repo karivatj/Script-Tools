@@ -23,6 +23,9 @@ mqtt_client = mqtt.Client()
 def on_haltian_location(msg):
     print("event for 'on_haltian_location' received: {}".format(msg))
     msg = json.loads(msg)
+    if len(msg) == 0:
+        print("'on_haltian_location' response is empty")
+        return
     targetId = "vehicle4564"
     data = dict()
     data["lat"] = float(msg[0]["lat"])
