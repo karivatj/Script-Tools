@@ -278,6 +278,41 @@
             return data
         }
 
+        function layout_bloodpressure() {
+            var now = moment().format("YYYY-MM-DD hh:mm:ss")
+            var delta = moment().subtract(20, 'days').format("YYYY-MM-DD hh:mm:ss")
+            var update = {
+                xaxis: { range: [delta, now] },
+                width: $(window).width() / 3 
+            };            
+            
+            Plotly.relayout('bloodpressure', update);               
+        }
+
+        function layout_bodytemperature() {
+            var now = moment().format("YYYY-MM-DD hh:mm:ss")
+            var delta = moment().subtract(14, 'days').format("YYYY-MM-DD hh:mm:ss")
+            var update = {
+                yaxis: { range: [30, 42] },                
+                xaxis: { range: [delta, now] },
+                width: $(window).width() / 3 
+            };            
+            
+            Plotly.relayout('bodytemp', update);               
+        }
+
+        function layout_heartrate() {
+
+            var now = moment().format("YYYY-MM-DD hh:mm:ss")
+            var delta = moment().subtract(20, 'days').format("YYYY-MM-DD hh:mm:ss")
+            var update = {
+                xaxis: { range: [delta, now] },
+                width: $(window).width() / 3 
+            };            
+            
+            Plotly.relayout('heartrate', update);            
+        }
+
         //Handler functions for handling new deltas received from the server
         function handle_energy(data) {
             energy_data = JSON.parse(data)
@@ -302,14 +337,7 @@
             bloodpressure_data = format_tuple_bar_plot(bloodpressure_data, "Blood Pressure", "Systolic", "Diastolic", "Date", "mmHg")
             create_plot(bloodpressure_data, "bloodpressure")
 
-            var now = moment().format("YYYY-MM-DD hh:mm:ss")
-            var delta = moment().subtract(20, 'days').format("YYYY-MM-DD hh:mm:ss")
-            var update = {
-                xaxis: { range: [delta, now] },
-                width: $(window).width() / 3 
-            };            
-            
-            Plotly.relayout('bloodpressure', update);                
+            layout_bloodpressure()             
         }
 
         function handle_heartrate(data) {
@@ -317,14 +345,7 @@
             heartrate_data = format_bar_plot(heartrate_data, "Average Heartrate", "Date", "BPM")
             create_plot(heartrate_data, "heartrate")
 
-            var now = moment().format("YYYY-MM-DD hh:mm:ss")
-            var delta = moment().subtract(20, 'days').format("YYYY-MM-DD hh:mm:ss")
-            var update = {
-                xaxis: { range: [delta, now] },
-                width: $(window).width() / 3 
-            };            
-            
-            Plotly.relayout('heartrate', update);             
+            layout_heartrate()         
         }
 
         function handle_bodytemp(data) {
@@ -332,15 +353,7 @@
             bodytemp_data = format_line_plot(bodytemp_data, "Body Temperature", "Date", "Celcius")
             create_plot(bodytemp_data, "bodytemp")
             
-            var now = moment().format("YYYY-MM-DD hh:mm:ss")
-            var delta = moment().subtract(14, 'days').format("YYYY-MM-DD hh:mm:ss")
-            var update = {
-                yaxis: { range: [30, 42] },                
-                xaxis: { range: [delta, now] },
-                width: $(window).width() / 3 
-            };            
-            
-            Plotly.relayout('bodytemp', update);              
+            layout_bodytemperature()           
         }
 
         function initGoogleMaps() {
