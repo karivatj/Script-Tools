@@ -94,11 +94,23 @@
                             {
                                 "url": "http://web.testlab.local:9500",
                                 "topic": "com.testlab.withings_healthconnect_avgheartrate_update"
-                            }                                       
+                            },
+                            {
+                                "url": "http://oulu-testlab-measurements.eu-de.mybluemix.net/data",
+                                "topic": "com.testlab.withings_ibm_bodytemp_update"
+                            },
+                            {
+                                "url": "http://oulu-testlab-measurements.eu-de.mybluemix.net/data",
+                                "topic": "com.testlab.withings_ibm_bloodpressure_update"
+                            },    
+                            {
+                                "url": "http://oulu-testlab-measurements.eu-de.mybluemix.net/data",
+                                "topic": "com.testlab.withings_ibm_avgheartrate_update"
+                            }                                                                       
                         ],
                         "method": "POST",
                         "expectedcode": 200,
-                        "debug": false
+                        "debug": true
                     },
                     "transport": {
                         "type": "websocket",
