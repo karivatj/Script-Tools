@@ -20,6 +20,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Public keys
+*.pub
+
 # =========================
 # Operating System Files
 # =========================
