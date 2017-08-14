@@ -27,7 +27,7 @@ headers = {'Content-Type': 'text/xml; charset=utf-8'} # set what your server acc
 format = "%Y-%m-%d"
 
 #Sample message used to query calendar data. Remember to replace relevant parts of this message
-sample_getcalendar = '''<?xml version="1.0" encoding="utf-8"?>
+sample_getcalendar_request = '''<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
        xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages" 
        xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types" 
@@ -57,21 +57,9 @@ sample_getcalendar = '''<?xml version="1.0" encoding="utf-8"?>
   </soap:Body>
 </soap:Envelope>'''
 
-#Calendars that are going to be parsed
-calendar_list = ["RES_L3TestLab@ppshp.fi",
-                 "RES_L3212Aortta@ppshp.fi",
-                 "RES_L3213Cave@ppshp.fi",
-                 "RES_L3215Lappa@ppshp.fi",
-                 "RES_L3219OikKammio@ppshp.fi",
-                 "RES_L3219AVasKammio@ppshp.fi",
-                 "RES_L3223Pulssi@ppshp.fi",
-                 "RES_L3228Laskimo@ppshp.fi",
-                 "RES_L3229Valtimo@ppshp.fi"]
-
-if __name__ == "__main__":
-    logging.debug("Starting up...")
+def generateCalendarInfoScreen(calendar_list, username, password, server):
     calendar_data = {} #dictionary containing the data
-    response = requests.get("https://sposti.ppshp.fi/EWS/Exchange.asmx",auth=HttpNtlmAuth('OYSNET\\TestLab_Res','CP3525dn%4x4'))
+    response = requests.get(server, auth=HttpNtlmAuth(username,password))
     if(response.status_code != 200):
         logging.error("Error while connecting to EWS Service. Try again later!")
         sys.exit(0)
@@ -80,28 +68,8 @@ if __name__ == "__main__":
 
     #Send a GetFolder request. Use Sample request as a template and replace necessary parts from it
     for calendar in calendar_list:
-        calendar_name = ""
-
-        if("TestLab" in calendar):
-            calendar_name = "OYS TestLab"
-        elif("Aortta" in calendar):
-            calendar_name = "Aortta (Big Room)"
-        elif("Cave" in calendar):
-            calendar_name = "Cave"
-        elif("Lappa" in calendar):
-            calendar_name = "Läppä"
-        elif("OikKammio" in calendar):
-            calendar_name = "Oikea Kammio"
-        elif("VasKammio" in calendar):
-            calendar_name = "Vasen Kammio"
-        elif("Pulssi" in calendar):
-            calendar_name = "Pulssi"
-        elif("Laskimo" in calendar):
-            calendar_name = "Laskimo"
-        elif("Valtimo" in calendar):
-            calendar_name = "Valtimo"
-        else:
-            continue
+        calendar_name  = calendar[0]
+        calendar_email = calendar[1]
 
         logging.debug("Creating field for " + calendar_name)
         calendar_data[calendar_name] = []
@@ -111,16 +79,20 @@ if __name__ == "__main__":
         end_time = datetime.datetime.today().strftime(format) + "T23:59:59.999Z"
         #logging.debug(start_time)
         #logging.debug(end_time)
-
-        message = sample_getcalendar.replace("!Replace_Email_Of_Calendar!", calendar)
+        logging.debug(calendar_name)
+        logging.debug(calendar_email)
+        message = sample_getcalendar_request.replace("!Replace_Email_Of_Calendar!", calendar_email)
         message = message.replace("!Start_Date!", start_time)
         message = message.replace("!End_Date!", end_time)
         #logging.debug(message)
         
-        response = requests.post("https://sposti.ppshp.fi/EWS/Exchange.asmx", data=message, headers=headers, auth=HttpNtlmAuth('OYSNET\\TestLab_Res','CP3525dn%4x4'))
-        
+        try:
+            response = requests.post(server, data=message, headers=headers, auth=HttpNtlmAuth(username, password))
+        except requests.exceptions.ConnectionError:
+            return False
+
         if(response.status_code != 200):
-            logging.error("Error occured while fetching calendar: " + calendar)
+            logging.error("Error occured while fetching calendar: " + calendar[1])
             continue
         else:
             logging.debug("Response OK. Parsing data...")        
@@ -151,7 +123,7 @@ if __name__ == "__main__":
     now = datetime.datetime.now()
     calendar_data = collections.OrderedDict(sorted(calendar_data.items(), key=lambda t: t[0]))
 
-    with codecs.open("meetings.txt", "w", "utf-8") as f:
+    with codecs.open("./dist/meetings.txt", "w", "utf-8") as f:
             f.write("<table>\n")
             f.write("<colgroup\n")
             f.write("<col class=\"column10\"/>\n")
@@ -196,5 +168,4 @@ if __name__ == "__main__":
 
                 f.write("</tr>\n")
             f.write("</table>")
-
-    logging.debug("Ready. Thank you and come again!")
+    return True

@@ -1,6 +1,7 @@
 import sys
 import csv
-import http.server
+from urllib.request import urlopen
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtGui import *
@@ -14,6 +15,23 @@ from AboutUI import *
 from PreferencesUI import *
 import Preferences
 import AddCalendar
+import PageGenerator
+
+HOST, PORT = '127.0.0.1', 8080
+
+class HttpDaemon(QtCore.QThread):
+    def run(self):
+        self._server = HTTPServer((HOST, PORT), SimpleHTTPRequestHandler)
+        self._server.serve_forever()
+
+    def stop(self):
+        print("Stopping")
+        self._server.shutdown()
+        print("Closing socket")
+        self._server.socket.close()
+        print("Wait")
+        self.wait()
+        print("Done")
 
 # class for used for stdout redirecting
 class EmittingStream(QtCore.QObject):
@@ -44,9 +62,12 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.selectedCol  = -1
         self.savePending  = False
 
+        # HTTP daemon
+        self.httpd = HttpDaemon(self)
+
         # preferences variables
-        self.username = ""
-        self.password = ""
+        self.username = "OYSNET\TestLab_Res"
+        self.password = "CP3525dn%4x4"
         self.server = "https://sposti.ppshp.fi/EWS/Exchange.asmx"
         self.interval = 5
         
@@ -72,6 +93,10 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
     def __del__(self):
         sys.stdout = sys.__stdout__ 
 
+    def closeEvent(self, event):
+        if self.httpd.isRunning():
+            self.httpd.stop()
+
     def normalOutputWritten(self, text):       
         if len(text) == 1 and ord(str(text)) == 10:
             return
@@ -90,7 +115,6 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 reader = csv.reader(fileInput)
                 for row in reader:
                     items = [ str(field) for field in row ]
-            print(items)                
             self.username  = items[0]
             self.password  = items[1]
             self.server    = items[2]
@@ -147,13 +171,23 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
     def buttonStartPressed(self):
         if self.btnStart.text() == "Start Server":
             print("Starting HTTP Server")
+            result = PageGenerator.generateCalendarInfoScreen(self.tableToList(), self.username, self.password, self.server)
+            if result is False:
+                warning("Failed to retrieve calendar information, check connection parameters and try again")
+                return
+            self.httpd.start()            
             self.btnStart.setText("Stop Server")
             self.disableUI()
         elif self.btnStart.text() == "Stop Server":
             print("Stopping HTTP Server")
+            self.httpd.stop()            
             self.btnStart.setText("Start Server")
             self.enableUI()
         else:
+            result = PageGenerator.generateCalendarInfoScreen(self.tableToList(), self.username, self.password, self.server)
+            if result is False:
+                warning("Failed to retrieve calendar information, check connection parameters and try again")
+                return
             self.notify("Calendar page generated!")
 
     def HTTPCheckBoxToggled(self, value):
@@ -280,15 +314,15 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.btnEdit.setEnabled(False)
 
     def tableToList(self):
-        list = []
+        contents = []
 
         for i in range(self.table.rowCount()):
             templist = []
             for j in range(self.table.columnCount()):
                 templist.append(str(self.table.item(i, j).text()))
-            list.append(templist)
+            contents.append(templist)
 
-        return list
+        return contents
 
     def listToTable(self, list):
         try:

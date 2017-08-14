@@ -57,5 +57,3 @@ class Ui_About(object):
         self.lblSummary.setText(_translate("About", "Easily configure infoscreen contents"))
         self.lblInfo.setText(_translate("About", "Author: Kari Vatjus-Anttila\n"
 "Email: kari.vatjusanttila@gmail.com"))
-
-import resources_rc
