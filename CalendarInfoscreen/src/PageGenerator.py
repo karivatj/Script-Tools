@@ -59,10 +59,16 @@ sample_getcalendar_request = '''<?xml version="1.0" encoding="utf-8"?>
 
 def generateCalendarInfoScreen(calendar_list, username, password, server):
     calendar_data = {} #dictionary containing the data
-    response = requests.get(server, auth=HttpNtlmAuth(username,password))
+
+    try:
+        response = requests.get(server, auth=HttpNtlmAuth(username,password))
+    except requests.exceptions.ConnectionError:
+        logging.error("Error while connecting to EWS Service. Try again later!")
+        return False
+
     if(response.status_code != 200):
         logging.error("Error while connecting to EWS Service. Try again later!")
-        sys.exit(0)
+        return False
     else:
         logging.debug("Connection OK - Continuing with the task")
 
@@ -79,8 +85,6 @@ def generateCalendarInfoScreen(calendar_list, username, password, server):
         end_time = datetime.datetime.today().strftime(format) + "T23:59:59.999Z"
         #logging.debug(start_time)
         #logging.debug(end_time)
-        logging.debug(calendar_name)
-        logging.debug(calendar_email)
         message = sample_getcalendar_request.replace("!Replace_Email_Of_Calendar!", calendar_email)
         message = message.replace("!Start_Date!", start_time)
         message = message.replace("!End_Date!", end_time)
@@ -122,50 +126,53 @@ def generateCalendarInfoScreen(calendar_list, username, password, server):
     logging.debug("Calendar data retrieved. Outputting into HTML...")
     now = datetime.datetime.now()
     calendar_data = collections.OrderedDict(sorted(calendar_data.items(), key=lambda t: t[0]))
+    try:
+        with codecs.open("./web/content.html", "w", "utf-8") as f:
+                f.write("<table>\n")
+                f.write("<colgroup\n")
+                f.write("<col class=\"column10\"/>\n")
+                f.write("<col class=\"column30\"/>\n")
+                f.write("<col class=\"column15\"/>\n")
+                f.write("<col class=\"column30\"/>\n")
+                f.write("<col class=\"column15\"/>\n")
+                f.write("</colgroup>\n")
+                f.write("<tr>")
+                f.write("<th>Huone</th>")
+                f.write("<th>Tällä hetkellä / Seuraavaksi</th>")
+                f.write("<th></th>")
+                f.write("<th>Myöhemmin tänä päivänä</th>")
+                f.write("<th></th>")
+                f.write("</tr>")
 
-    with codecs.open("./dist/meetings.txt", "w", "utf-8") as f:
-            f.write("<table>\n")
-            f.write("<colgroup\n")
-            f.write("<col class=\"column10\"/>\n")
-            f.write("<col class=\"column30\"/>\n")
-            f.write("<col class=\"column15\"/>\n")
-            f.write("<col class=\"column30\"/>\n")
-            f.write("<col class=\"column15\"/>\n")
-            f.write("</colgroup>\n")
-            f.write("<tr>")
-            f.write("<th>Huone</th>")
-            f.write("<th>Tällä hetkellä / Seuraavaksi</th>")
-            f.write("<th></th>")
-            f.write("<th>Myöhemmin tänä päivänä</th>")
-            f.write("<th></th>")
-            f.write("</tr>")
+                for calendar in calendar_data:
+                    primary_event_found = False
+                    secondary_event_found = False
+                    f.write("<tr>\n")
+                    f.write("<td class=\"meetingroom\">" + calendar + "</td>\n")
 
-            for calendar in calendar_data:
-                primary_event_found = False
-                secondary_event_found = False
-                f.write("<tr>\n")
-                f.write("<td class=\"meetingroom\">" + calendar + "</td>\n")
+                    for item in range(0, len(calendar_data[calendar]), 3):
+                        end_date = parse(calendar_data[calendar][item+2])
+                        if(now < end_date and primary_event_found == False):
+                            primary_event_found = True
+                            f.write("<td class=\"event_primary\">" + calendar_data[calendar][item] + "</td>\n")
+                            f.write("<td class=\"eventdate_primary\">"+ calendar_data[calendar][item+1] + " - " + calendar_data[calendar][item+2] + "</td>\n")
 
-                for item in range(0, len(calendar_data[calendar]), 3):
-                    end_date = parse(calendar_data[calendar][item+2])
-                    if(now < end_date and primary_event_found == False):
-                        primary_event_found = True
-                        f.write("<td class=\"event_primary\">" + calendar_data[calendar][item] + "</td>\n")
-                        f.write("<td class=\"eventdate_primary\">"+ calendar_data[calendar][item+1] + " - " + calendar_data[calendar][item+2] + "</td>\n")
+                        elif(now < end_date and secondary_event_found == False):
+                            secondary_event_found = True
+                            f.write("<td class=\"event_secondary\">" + calendar_data[calendar][item] + "</td>\n")
+                            f.write("<td class=\"eventdate_secondary\">"+ calendar_data[calendar][item+1] + " - " + calendar_data[calendar][item+2] + "</td>\n")
+                            break
+             
+                    if(primary_event_found != True):
+                        f.write("<td class=\"event_primary\">Vapaa</td>\n")
+                        f.write("<td class=\"eventdate_primary\"></td>\n")
+                    if(secondary_event_found != True):
+                        f.write("<td class=\"event_secondary\">Vapaa</td>\n")
+                        f.write("<td class=\"eventdate_secondary\"></td>\n")
 
-                    elif(now < end_date and secondary_event_found == False):
-                        secondary_event_found = True
-                        f.write("<td class=\"event_secondary\">" + calendar_data[calendar][item] + "</td>\n")
-                        f.write("<td class=\"eventdate_secondary\">"+ calendar_data[calendar][item+1] + " - " + calendar_data[calendar][item+2] + "</td>\n")
-                        break
-         
-                if(primary_event_found != True):
-                    f.write("<td class=\"event_primary\">Vapaa</td>\n")
-                    f.write("<td class=\"eventdate_primary\"></td>\n")
-                if(secondary_event_found != True):
-                    f.write("<td class=\"event_secondary\">Vapaa</td>\n")
-                    f.write("<td class=\"eventdate_secondary\"></td>\n")
-
-                f.write("</tr>\n")
-            f.write("</table>")
+                    f.write("</tr>\n")
+                f.write("</table>")
+    except FileNotFoundError:
+        logging.error("Failed to open file ./dist/data.dat: No such file or directory")
+        return False
     return True
