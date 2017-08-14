@@ -29,7 +29,6 @@ class HttpDaemon(QtCore.QThread):
         self._server.shutdown()
         print("Closing socket")
         self._server.socket.close()
-        print("Wait")
         self.wait()
         print("Done")
 
@@ -170,12 +169,15 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def buttonStartPressed(self):
         if self.btnStart.text() == "Start Server":
-            print("Starting HTTP Server")
+            #TODO put pagegenerator running in a separate thread
             result = PageGenerator.generateCalendarInfoScreen(self.tableToList(), self.username, self.password, self.server)
             if result is False:
-                warning("Failed to retrieve calendar information, check connection parameters and try again")
+                self.warning("Failed to retrieve calendar information, check connection parameters and try again")
                 return
+            print("Starting HTTP Server")
+            #TODO investigate whats going on with httpd and why it hangs
             self.httpd.start()            
+            self.notify("HTTP Server running. Open your browser and point to http://localhost:8080/web/")
             self.btnStart.setText("Stop Server")
             self.disableUI()
         elif self.btnStart.text() == "Stop Server":
@@ -186,7 +188,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         else:
             result = PageGenerator.generateCalendarInfoScreen(self.tableToList(), self.username, self.password, self.server)
             if result is False:
-                warning("Failed to retrieve calendar information, check connection parameters and try again")
+                self.warning("Failed to retrieve calendar information, check connection parameters and try again")
                 return
             self.notify("Calendar page generated!")
 
