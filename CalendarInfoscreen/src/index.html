@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="./stylesheet.css"/>
 </head>
 <body>
-    <script src="./dist/js/jquery-3.1.1.min.js"></script>
+    <script src="./dist/jquery-3.2.1.min.js"></script>
     <div id="textbox">
     <p class="headline">NEUVOTTELUHUONEET</p>
     <p id="datetime" class="text"></p>
@@ -17,9 +17,8 @@
     
     <script language="javascript">
         function init() {
-            console.log("Initialize");
-            
-            readCalendarData("./dist/meetings.txt")
+            console.log("Initialize");            
+            readCalendarData("./content.html")
             updateClock();
         }
 
@@ -43,7 +42,7 @@
           rawFile.send(null);
 
           setTimeout(function() {
-              readCalendarData("../dist/meetings.txt");
+              readCalendarData("./content.html");
           }, 300000)
         }    
 

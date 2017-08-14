@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Neuvotteluhuoneet</title>
+    <meta http-equiv="refresh" content="900" >
+    <link rel="stylesheet" href="./stylesheet.css"/>
+</head>
+<body>
+    <script src="./dist/jquery-3.2.1.min.js"></script>
+    <div id="textbox">
+    <p class="headline">NEUVOTTELUHUONEET</p>
+    <p id="datetime" class="text"></p>
+    </div>
+    <div style="clear: both;"></div>
+    <p id="meeting_content"></p>
+    
+    <script language="javascript">
+        function init() {
+            console.log("Initialize");            
+            readCalendarData("./content.html")
+            updateClock();
+        }
+
+        function readCalendarData(file)
+        {
+          var rawFile = new XMLHttpRequest();
+          rawFile.open("GET", file + "?_=" + new Date().getTime(), true);
+          rawFile.setRequestHeader('Cache-Control', 'no-cache');
+
+          rawFile.onreadystatechange = function ()
+          {
+              if(rawFile.readyState === 4)
+              {
+                  if(rawFile.status === 200 || rawFile.status == 0)
+                  {
+                      var data = rawFile.responseText;
+                      document.getElementById('meeting_content').innerHTML = data;
+                  }
+              }
+          }
+          rawFile.send(null);
+
+          setTimeout(function() {
+              readCalendarData("./content.html");
+          }, 300000)
+        }    
+
+        function updateClock() {                
+            var currentTime = new Date()
+            var year = currentTime.getFullYear()                    
+            var month = currentTime.getMonth() + 1;
+            var day = currentTime.getDate();
+            var hours = currentTime.getHours();
+            var minutes = currentTime.getMinutes();
+            var seconds = currentTime.getSeconds();
+
+            if (minutes < 10){
+            minutes = "0" + minutes
+            }
+            if (seconds < 10){
+            seconds = "0" + seconds
+            }
+
+            document.getElementById('datetime').innerHTML = [day + "." + month + "." + year + " " + hours + ":" + minutes];
+            setTimeout(updateClock, 1000);
+        }  
+
+        window.onload = init();
+    </script>
+</body>
+</html>
