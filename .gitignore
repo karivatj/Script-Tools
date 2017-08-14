@@ -64,3 +64,5 @@ tlab_tokens.py
 *.priv
 *.pub
 *.conf
+CalendarInfoscreen/src/content.html
+CalendarInfoscreen/src/preferences
