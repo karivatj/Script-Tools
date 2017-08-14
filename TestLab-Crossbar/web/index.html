@@ -41,6 +41,7 @@
     <script src="./dist/smoothie.js"></script>
     <script src="./dist/jquery-1.12.4.js"></script>
     <script src="./dist/jquery-ui.js"></script>
+    <script src="./dist/moment.min.js"></script>
     <script>
         $(function() {
             $("#accordion").accordion({
@@ -101,7 +102,7 @@
     <h3 id='headline2'>ECG Feed</h3> 
         <hr>       
         <div><canvas id="ecg_canvas"></canvas></div>
-        <hr>
+        <hr>        
     <h3 id='headline3'>Location</h3>
         <hr>
         <div id="map"></div>
@@ -183,7 +184,7 @@
         //Utility functions used in formatting various of plots used in the web page
         function format_line_plot(data, title, xaxis_title, yaxis_title) {
             for (name in data) {
-                data[name][0].data[0].mode = 'lines'
+                data[name][0].data[0].mode = 'lines+markers'
                 data[name][0].data[0].name = 'Date'
                 data[name][0].data[0].line = {
                     color: 'darkgrey',
@@ -277,6 +278,41 @@
             return data
         }
 
+        function layout_bloodpressure() {
+            var now = moment().format("YYYY-MM-DD hh:mm:ss")
+            var delta = moment().subtract(20, 'days').format("YYYY-MM-DD hh:mm:ss")
+            var update = {
+                xaxis: { range: [delta, now] },
+                width: $(window).width() / 3 
+            };            
+            
+            Plotly.relayout('bloodpressure', update);               
+        }
+
+        function layout_bodytemperature() {
+            var now = moment().format("YYYY-MM-DD hh:mm:ss")
+            var delta = moment().subtract(14, 'days').format("YYYY-MM-DD hh:mm:ss")
+            var update = {
+                yaxis: { range: [30, 42] },                
+                xaxis: { range: [delta, now] },
+                width: $(window).width() / 3 
+            };            
+            
+            Plotly.relayout('bodytemp', update);               
+        }
+
+        function layout_heartrate() {
+
+            var now = moment().format("YYYY-MM-DD hh:mm:ss")
+            var delta = moment().subtract(20, 'days').format("YYYY-MM-DD hh:mm:ss")
+            var update = {
+                xaxis: { range: [delta, now] },
+                width: $(window).width() / 3 
+            };            
+            
+            Plotly.relayout('heartrate', update);            
+        }
+
         //Handler functions for handling new deltas received from the server
         function handle_energy(data) {
             energy_data = JSON.parse(data)
@@ -293,25 +329,31 @@
         function handle_sleep(data) {
             sleep_data = JSON.parse(data)
             sleep_data = format_line_plot(sleep_data, "Sleep Duration", "Date", "Hours")
-            create_plot(sleep_data, "sleep")
+            create_plot(sleep_data, "sleep")          
         }
 
         function handle_bloodpressure(data) {
             bloodpressure_data = JSON.parse(data)
             bloodpressure_data = format_tuple_bar_plot(bloodpressure_data, "Blood Pressure", "Systolic", "Diastolic", "Date", "mmHg")
             create_plot(bloodpressure_data, "bloodpressure")
+
+            layout_bloodpressure()             
         }
 
         function handle_heartrate(data) {
             heartrate_data = JSON.parse(data)
             heartrate_data = format_bar_plot(heartrate_data, "Average Heartrate", "Date", "BPM")
             create_plot(heartrate_data, "heartrate")
+
+            layout_heartrate()         
         }
 
         function handle_bodytemp(data) {
             bodytemp_data = JSON.parse(data)
             bodytemp_data = format_line_plot(bodytemp_data, "Body Temperature", "Date", "Celcius")
             create_plot(bodytemp_data, "bodytemp")
+            
+            layout_bodytemperature()           
         }
 
         function initGoogleMaps() {
@@ -331,7 +373,7 @@
         function updateGoogleMaps(data) {
             thingsee_location = new google.maps.LatLng(data[0].lat, data[0].lon)
             marker = new google.maps.Marker({
-                position: thingsee_location,
+                position: thingsee_location, 
                 map: map
             });
 
