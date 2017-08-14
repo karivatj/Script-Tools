@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '../ui/InfoScreen.ui'
+# Form implementation generated from reading ui file '../ui/InfoScreen.UI'
 #
 # Created by: PyQt5 UI code generator 5.9
 #
@@ -31,8 +31,10 @@ class Ui_InfoScreen_Window(object):
         self.btnEdit.setEnabled(False)
         self.btnEdit.setObjectName("btnEdit")
         self.horizontalLayout.addWidget(self.btnEdit)
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
+        self.progressBar = QtWidgets.QProgressBar(self.groupBox)
+        self.progressBar.setProperty("value", 0)
+        self.progressBar.setObjectName("progressBar")
+        self.horizontalLayout.addWidget(self.progressBar)
         self.chkUseHTTP = QtWidgets.QCheckBox(self.groupBox)
         self.chkUseHTTP.setObjectName("chkUseHTTP")
         self.horizontalLayout.addWidget(self.chkUseHTTP)
@@ -83,7 +85,7 @@ class Ui_InfoScreen_Window(object):
         self.verticalLayout_3.addLayout(self.gridLayout)
         InfoScreen_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(InfoScreen_Window)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 748, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 748, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
