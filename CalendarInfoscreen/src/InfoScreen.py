@@ -1,5 +1,7 @@
 import sys
+import time
 import csv
+import requests
 from urllib.request import urlopen
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
@@ -20,17 +22,38 @@ import PageGenerator
 HOST, PORT = '127.0.0.1', 8080
 
 class HttpDaemon(QtCore.QThread):
+
+    stopped = False
+    allow_reuse_address = True
+
     def run(self):
+        print("HTTP Server Starting Up")
+        self.stopped = False        
         self._server = HTTPServer((HOST, PORT), SimpleHTTPRequestHandler)
-        self._server.serve_forever()
+        self.serve_forever()
+
+    def serve_forever(self):  
+        print("Serving over HTTP")
+        while not self.stopped:
+            self._server.handle_request() #blocks
+        print("HTTP Server Exiting")
+
+    def force_stop(self):
+        print("Requesting HTTP Server Shutdown")
+        self.stopped = True
+        self.create_dummy_request()
+
+    def create_dummy_request(self):
+        try:
+            result = requests.get("http://%s:%s/web/" % (HOST, PORT), timeout=1)
+        except requests.exceptions.ReadTimeout:
+            pass
+        except requests.exceptions.ConnectionError:
+            pass
 
     def stop(self):
-        print("Stopping")
-        self._server.shutdown()
-        print("Closing socket")
-        self._server.socket.close()
-        self.wait()
-        print("Done")
+        self._server.server_close()
+
 
 # class for used for stdout redirecting
 class EmittingStream(QtCore.QObject):
@@ -170,19 +193,18 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
     def buttonStartPressed(self):
         if self.btnStart.text() == "Start Server":
             #TODO put pagegenerator running in a separate thread
+            '''
             result = PageGenerator.generateCalendarInfoScreen(self.tableToList(), self.username, self.password, self.server)
             if result is False:
                 self.warning("Failed to retrieve calendar information, check connection parameters and try again")
                 return
-            print("Starting HTTP Server")
-            #TODO investigate whats going on with httpd and why it hangs
+            '''
             self.httpd.start()            
-            self.notify("HTTP Server running. Open your browser and point to http://localhost:8080/web/")
             self.btnStart.setText("Stop Server")
             self.disableUI()
+            self.notify("HTTP Server running. Open your browser and point to http://localhost:8080/web/")
         elif self.btnStart.text() == "Stop Server":
-            print("Stopping HTTP Server")
-            self.httpd.stop()            
+            self.httpd.force_stop()   
             self.btnStart.setText("Start Server")
             self.enableUI()
         else:
@@ -356,6 +378,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             w.setEnabled(False)
         for w in self.findChildren(QtWidgets.QLineEdit):
             w.setEnabled(False)
+        for w in self.findChildren(QtWidgets.QCheckBox):
+            w.setEnabled(False)            
 
         self.table.setEnabled(False)
         self.btnStart.setEnabled(True)
@@ -370,7 +394,11 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def load(self, fileName):
         contents = []
-        with open(fileName[0], "r") as fileInput:
+
+        if fileName[0] is "":
+            return
+
+        with open(fileName[0], "r", encoding="iso-8859-1") as fileInput:
             reader = csv.reader(fileInput)
             templist = []
             for row in reader:
@@ -383,7 +411,10 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
     def save(self, fileName):
         contents = self.tableToList()
 
-        with open(fileName[0], "w", newline="\n", encoding="utf-8") as fileOutput:
+        if fileName[0] is "":
+            return
+
+        with open(fileName[0], "w", newline="\n", encoding="iso-8859-1") as fileOutput:
             writer = csv.writer(fileOutput)
             writer.writerows(contents)
 
