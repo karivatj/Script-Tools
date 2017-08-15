@@ -71,7 +71,7 @@ calendar_list = ["RES_L3TestLab@ppshp.fi",
 if __name__ == "__main__":
     logging.debug("Starting up...")
     calendar_data = {} #dictionary containing the data
-    response = requests.get("https://sposti.ppshp.fi/EWS/Exchange.asmx",auth=HttpNtlmAuth('OYSNET\\TestLab_Res','CP3525dn%4x4'))
+    response = requests.get("https://sposti.ppshp.fi/EWS/Exchange.asmx",auth=HttpNtlmAuth('',''))
     if(response.status_code != 200):
         logging.error("Error while connecting to EWS Service. Try again later!")
         sys.exit(0)

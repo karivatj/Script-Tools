@@ -164,7 +164,7 @@ if __name__ == "__main__":
         message = message.replace("!End_Date!", end_time)
         #logging.debug(message)
         
-        response = requests.post("https://sposti.ppshp.fi/EWS/Exchange.asmx", data=message, headers=headers, auth=HttpNtlmAuth('OYSNET\\TestLab_Res','CP3525dn%4x4'))
+        response = requests.post("https://sposti.ppshp.fi/EWS/Exchange.asmx", data=message, headers=headers, auth=HttpNtlmAuth('',''))
         
         if(response.status_code != 200):
             logging.error("Error occured while fetching calendar: " + calendar)
