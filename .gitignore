@@ -67,3 +67,4 @@ tlab_tokens.py
 CalendarInfoscreen/src/content.html
 CalendarInfoscreen/src/preferences
 CalendarInfoscreen/src/web/content.html
+*.dat
