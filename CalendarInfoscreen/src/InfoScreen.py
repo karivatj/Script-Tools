@@ -88,8 +88,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.httpd = HttpDaemon(self)
 
         # preferences variables
-        self.username = "OYSNET\TestLab_Res"
-        self.password = "CP3525dn%4x4"
+        self.username = ""
+        self.password = ""
         self.server = "https://sposti.ppshp.fi/EWS/Exchange.asmx"
         self.interval = 5
         
