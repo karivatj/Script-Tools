@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '../ui/InfoScreen.UI'
+# Form implementation generated from reading ui file '../ui/InfoScreen.ui'
 #
 # Created by: PyQt5 UI code generator 5.9
 #
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_InfoScreen_Window(object):
     def setupUi(self, InfoScreen_Window):
         InfoScreen_Window.setObjectName("InfoScreen_Window")
-        InfoScreen_Window.resize(748, 413)
+        InfoScreen_Window.resize(1000, 600)
         self.centralwidget = QtWidgets.QWidget(InfoScreen_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -85,7 +85,7 @@ class Ui_InfoScreen_Window(object):
         self.verticalLayout_3.addLayout(self.gridLayout)
         InfoScreen_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(InfoScreen_Window)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 748, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1000, 26))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
