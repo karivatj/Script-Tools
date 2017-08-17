@@ -1,18 +1,7 @@
-import re
-
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
+from PyQt5 import QtWidgets
 
 # import UI files created with pyuic4
-from InfoScreenUI import *
-from AddCalendarUI import *
+from AddCalendarUI import Ui_AddCalendar_Window
 
 class AddCalendarDialog(QtWidgets.QDialog, Ui_AddCalendar_Window):
     def __init__(self):

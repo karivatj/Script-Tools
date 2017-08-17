@@ -1,9 +1,4 @@
-import re
-
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
+from PyQt5 import QtCore, QtWidgets
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -12,8 +7,7 @@ except AttributeError:
         return s
 
 # import UI files created with pyuic4
-from InfoScreenUI import *
-from PreferencesUI import *
+from PreferencesUI import Ui_Preferences_Window
 
 class PreferencesDialog(QtWidgets.QDialog, Ui_Preferences_Window):
 

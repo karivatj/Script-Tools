@@ -1,26 +1,20 @@
 import sys
-import time
 import csv
 import requests
-from urllib.request import urlopen
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QDialog
 
 # import UI files created with pyuic4
-from InfoScreenUI import *
-from AddCalendarUI import *
-from AboutUI import *
-from PreferencesUI import *
+from InfoScreenUI import Ui_InfoScreen_Window
+from AboutUI import Ui_About
 
 import Preferences
 import AddCalendar
 
 # workthread which executes calendar data fetching
-from PageGeneratorThread import *
+from PageGeneratorThread import PageGeneratorThread
 
 HOST, PORT = '127.0.0.1', 8080
 
@@ -48,7 +42,7 @@ class HttpDaemon(QtCore.QThread):
 
     def create_dummy_request(self):
         try:
-            result = requests.get("http://%s:%s/web/" % (HOST, PORT), timeout=1)
+            requests.get("http://%s:%s/web/" % (HOST, PORT), timeout=1)
         except requests.exceptions.ReadTimeout:
             pass
         except requests.exceptions.ConnectionError:
@@ -160,9 +154,13 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             self.preferencesActionTriggered()
 
     def savePreferences(self):
-        with open("preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
-            writer = csv.writer(fileOutput)
-            writer.writerow([self.username, self.password, self.server, self.interval, self.updatedata])
+        try:
+            with open("preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
+                writer = csv.writer(fileOutput)
+                writer.writerow([self.username, self.password, self.server, self.interval, self.updatedata])
+        except FileNotFoundError:
+            self.warning("Failed to save preferences!")
+            sys.exit(0)
 
     def onWorkerThreadStatusUpdate(self, value, message):
         print("Status: %s: %s" %(str(value), message))
@@ -336,9 +334,6 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.selectedRow = item.row()
         self.selectedCol = item.column()
 
-        name  = self.table.item(self.selectedRow, 0).text()
-        email = self.table.item(self.selectedRow, 1).text()
-
         self.btnMoveDown.setEnabled(True)
         self.btnMoveUp.setEnabled(True)
         self.btnDelete.setEnabled(True)
@@ -449,10 +444,10 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             return False
 
     def warning(self, message):
-        reply = QtWidgets.QMessageBox.warning(self, 'Warning', message, QtWidgets.QMessageBox.Ok)  
+        QtWidgets.QMessageBox.warning(self, 'Warning', message, QtWidgets.QMessageBox.Ok)  
 
     def notify(self, message):
-        reply = QtWidgets.QMessageBox.information(self, 'Page Generated', message, QtWidgets.QMessageBox.Ok)  
+        QtWidgets.QMessageBox.information(self, 'Page Generated', message, QtWidgets.QMessageBox.Ok)  
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

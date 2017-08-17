@@ -2,7 +2,6 @@
 #  -*- coding: UTF-8 -*-
 
 from __future__ import print_function
-from builtins import input
 from builtins import str
 from builtins import range
 
@@ -10,14 +9,13 @@ import collections
 import codecs
 import datetime
 import requests
-import sys
 
 from dateutil.parser import parse
 from requests_ntlm import HttpNtlmAuth
 from xml.etree import ElementTree
 
-from PyQt5 import QtCore, QtGui, uic 
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSignal
 
 #Sample message used to query calendar data. Remember to replace relevant parts of this message
 sample_getcalendar_request = '''<?xml version="1.0" encoding="utf-8"?>
