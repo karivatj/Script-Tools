@@ -15,9 +15,12 @@ from InfoScreenUI import *
 from AddCalendarUI import *
 from AboutUI import *
 from PreferencesUI import *
+
 import Preferences
 import AddCalendar
-import PageGenerator
+
+# workthread which executes calendar data fetching
+from PageGeneratorThread import *
 
 HOST, PORT = '127.0.0.1', 8080
 
@@ -77,7 +80,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.setupUi(self)
 
         # redirect stdout
-        # sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)        
+        sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)        
         
         # member variables
         self.selectedRow  = -1
@@ -92,7 +95,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.password = ""
         self.server = "https://sposti.ppshp.fi/EWS/Exchange.asmx"
         self.interval = 5
-        
+        self.updatedata = 0
+
         # connect signals / slots of UI controls
         self.btnAdd.clicked.connect(self.buttonAddPressed)
         self.btnClear.clicked.connect(self.buttonClearPressed)
@@ -110,7 +114,14 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
         self.btnStart.setText("Generate")
 
+        self.thread = PageGeneratorThread()
+        self.thread.progress.connect(self.updateProgressBar)
+        self.thread.statusupdate.connect(self.onWorkerThreadStatusUpdate)
+
         self.loadPreferences()
+
+        self.timer = QtCore.QTimer()        
+        self.timer.timeout.connect(self.generateCalendarPage)
         
     def __del__(self):
         sys.stdout = sys.__stdout__ 
@@ -133,23 +144,29 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def loadPreferences(self):
         try:
-            with open("preferences", "r") as fileInput:
+            with open("preferences.dat", "r") as fileInput:
                 reader = csv.reader(fileInput)
                 for row in reader:
                     items = [ str(field) for field in row ]
-            self.username  = items[0]
-            self.password  = items[1]
-            self.server    = items[2]
-            self.interval  = items[3]        
+
+            self.username   = items[0]
+            self.password   = items[1]
+            self.server     = items[2]
+            self.interval   = items[3]
+            self.updatedata = items[4]        
 
         except FileNotFoundError:
             self.notify("It seems that this is the first time you are launching this program. Please configure necessary connection parameters to get started")
             self.preferencesActionTriggered()
 
     def savePreferences(self):
-        with open("preferences", "w", newline="\n", encoding="utf-8") as fileOutput:
+        with open("preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
             writer = csv.writer(fileOutput)
-            writer.writerow([self.username, self.password, self.server, self.interval])
+            writer.writerow([self.username, self.password, self.server, self.interval, self.updatedata])
+
+    def onWorkerThreadStatusUpdate(self, value, message):
+        print("Status: %s: %s" %(str(value), message))
+        self.progressBar.setValue(0)
 
     def loadActionTriggered(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, "Load Calendar Configuration", "", "Configuration files (*.conf)", "Configuration files (*.conf)")
@@ -174,15 +191,16 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def preferencesActionTriggered(self):
         dialog = Preferences.PreferencesDialog()
-        dialog.setPreferences([self.username, self.password, self.server, self.interval])
+        dialog.setPreferences([self.username, self.password, self.server, self.interval, self.updatedata])
         if dialog.exec_():
             try:
                 result = dialog.getPreferences()
 
-                self.username  = result[0]
-                self.password  = result[1]
-                self.server    = result[2]
-                self.interval  = result[3]
+                self.username   = result[0]
+                self.password   = result[1]
+                self.server     = result[2]
+                self.interval   = result[3]
+                self.updatedata = result[4]
 
                 self.savePreferences()
                 
@@ -190,29 +208,29 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters.", QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                 return
 
+    def updateProgressBar(self, value):
+        self.progressBar.setValue(value)
+
+    def generateCalendarPage(self):
+        self.progressBar.setValue(0)
+        self.thread.startworking(self.tableToList(), self.username, self.password, self.server)                
+
     def buttonStartPressed(self):
         if self.btnStart.text() == "Start Server":
-            #TODO put pagegenerator running in a separate thread
-            '''
-            result = PageGenerator.generateCalendarInfoScreen(self.tableToList(), self.username, self.password, self.server)
-            if result is False:
-                self.warning("Failed to retrieve calendar information, check connection parameters and try again")
-                return
-            '''
+            self.generateCalendarPage()
             self.httpd.start()            
             self.btnStart.setText("Stop Server")
             self.disableUI()
+            self.timer.start(int(self.interval) * 1000 * 60)
             self.notify("HTTP Server running. Open your browser and point to http://localhost:8080/web/")
         elif self.btnStart.text() == "Stop Server":
-            self.httpd.force_stop()   
+            self.httpd.force_stop()
+            self.thread.stopworking()
             self.btnStart.setText("Start Server")
             self.enableUI()
+            self.timer.stop()
         else:
-            result = PageGenerator.generateCalendarInfoScreen(self.tableToList(), self.username, self.password, self.server)
-            if result is False:
-                self.warning("Failed to retrieve calendar information, check connection parameters and try again")
-                return
-            self.notify("Calendar page generated!")
+            self.generateCalendarPage()
 
     def HTTPCheckBoxToggled(self, value):
         if value == 2:
@@ -389,6 +407,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             w.setEnabled(True)
         for w in self.findChildren(QtWidgets.QLineEdit):
             w.setEnabled(True)
+        for w in self.findChildren(QtWidgets.QCheckBox):
+            w.setEnabled(True)              
 
         self.table.setEnabled(True)
 
