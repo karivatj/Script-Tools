@@ -101,6 +101,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.actionAbout.triggered.connect(self.aboutActionTriggered)
         self.actionLoad.triggered.connect(self.loadActionTriggered)
         self.actionSave.triggered.connect(self.saveActionTriggered)
+        self.actionClose.triggered.connect(self.closeActionTriggered)
         self.actionPreferences.triggered.connect(self.preferencesActionTriggered)
         self.btnStart.clicked.connect(self.buttonStartPressed)
         self.table.itemClicked.connect(self.cellClicked)
@@ -186,6 +187,9 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             return
         else:            
             self.save(filename)
+
+    def closeActionTriggered(self):
+        self.close()
 
     def preferencesActionTriggered(self):
         dialog = Preferences.PreferencesDialog()
