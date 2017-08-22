@@ -144,8 +144,10 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 for row in reader:
                     items = [ str(field) for field in row ]
 
-            self.username   = items[0]
-            self.password   = items[1]
+            for c in items[1]:
+                self.password += chr(ord(c) - 5)
+
+            self.username   = items[0]            
             self.server     = items[2]
             self.interval   = items[3]
             self.updatedata = items[4]        
@@ -156,9 +158,13 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def savePreferences(self):
         try:
+            temp_pw = ""
+            for c in self.password:
+                temp_pw += chr(ord(c) + 5)
+
             with open("preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
                 writer = csv.writer(fileOutput)
-                writer.writerow([self.username, self.password, self.server, self.interval, self.updatedata])
+                writer.writerow([self.username, temp_pw, self.server, self.interval, self.updatedata])
         except FileNotFoundError:
             self.warning("Failed to save preferences!")
             sys.exit(0)
