@@ -65,6 +65,6 @@ tlab_tokens.py
 *.pub
 *.conf
 CalendarInfoscreen/src/content.html
-CalendarInfoscreen/src/preferences
 CalendarInfoscreen/src/web/content.html
 *.dat
+CalendarInfoscreen/src/pyqtdeploy/deploy/*

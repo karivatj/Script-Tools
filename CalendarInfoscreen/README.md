@@ -1,11 +1,8 @@
-# Mouse Autoclicker
-Mouseclick Automation Tool by Kari Vatjus-Anttila made with Python 2.7, PyQT4 and pals.
+# Infoscreen Configuration tool
+Infoscreen Configuration tool by Kari Vatjus-Anttila made with Python 3.6, PyQT5 and pals.
 
-A tool to automate arbitrary mouseclick sequences.
-
-![alt tag](https://cloud.githubusercontent.com/assets/670459/9298549/140561e0-44ba-11e5-8e30-9304a7cf0ac0.png)
-
-Various placeholder images downloaded from iconsearch and credit goes to Chromatix
+A tool to configure a webpage that displays information about meetingroom appointments
+![alt tag](https://user-images.githubusercontent.com/670459/29560964-70d4a5ae-873c-11e7-9791-7444ca77ccd8.png)
 
 # Instructions
 Either download the release executable from the releases page (top of the page) or download the source package and run AutoClicker with a python intepreter.
