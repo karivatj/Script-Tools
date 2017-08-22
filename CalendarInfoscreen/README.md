@@ -6,5 +6,5 @@ A tool to configure a webpage that displays information about meetingroom appoin
 ![alt tag](https://user-images.githubusercontent.com/670459/29560964-70d4a5ae-873c-11e7-9791-7444ca77ccd8.png)
 
 # Instructions
-Either download the release executable from the releases page (top of the page) or download the source package and run AutoClicker with a python intepreter.
+Either download the release executable from the releases page (top of the page) or download the source package and run Infoscreen.py with a python intepreter.
 Any suggestions or feature requests can be forwarded to kari.vatjusanttila [{at}] gmail.com
