@@ -13,6 +13,8 @@ from AboutUI import Ui_About
 import Preferences
 import AddCalendar
 
+import ctypes
+
 # workthread which executes calendar data fetching
 from PageGeneratorThread import PageGeneratorThread
 
@@ -72,6 +74,9 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         QtWidgets.QMainWindow.__init__(self, parent)
 
         self.setupUi(self)
+
+        # minimize the console on startup
+        ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 6 )
 
         # redirect stdout
         sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)        
@@ -143,10 +148,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 reader = csv.reader(fileInput)
                 for row in reader:
                     items = [ str(field) for field in row ]
-
             for c in items[1]:
                 self.password += chr(ord(c) - 5)
-
             self.username   = items[0]            
             self.server     = items[2]
             self.interval   = items[3]
