@@ -68,3 +68,6 @@ CalendarInfoscreen/src/content.html
 CalendarInfoscreen/src/web/content.html
 *.dat
 CalendarInfoscreen/src/pyqtdeploy/deploy/*
+
+#release directory
+CalendarInfoscreen/src/release/*
