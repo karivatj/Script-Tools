@@ -9,6 +9,7 @@ import collections
 import codecs
 import datetime
 import requests
+import traceback
 
 from dateutil.parser import parse
 from requests_ntlm import HttpNtlmAuth
@@ -95,13 +96,13 @@ class PageGeneratorThread(QtCore.QThread):
         progress_now = 0
 
         try:
-            response = requests.get(self.server, auth=HttpNtlmAuth(self.username, self.password))
-        except requests.exceptions.ConnectionError:
-            self.statusupdate.emit(-1, "Connection error while fetching calendar data. Check connection parameters and try again")
+            response = requests.get(self.server, auth=HttpNtlmAuth(self.username, self.password), verify="./certifi/cacert.pem")
+        except requests.exceptions.ConnectionError as e:
+            self.statusupdate.emit(-1, str(e) + "\n" + str(traceback.print_exc()))
             return
 
         if(response.status_code != 200):
-            self.statusupdate.emit(-1, "Connection error while fetching calendar data. Check connection parameters and try again")
+            self.statusupdate.emit(-1, "Connection error while fetching calendar data. Status Code was " + str(response_status_code))
             return
         else:
             print("Connection OK - Continuing with the task")
@@ -125,9 +126,10 @@ class PageGeneratorThread(QtCore.QThread):
             #print(message)
             
             try:
-                response = requests.post(self.server, data=message, headers=self.headers, auth=HttpNtlmAuth(self.username, self.password))
-            except requests.exceptions.ConnectionError:
-                self.statusupdate.emit(-1, "Connection error while fetching calendar data. Check connection parameters and try again")
+                print("Fetching data from " + self.server)
+                response = requests.post(self.server, data=message, headers=self.headers, auth=HttpNtlmAuth(self.username, self.password), verify="./certifi/cacert.pem")
+            except requests.exceptions.ConnectionError as e:
+                self.statusupdate.emit(-1, str(e) + "\n" + str(traceback.print_exc()))
                 return
 
             if(response.status_code != 200):
@@ -135,6 +137,7 @@ class PageGeneratorThread(QtCore.QThread):
                 continue
             else:
                 print("Response OK. Parsing data...")        
+                #print(response.content)
                 tree = ElementTree.fromstring(response.content)
                 today = datetime.datetime.now()
                 timedelta = 2
