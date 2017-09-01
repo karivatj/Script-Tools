@@ -279,7 +279,8 @@
         }
 
         function layout_bloodpressure() {
-            var now = moment().format("YYYY-MM-DD hh:mm:ss")
+            //var now = moment().format("YYYY-MM-DD hh:mm:ss")
+            var now = bloodpressure_data
             var delta = moment().subtract(20, 'days').format("YYYY-MM-DD hh:mm:ss")
             var update = {
                 xaxis: { range: [delta, now] },
@@ -337,7 +338,7 @@
             bloodpressure_data = format_tuple_bar_plot(bloodpressure_data, "Blood Pressure", "Systolic", "Diastolic", "Date", "mmHg")
             create_plot(bloodpressure_data, "bloodpressure")
 
-            layout_bloodpressure()             
+            //layout_bloodpressure()             
         }
 
         function handle_heartrate(data) {
@@ -345,7 +346,7 @@
             heartrate_data = format_bar_plot(heartrate_data, "Average Heartrate", "Date", "BPM")
             create_plot(heartrate_data, "heartrate")
 
-            layout_heartrate()         
+            //layout_heartrate()         
         }
 
         function handle_bodytemp(data) {
@@ -353,7 +354,7 @@
             bodytemp_data = format_line_plot(bodytemp_data, "Body Temperature", "Date", "Celcius")
             create_plot(bodytemp_data, "bodytemp")
             
-            layout_bodytemperature()           
+            //layout_bodytemperature()           
         }
 
         function initGoogleMaps() {
@@ -371,13 +372,19 @@
         }
 
         function updateGoogleMaps(data) {
-            thingsee_location = new google.maps.LatLng(data[0].lat, data[0].lon)
-            marker = new google.maps.Marker({
-                position: thingsee_location, 
-                map: map
-            });
+            if(data.length != 0)
+            {
+                if(typeof(data[0]) == 'undefined')
+                    thingsee_location = new google.maps.LatLng(data.lat, data.lon)
+                else
+                    thingsee_location = new google.maps.LatLng(data[0].lat, data[0].lon)
 
-            centerGoogleMaps(thingsee_location)
+                marker = new google.maps.Marker({
+                    position: thingsee_location, 
+                    map: map
+                });
+                centerGoogleMaps(thingsee_location)                
+            }
         }
 
         function centerGoogleMaps(location) {
@@ -423,6 +430,8 @@
             // GET data about ThingseeOne location
             session.call('com.testlab.haltian_location').then(
                 function(res) { //Success
+                    console.log("Received data for Haltian location")
+                    console.log(res)
                     updateGoogleMaps(JSON.parse(res));
                 },
                 function(err) { //Failure
@@ -433,6 +442,7 @@
             // GET initial data sets from Withings
             session.call('com.testlab.withings_energy', ["plotly"]).then(
                 function(res) { //Success
+                    console.log("Received data for Energy")
                     handle_energy(res)
                 },
                 function(err) { //Failure
@@ -441,6 +451,7 @@
             );
             session.call('com.testlab.withings_activity', ["plotly"]).then(
                 function(res) { //Success
+                    console.log("Received data for Activity")
                     handle_activity(res)
                 },
                 function(err) { //Failure
@@ -449,6 +460,7 @@
             );
             session.call('com.testlab.withings_sleep', ["plotly"]).then(
                 function(res) { //Success
+                    console.log("Received data for Sleep activity")
                     handle_sleep(res)
                 },
                 function(err) { //Failure
@@ -457,6 +469,7 @@
             );
             session.call('com.testlab.withings_bloodpressure', ["plotly"]).then(
                 function(res) { //Success
+                    console.log("Received data for Bloodpressure")
                     handle_bloodpressure(res)
                 },
                 function(err) { //Failure
@@ -465,6 +478,7 @@
             );
             session.call('com.testlab.withings_bodytemperature', ["plotly"]).then(
                 function(res) { //Success
+                    console.log("Received data for Bodytemperature")
                     handle_bodytemp(res)
                 },
                 function(err) { //Failure
@@ -473,6 +487,7 @@
             );
             session.call('com.testlab.withings_average_heartrate', ["plotly"]).then(
                 function(res) { //Success
+                    console.log("Received data for Heartrate")
                     handle_heartrate(res)
                 },
                 function(err) { //Failure
