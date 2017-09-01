@@ -41,7 +41,7 @@ class AppSession(ApplicationSession):
                 #get location information
                 r = requests.post(haltian_url, data=None, headers=headers)
             except ConnectionError:
-                self.log.error("Connection Error. Check connectivity and / or connection parameters and try again!")
+                self.log.error("Haltian Node: Connection Error. Check connectivity and / or connection parameters and try again!")
                 yield sleep(300)
                 continue
 
@@ -49,16 +49,22 @@ class AppSession(ApplicationSession):
                 data = r.text
                 try:
                     location_data = json.loads(r.text)
+                    if len(location_data) == 0:
+                        print("Haltian Node: Location response is empty. Using default value")                        
+                        location_data = dict()
+                        location_data["lat"] = 65.006198
+                        location_data["lon"] = 25.5229728                        
                 except ValueError:
-                    self.log.error("Error while decoding JSON data. Trying again later.")
+                    self.log.error("Haltian Node: Error while decoding JSON data. Trying again later.")
                 else:
                     if location_data == last_location:
                         pass
                     else:
                         last_location = location_data
-                        self.log.info("publishing Thingsee location")
+                        self.log.info("Haltian Node: publishing Thingsee location")
                         yield self.publish('com.testlab.haltian_location_update', json.dumps(location_data))                
             else:
-                self.log.error(r.status_code + " Error. Check connectivity and / or connection parameters and try again!")
+                self.log.error("Haltian Node: " + str(r.status_code) + " Error. Service not available at this moment")
+                yield sleep(300)
 
-            yield sleep(5)
+            yield sleep(60)
