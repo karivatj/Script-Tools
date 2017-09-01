@@ -25,7 +25,7 @@ from data_formatter import *
 #access tokens and secrets.
 from access_tokens import *
 
-timedelta = datetime.date.today() - datetime.timedelta(days=30)
+timedelta = datetime.date.today() - datetime.timedelta(days=60)
 
 meastype = [10, 9, 11, 71] #systolic / diastolic blood pressure (10 & 9), average pulse (11), body temperature (71)
 user_ids = [0, 12762562, 12762571, 12762926]
@@ -163,11 +163,11 @@ class AppSession(ApplicationSession):
                     temp_sleep = withings_client.get_sleepsummary(startdateymd=today - datetime.timedelta(days=1), enddateymd=today)
                     for m in meastype: measures.append(withings_client.get_measures(limit=1, meastype=m))
                 except ConnectionError:
-                    self.log.error("Connection Error. Check connectivity and / or connection parameters and try again!")
+                    self.log.error("Withings Connection Error. Check connectivity and / or connection parameters and try again!")
                     yield sleep(60)
                     continue
                 except WithingsAPIError as w:
-                    self.log.error("Withings API: {}".format(w.message))
+                    self.log.error("Withings API Error: {}".format(w.message))
                     yield sleep(60)
                     continue
 
@@ -313,5 +313,5 @@ class AppSession(ApplicationSession):
                                     if http_client_connected:
                                         self.log.info("publishing a new BP reading over HTTP bridge ")
                                         result = http_client.publish('com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(http_payload))
-                                        result = http_client.publish('com.testlab.withings_ibm_bloodpressure_update', json.dumps(http_payload))                                                                               
-            yield sleep(30)
+                                        result = http_client.publish('com.testlab.withings_ibm_bloodpressure_update', json.dumps(http_payload))                                                                             
+            yield sleep(60)
