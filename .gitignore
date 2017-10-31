@@ -71,3 +71,5 @@ CalendarInfoscreen/src/pyqtdeploy/deploy/*
 
 #release directory
 CalendarInfoscreen/src/release/*
+
+TestLab-Crossbar/access_tokens.py
