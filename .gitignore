@@ -73,3 +73,6 @@ CalendarInfoscreen/src/pyqtdeploy/deploy/*
 CalendarInfoscreen/src/release/*
 
 TestLab-Crossbar/access_tokens.py
+*.pdy
+*.zip
+*.pdy
