@@ -18,3 +18,21 @@ com.testlab.withings_sleep_update
 com.testlab.withings_bodytemp_update
 com.testlab.withings_heartrate_update
 com.testlab.withings_bloodpressure_update
+
+#Dependencies:
+python3
+pypiwin32
+paho-mqtt
+python-dateutil
+crossbarhttp3
+requests-oauthlib
+
+Microsoft Visual Studio Community edition
+	-> Install Python workload + Native tools for development
+	-> Install Desktop development workload and appropriate Win SDK for your distribution
+
+Windows Env variables:
+----------------------
+LIB: 		C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.11.25503\lib\x64;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.16299.0\um\x64;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.16299.0\ucrt\x64
+INCLUDE: 	C:\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\ucrt;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.11.25503\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\um
+PATH: 		C:\Users\Administrator.TESTLAB\AppData\Roaming\npm;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.11.25503\bin\Hostx64\x64;C:\Program Files (x86)\Windows Kits\10\bin\10.0.16299.0\x64
