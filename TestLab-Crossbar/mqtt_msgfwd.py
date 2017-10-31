@@ -23,13 +23,19 @@ mqtt_client = mqtt.Client()
 def on_haltian_location(msg):
     print("event for 'on_haltian_location' received: {}".format(msg))
     msg = json.loads(msg)
+    data = dict()    
+    targetId = "vehicle4564"    
     if len(msg) == 0:
-        print("'on_haltian_location' response is empty")
-        return
-    targetId = "vehicle4564"
-    data = dict()
-    data["lat"] = float(msg[0]["lat"])
-    data["lon"] = float(msg[0]["lon"])
+        print("'on_haltian_location' response is empty. Using default value")
+        data["lat"] = 65.006198
+        data["lon"] = 25.5229728
+    else:
+        try:
+            data["lat"] = float(msg[0]["lat"])
+            data["lon"] = float(msg[0]["lon"])
+        except KeyError: #in case we post a default value
+            data["lat"] = float(msg["lat"])
+            data["lon"] = float(msg["lon"])
     data["level"] = 0 #floor number
     mqtt_client.publish('com/testlab/user/' + targetId + '/LOC', json.dumps(data))   
 

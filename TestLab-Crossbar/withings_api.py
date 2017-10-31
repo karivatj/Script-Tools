@@ -51,7 +51,7 @@ class WithingsCredentials(object):
 
 
 class WithingsAuth(object):
-    URL = 'https://oauth.withings.com/account'
+    URL = 'https://developer.health.nokia.com/account'
 
     def __init__(self, consumer_key, consumer_secret):
         self.consumer_key = consumer_key
@@ -84,8 +84,8 @@ class WithingsAuth(object):
 
 
 class WithingsApi(object):
-    URL = 'http://wbsapi.withings.net'
-    v2_URL = 'http://wbsapi.withings.net/v2'
+    URL = 'http://api.health.nokia.com'
+    v2_URL = 'http://api.health.nokia.com/v2'
 
     def __init__(self, credentials):
         self.credentials = credentials
