@@ -99,6 +99,16 @@ def get_list_index(list, index, value):
     #matches behavior of list.index
     raise ValueError("list.index(x): x not in list")
 
+def publish_over_http_bridge(http_client, topic, json_data):
+    try:
+        result = http_client.publish(topic, json_data)
+    except crossbarhttp.crossbarhttp.ClientBadHost:
+        print("Failed to publish data update over CrossbarHTTP to " + str(topic))
+        pass
+    except json.decoder.JSONDecodeError as e:
+        print("Failed to decode JSON data connection or Crossbar configuration for errors: " + str(e))
+        pass
+
 class AppSession(ApplicationSession):
 
     log = Logger()
@@ -243,14 +253,8 @@ class AppSession(ApplicationSession):
                                         
                                         if http_client_connected:
                                             self.log.info("publishing a new Avg. HR reading over HTTP bridge")
-                                            try:
-                                                result = http_client.publish('com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(http_payload))
-                                            except crossbarhttp.crossbarhttp.ClientBadHost:
-                                                self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_healthconnect_avgheartrate_update")                                            
-                                            try:
-                                                result = http_client.publish('com.testlab.withings_ibm_avgheartrate_update', json.dumps(http_payload))                                                                                                                                                                                        
-                                            except crossbarhttp.crossbarhttp.ClientBadHost:
-                                                self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_ibm_avgheartrate_update")                                                                                                
+                                            publish_over_http_bridge(http_client, 'com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(http_payload))
+                                            publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_avgheartrate_update', json.dumps(http_payload))                                                                                                                                                                                                                                                                                     
                                 else:
                                     self.log.info("publishing to 'Withings HR Update' with {userid} {date} {result}", userid=user_id, date=date, result=value)
                                     heartrate_data[user_id].append([date, value])
@@ -258,14 +262,8 @@ class AppSession(ApplicationSession):
                                     
                                     if http_client_connected:
                                         self.log.info("publishing a new Avg. HR reading over HTTP bridge")
-                                        try:
-                                            result = http_client.publish('com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(http_payload))
-                                        except crossbarhttp.crossbarhttp.ClientBadHost:
-                                            self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_healthconnect_avgheartrate_update")                                            
-                                        try:
-                                            result = http_client.publish('com.testlab.withings_ibm_avgheartrate_update', json.dumps(http_payload))                                                                                                                                                                                        
-                                        except crossbarhttp.crossbarhttp.ClientBadHost:
-                                            self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_ibm_avgheartrate_update")                                            
+                                        publish_over_http_bridge(http_client, 'com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(http_payload))
+                                        publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_avgheartrate_update', json.dumps(http_payload))                                                                                                                                                                                                                           
 
                             elif(result["type"] == 71): #Body Temperature
 
@@ -273,7 +271,7 @@ class AppSession(ApplicationSession):
                                 http_payload = {}
                                 http_payload[user_id] = []
                                 http_payload[user_id].append([date, value])                                        
-                                http_payload = format_measurement_data_to_intersystems(http_payload, user_id, "bodyTemp")   
+                                http_payload = format_measurement_data_to_intersystems(http_payload, user_id, "bodyTemp")
 
                                 if len([item for item in bodytemperature_data[user_id] if item[0] == date]) >= 1:
                                     if bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1] != value:
@@ -282,15 +280,9 @@ class AppSession(ApplicationSession):
                                         yield self.publish('com.testlab.withings_bodytemp_update', [user_id, date, value])
                                         
                                         if http_client_connected:
-                                            self.log.info("publishing a new Temp reading over HTTP bridge")
-                                            try:
-                                                result = http_client.publish('com.testlab.withings_healthconnect_bodytemp_update', json.dumps(http_payload))
-                                            except crossbarhttp.crossbarhttp.ClientBadHost:
-                                                self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_healthconnect_bodytemp_update")
-                                            try:
-                                                result = http_client.publish('com.testlab.withings_ibm_bodytemp_update', json.dumps(http_payload))                                                                                                                                                                                                                                            
-                                            except crossbarhttp.crossbarhttp.ClientBadHost:
-                                                self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_ibm_bodytemp_update")                                              
+                                            self.log.info("publishing a new Temp reading over HTTP bridge")                                            
+                                            publish_over_http_bridge(http_client, 'com.testlab.withings_healthconnect_bodytemp_update', json.dumps(http_payload))
+                                            publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_bodytemp_update', json.dumps(http_payload))                     
                                 else:
                                     self.log.info("publishing to 'Withings BodyTemp Update' with {userid} {date} {result}", userid=user_id, date=date, result=value)
                                     bodytemperature_data[user_id].append([date, value])
@@ -298,14 +290,8 @@ class AppSession(ApplicationSession):
                                     
                                     if http_client_connected:
                                         self.log.info("publishing a new Temp reading over HTTP bridge")
-                                        try:
-                                            result = http_client.publish('com.testlab.withings_healthconnect_bodytemp_update', json.dumps(http_payload))
-                                        except crossbarhttp.crossbarhttp.ClientBadHost:
-                                            self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_healthconnect_bodytemp_update")
-                                        try:
-                                            result = http_client.publish('com.testlab.withings_ibm_bodytemp_update', json.dumps(http_payload))                                                                                                                                                                                                                                            
-                                        except crossbarhttp.crossbarhttp.ClientBadHost:
-                                            self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_ibm_bodytemp_update")                                            
+                                        publish_over_http_bridge(http_client, "com.testlab.withings_healthconnect_bodytemp_update", json.dumps(http_payload))
+                                        publish_over_http_bridge(http_client, "com.testlab.withings_ibm_bodytemp_update", json.dumps(http_payload))     
 
                             elif(result["type"] == 10): #Systolic BP
                                 temp_bloodpressure[date] = []
@@ -328,14 +314,8 @@ class AppSession(ApplicationSession):
 
                                         if http_client_connected:
                                             self.log.info("publishing a new BP reading over HTTP bridge ")
-                                            try:
-                                                result = http_client.publish('com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(http_payload))
-                                            except crossbarhttp.crossbarhttp.ClientBadHost:
-                                                self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_healthconnect_bloodpressure_update")    
-                                            try:
-                                                result = http_client.publish('com.testlab.withings_ibm_bloodpressure_update', json.dumps(http_payload))                                                                               
-                                            except crossbarhttp.crossbarhttp.ClientBadHost:
-                                                self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_ibm_bloodpressure_update")                                              
+                                            publish_over_http_bridge(http_client, 'com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(http_payload))
+                                            publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_bloodpressure_update', json.dumps(http_payload))                                                                               
                                 else:
                                     self.log.info("publishing to 'Withings BP Update' with {userid} {date} {result}", userid=user_id, date=date, result=temp_bloodpressure[date])
                                     bloodpressure_data[user_id].append([date, temp_bloodpressure[date]])
@@ -343,12 +323,6 @@ class AppSession(ApplicationSession):
 
                                     if http_client_connected:
                                         self.log.info("publishing a new BP reading over HTTP bridge ")
-                                        try:
-                                            result = http_client.publish('com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(http_payload))
-                                        except crossbarhttp.crossbarhttp.ClientBadHost:
-                                            self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_healthconnect_bloodpressure_update")    
-                                        try:
-                                            result = http_client.publish('com.testlab.withings_ibm_bloodpressure_update', json.dumps(http_payload))                                                                               
-                                        except crossbarhttp.crossbarhttp.ClientBadHost:
-                                            self.log.error("Failed to publish bodytemp update over CrossbarHTTP to com.testlab.withings_ibm_bloodpressure_update")    
-            yield sleep(30)
+                                        publish_over_http_bridge(http_client, 'com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(http_payload))
+                                        publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_bloodpressure_update', json.dumps(http_payload))                                                                               
+            yield sleep(60)
