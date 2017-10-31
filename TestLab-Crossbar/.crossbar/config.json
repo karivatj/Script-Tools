@@ -63,7 +63,7 @@
                                 "options": {
                                     "debug": false
                                 }
-                            }                        
+                            }
                         }
                     }
                 }
@@ -76,7 +76,7 @@
                     ".."
                 ]
             },
-            "components": [                
+            "components": [
                 {
                     "type": "class",
                     "classname": "crossbar.adapter.rest.MessageForwarder",
@@ -102,11 +102,11 @@
                             {
                                 "url": "http://oulu-testlab-measurements.eu-de.mybluemix.net/data",
                                 "topic": "com.testlab.withings_ibm_bloodpressure_update"
-                            },    
+                            },
                             {
                                 "url": "http://oulu-testlab-measurements.eu-de.mybluemix.net/data",
                                 "topic": "com.testlab.withings_ibm_avgheartrate_update"
-                            }                                                                       
+                            }
                         ],
                         "method": "POST",
                         "expectedcode": 200,
@@ -116,10 +116,10 @@
                         "type": "websocket",
                         "endpoint": {
                             "type": "tcp",
-                            "host": "web.testlab.local",
+                            "host": "localhost",
                             "port": 8080
                         },
-                        "url": "ws://web.testlab.local:8080/ws"
+                        "url": "ws://localhost:8080/ws"
                     }
                 },
                 {
@@ -130,12 +130,12 @@
                         "type": "websocket",
                         "endpoint": {
                             "type": "tcp",
-                            "host": "web.testlab.local",
+                            "host": "localhost",
                             "port": 8080
                         },
-                        "url": "ws://web.testlab.local:8080/ws"
+                        "url": "ws://localhost:8080/ws"
                     }
-                },                
+                },
                 {
                     "type": "class",
                     "classname": "withings_node.AppSession",
@@ -144,10 +144,10 @@
                         "type": "websocket",
                         "endpoint": {
                             "type": "tcp",
-                            "host": "web.testlab.local",
+                            "host": "localhost",
                             "port": 8080
                         },
-                        "url": "ws://web.testlab.local:8080/ws"
+                        "url": "ws://localhost:8080/ws"
                     }
                 },
                 {
@@ -158,10 +158,10 @@
                         "type": "websocket",
                         "endpoint": {
                             "type": "tcp",
-                            "host": "web.testlab.local",
+                            "host": "localhost",
                             "port": 8080
                         },
-                        "url": "ws://web.testlab.local:8080/ws"
+                        "url": "ws://localhost:8080/ws"
                     }
                 },
                 {
@@ -172,10 +172,10 @@
                         "type": "websocket",
                         "endpoint": {
                             "type": "tcp",
-                            "host": "web.testlab.local",
+                            "host": "localhost",
                             "port": 8080
                         },
-                        "url": "ws://web.testlab.local:8080/ws"
+                        "url": "ws://localhost:8080/ws"
                     }
                 }
             ]
