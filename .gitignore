@@ -58,9 +58,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-#Withings access tokens
-tlab_tokens.py
-
 *.priv
 *.pub
 *.conf
@@ -75,4 +72,4 @@ CalendarInfoscreen/src/release/*
 TestLab-Crossbar/access_tokens.py
 *.pdy
 *.zip
-*.pdy
+TestLab-Crossbar/.crossbar/key.pub
