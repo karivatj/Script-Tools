@@ -53,8 +53,8 @@ class AppSession(ApplicationSession):
                     location_data = json.loads(r.text)
                     if len(location_data) == 0:
                         location_data = dict()
-                        location_data["lat"] = 65.006198
-                        location_data["lon"] = 25.5229728
+                        location_data["lat"] = 65.0067789
+                        location_data["lon"] = 25.5236168
                 except ValueError:
                     self.log.error(str(TAG) + "Haltian Node: Error while decoding JSON data. Trying again later.")
                 else:
