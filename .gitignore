@@ -73,3 +73,5 @@ TestLab-Crossbar/access_tokens.py
 *.pdy
 *.zip
 TestLab-Crossbar/.crossbar/key.pub
+*.pub
+*.json

@@ -15,6 +15,8 @@ from access_tokens import *
 import json
 import requests
 
+TAG = "Haltian Node: "
+
 class AppSession(ApplicationSession):
 
     log = Logger()
@@ -24,11 +26,11 @@ class AppSession(ApplicationSession):
 
         # REGISTER a procedure for remote calling. Return location information
         def haltian_location():
-            self.log.info("haltian_location() called. Delivering payload")
+            self.log.info(str(TAG) + "haltian_location() called. Delivering payload")
             return json.dumps(location_data)
 
         yield self.register(haltian_location, 'com.testlab.haltian_location')
-        self.log.info("procedure haltian_location() registered")  
+        self.log.info(str(TAG) + "procedure haltian_location() registered")
 
         headers = {'Authorization': haltian_pw, 'Content-Type': 'application/json'}
 
@@ -41,7 +43,7 @@ class AppSession(ApplicationSession):
                 #get location information
                 r = requests.post(haltian_url, data=None, headers=headers)
             except ConnectionError:
-                self.log.error("Haltian Node: Connection Error. Check connectivity and / or connection parameters and try again!")
+                self.log.error(str(TAG) + "Haltian Node: Connection Error. Check connectivity and / or connection parameters and try again!")
                 yield sleep(300)
                 continue
 
@@ -50,21 +52,20 @@ class AppSession(ApplicationSession):
                 try:
                     location_data = json.loads(r.text)
                     if len(location_data) == 0:
-                        print("Haltian Node: Location response is empty. Using default value")                        
                         location_data = dict()
                         location_data["lat"] = 65.006198
-                        location_data["lon"] = 25.5229728                        
+                        location_data["lon"] = 25.5229728
                 except ValueError:
-                    self.log.error("Haltian Node: Error while decoding JSON data. Trying again later.")
+                    self.log.error(str(TAG) + "Haltian Node: Error while decoding JSON data. Trying again later.")
                 else:
                     if location_data == last_location:
                         pass
                     else:
                         last_location = location_data
-                        self.log.info("Haltian Node: publishing Thingsee location")
-                        yield self.publish('com.testlab.haltian_location_update', json.dumps(location_data))                
+                        self.log.info(str(TAG) + "Haltian Node: publishing Thingsee location")
+                        yield self.publish('com.testlab.haltian_location_update', json.dumps(location_data))
             else:
-                self.log.error("Haltian Node: " + str(r.status_code) + " Error. Service not available at this moment")
+                self.log.error(str(TAG) + "Haltian Node: " + str(r.status_code) + " Error. Service not available at this moment")
                 yield sleep(300)
 
             yield sleep(60)

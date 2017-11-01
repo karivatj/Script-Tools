@@ -15,9 +15,11 @@ heartrate_data       = {}
 bloodpressure_data   = {}
 bodytemperature_data = {}
 
+TAG = "Withings RPC Handler: "
+
 def withings_energy(data_format):
     data = {}
-    print("withings_energy() called. Delivering payload")
+    print(str(TAG) + "withings_energy() called. Delivering payload")
     if data_format in "plotly": #return plotly compatible data
         for x in energy_data:
             data[x] = format_data_to_plotly(energy_data, x)
@@ -27,7 +29,7 @@ def withings_energy(data_format):
 
 def withings_activity(data_format):
     data = {}
-    print("withings_activity() called. Delivering payload")
+    print(str(TAG) + "withings_activity() called. Delivering payload")
     if data_format in "plotly": #return plotly compatible data
         for x in activity_data:
             data[x] = format_data_to_plotly(activity_data, x)
@@ -41,7 +43,7 @@ def withings_activity(data_format):
 
 def withings_sleep(data_format):
     data = {}
-    print("withings_sleep() called. Delivering payload")
+    print(str(TAG) + "withings_sleep() called. Delivering payload")
     if data_format in "plotly": #return plotly compatible data
         for x in sleep_data:
             data[x] = format_data_to_plotly(sleep_data, x)
@@ -51,7 +53,7 @@ def withings_sleep(data_format):
 
 def withings_bloodpressure(data_format):
     data = {}
-    print("withings_bloodpressure() called. Delivering payload")
+    print(str(TAG) + "withings_bloodpressure() called. Delivering payload")
     if data_format in "plotly": #return plotly compatible data
         for x in bloodpressure_data:
             data[x] = format_bloodpressure_data_to_plotly(bloodpressure_data, x)
@@ -65,7 +67,7 @@ def withings_bloodpressure(data_format):
 
 def withings_bodytemperature(data_format):
     data = {}
-    print("withings_bodytemperature() called. Delivering payload")
+    print(str(TAG) + "withings_bodytemperature() called. Delivering payload")
     if data_format in "plotly": #return plotly compatible data
         for x in bodytemperature_data:
             data[x] = format_measurement_data_to_plotly(bodytemperature_data, x)
@@ -79,7 +81,7 @@ def withings_bodytemperature(data_format):
 
 def withings_average_heartrate(data_format):
     data = {}
-    print("withings_average_heartrate() called. Delivering payload")
+    print(str(TAG) + "withings_average_heartrate() called. Delivering payload")
     if data_format in "plotly": #return plotly compatible data
         for x in heartrate_data:
             data[x] = format_measurement_data_to_plotly(heartrate_data, x)
@@ -87,6 +89,6 @@ def withings_average_heartrate(data_format):
     elif data_format in "intersystems": #return intersystems compatible data via HTTP bridge
         for x in heartrate_data:
             data[x] = format_measurement_data_to_intersystems(heartrate_data, x, "avgHeartRate")
-        return json.dumps(data)                 
+        return json.dumps(data)
     else:
         return json.dumps(heartrate_data)

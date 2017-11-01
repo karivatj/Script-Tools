@@ -32,6 +32,8 @@ user_ids = [0, 12762562, 12762571, 12762926]
 
 http_client_connected = False
 
+TAG = "Withings Node: "
+
 #utility functions to get initial data chunks from Withings.
 def get_energy_and_activity(user_id, client):
     activity = client.get_activity(startdateymd=timedelta, enddateymd=datetime.date.today()) #get step count & energy consumption statistics
@@ -103,10 +105,10 @@ def publish_over_http_bridge(http_client, topic, json_data):
     try:
         result = http_client.publish(topic, json_data)
     except crossbarhttp.crossbarhttp.ClientBadHost:
-        print("Failed to publish data update over CrossbarHTTP to " + str(topic))
+        print(str(TAG) + "Failed to publish data update over CrossbarHTTP to " + str(topic))
         pass
     except json.decoder.JSONDecodeError as e:
-        print("Failed to decode JSON data connection or Crossbar configuration for errors: " + str(e))
+        print(str(TAG) + "Failed to decode JSON data connection or Crossbar configuration for errors: " + str(e))
         pass
 
 class AppSession(ApplicationSession):
@@ -117,28 +119,28 @@ class AppSession(ApplicationSession):
     def onJoin(self, details):
 
         try:
-            self.log.info("Connecting to HTTP bridge")
+            self.log.info(str(TAG) + "Connecting to HTTP bridge")
             http_client = crossbarhttp.Client(http_bridge_url)
             http_client_connected = True
         except crossbarhttp.ClientBadHost:
-            self.log.error("HTTP bridge unavailable")
+            self.log.error(str(TAG) + "HTTP bridge unavailable")
             http_client_connected = False
         else:
-            self.log.info("HTTP bridge connected")
+            self.log.info(str(TAG) + "HTTP bridge connected")
 
         #RPC implementations in withings_rpc_handlers
         yield self.register(withings_energy, 'com.testlab.withings_energy')
-        self.log.info("procedure withings_energy() registered")
+        self.log.info(str(TAG) + "procedure withings_energy() registered")
         yield self.register(withings_activity, 'com.testlab.withings_activity')
-        self.log.info("procedure withings_activity() registered")
+        self.log.info(str(TAG) + "procedure withings_activity() registered")
         yield self.register(withings_sleep, 'com.testlab.withings_sleep')
-        self.log.info("procedure withings_sleep() registered")
+        self.log.info(str(TAG) + "procedure withings_sleep() registered")
         yield self.register(withings_bloodpressure, 'com.testlab.withings_bloodpressure')
-        self.log.info("procedure withings_bloodpressure() registered")
+        self.log.info(str(TAG) + "procedure withings_bloodpressure() registered")
         yield self.register(withings_bodytemperature, 'com.testlab.withings_bodytemperature')
-        self.log.info("procedure withings_bodytemperature() registered")
+        self.log.info(str(TAG) + "procedure withings_bodytemperature() registered")
         yield self.register(withings_average_heartrate, 'com.testlab.withings_average_heartrate')
-        self.log.info("procedure withings_average_heartrate() registered")
+        self.log.info(str(TAG) + "procedure withings_average_heartrate() registered")
 
         #fetch initial datasets for userids
         for i in range (0, len(user_ids)):
@@ -174,11 +176,11 @@ class AppSession(ApplicationSession):
                     temp_sleep = withings_client.get_sleepsummary(startdateymd=today - datetime.timedelta(days=1), enddateymd=today)
                     for m in meastype: measures.append(withings_client.get_measures(limit=1, meastype=m))
                 except ConnectionError:
-                    self.log.error("Withings Connection Error. Check connectivity and / or connection parameters and try again!")
+                    self.log.error(str(TAG) + "Withings Connection Error. Check connectivity and / or connection parameters and try again!")
                     yield sleep(60)
                     continue
                 except WithingsAPIError as w:
-                    self.log.error("Withings API Error: {}".format(w.message))
+                    self.log.error(str(TAG) + "Withings API Error: {}".format(w.message))
                     yield sleep(60)
                     continue
 
@@ -191,24 +193,24 @@ class AppSession(ApplicationSession):
                         try:
                             position = get_list_index(activity_data[user_id], 0, date) #raises ValueError if date is not found
                             if activity_data[user_id][position][1] != steps:
-                                self.log.info("publishing to 'Withings Activity Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=activity_data[user_id][position][1], result=steps)
+                                self.log.info(str(TAG) + "publishing to 'Withings Activity Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=activity_data[user_id][position][1], result=steps)
                                 activity_data[user_id] = update_list_entry(activity_data[user_id], date, steps)
                                 yield self.publish('com.testlab.withings_activity_update', [user_id, date, steps])
                         except ValueError:
                             activity_data[user_id].append([date, steps])
                             yield self.publish('com.testlab.withings_activity_update', [user_id, date, steps])
-                            self.log.info("publishing to 'Withings Activity Update' with {userid} {date} {result}", userid=user_id, date=date, result=steps)
+                            self.log.info(str(TAG) + "publishing to 'Withings Activity Update' with {userid} {date} {result}", userid=user_id, date=date, result=steps)
 
                         try:
                             position = get_list_index(energy_data[user_id], 0, date) #raises ValueError if date is not found
                             if energy_data[user_id][position][1] != calories:
-                                self.log.info("publishing to 'Withings Energy Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=energy_data[user_id][position][1], result=calories)
+                                self.log.info(str(TAG) + "publishing to 'Withings Energy Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=energy_data[user_id][position][1], result=calories)
                                 energy_data[user_id][get_list_index(activity_data[user_id], 0, date)][1] = calories
                                 yield self.publish('com.testlab.withings_energy_update', [user_id, date, calories])
                         except ValueError:
                             energy_data[user_id].append([date, calories])
                             yield self.publish('com.testlab.withings_energy_update', [user_id, date, calories])
-                            self.log.info("publishing to 'Withings Energy Update' with {userid} {date} {result}", userid=user_id, date=date, result=calories)
+                            self.log.info(str(TAG) + "publishing to 'Withings Energy Update' with {userid} {date} {result}", userid=user_id, date=date, result=calories)
                 except KeyError:
                     pass
 
@@ -220,13 +222,13 @@ class AppSession(ApplicationSession):
                         try:
                             position = get_list_index(sleep_data[user_id], 0, date) #raises ValueError if date is not found
                             if sleep_data[user_id][position][1] != duration and sleep_data[user_id][position][1] < duration: #and the value is different than current
-                                self.log.info("publishing to 'Withings Sleep Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=sleep_data[user_id][position][1], result=duration)
+                                self.log.info(str(TAG) + "publishing to 'Withings Sleep Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=sleep_data[user_id][position][1], result=duration)
                                 sleep_data[user_id][position][1] = duration #update the field and publish
                                 yield self.publish('com.testlab.withings_sleep_update', [user_id, date, duration])
                         except ValueError:
                             sleep_data[user_id].append([date, duration])
                             yield self.publish('com.testlab.withings_sleep_update', [user_id, date, duration])
-                            self.log.info("publishing to 'Withings Sleep Update' with {userid} {date} {result}", userid=user_id, date=date, result=duration)
+                            self.log.info(str(TAG) + "publishing to 'Withings Sleep Update' with {userid} {date} {result}", userid=user_id, date=date, result=duration)
                 except KeyError:
                     pass
 
@@ -242,56 +244,56 @@ class AppSession(ApplicationSession):
                                 #form a temp data variable from this update to be sent over HTTP bridge
                                 http_payload = {}
                                 http_payload[user_id] = []
-                                http_payload[user_id].append([date, value])                                        
-                                http_payload = format_measurement_data_to_intersystems(http_payload, user_id, "avgHeartRate")                
-                                               
+                                http_payload[user_id].append([date, value])
+                                http_payload = format_measurement_data_to_intersystems(http_payload, user_id, "avgHeartRate")
+
                                 if len([item for item in heartrate_data[user_id] if item[0] == date]) >= 1:
                                     if heartrate_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1] != value:
-                                        self.log.info("publishing to 'Withings HR Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=heartrate_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1], result=value)
+                                        self.log.info(str(TAG) + "publishing to 'Withings HR Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=heartrate_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1], result=value)
                                         heartrate_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1] = value
                                         yield self.publish('com.testlab.withings_heartrate_update', [user_id, date, value])
-                                        
+
                                         if http_client_connected:
-                                            self.log.info("publishing a new Avg. HR reading over HTTP bridge")
+                                            self.log.info(str(TAG) + "publishing a new Avg. HR reading over HTTP bridge")
                                             publish_over_http_bridge(http_client, 'com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(http_payload))
-                                            publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_avgheartrate_update', json.dumps(http_payload))                                                                                                                                                                                                                                                                                     
+                                            publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_avgheartrate_update', json.dumps(http_payload))
                                 else:
-                                    self.log.info("publishing to 'Withings HR Update' with {userid} {date} {result}", userid=user_id, date=date, result=value)
+                                    self.log.info(str(TAG) + "publishing to 'Withings HR Update' with {userid} {date} {result}", userid=user_id, date=date, result=value)
                                     heartrate_data[user_id].append([date, value])
                                     yield self.publish('com.testlab.withings_heartrate_update', [user_id, date, value])
-                                    
+
                                     if http_client_connected:
-                                        self.log.info("publishing a new Avg. HR reading over HTTP bridge")
+                                        self.log.info(str(TAG) + "publishing a new Avg. HR reading over HTTP bridge")
                                         publish_over_http_bridge(http_client, 'com.testlab.withings_healthconnect_avgheartrate_update', json.dumps(http_payload))
-                                        publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_avgheartrate_update', json.dumps(http_payload))                                                                                                                                                                                                                           
+                                        publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_avgheartrate_update', json.dumps(http_payload))
 
                             elif(result["type"] == 71): #Body Temperature
 
                                 #form a temp data variable from this update for InterSystems
                                 http_payload = {}
                                 http_payload[user_id] = []
-                                http_payload[user_id].append([date, value])                                        
+                                http_payload[user_id].append([date, value])
                                 http_payload = format_measurement_data_to_intersystems(http_payload, user_id, "bodyTemp")
 
                                 if len([item for item in bodytemperature_data[user_id] if item[0] == date]) >= 1:
                                     if bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1] != value:
-                                        self.log.info("publishing to 'Withings BodyTemp Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1], result=value)
+                                        self.log.info(str(TAG) + "publishing to 'Withings BodyTemp Update' with {userid} {date} {old} -> {result}", userid=user_id, date=date, old=bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1], result=value)
                                         bodytemperature_data[user_id][get_list_index(bodytemperature_data[user_id], 0, date)][1] = value
                                         yield self.publish('com.testlab.withings_bodytemp_update', [user_id, date, value])
-                                        
+
                                         if http_client_connected:
-                                            self.log.info("publishing a new Temp reading over HTTP bridge")                                            
+                                            self.log.info(str(TAG) + "publishing a new Temp reading over HTTP bridge")
                                             publish_over_http_bridge(http_client, 'com.testlab.withings_healthconnect_bodytemp_update', json.dumps(http_payload))
-                                            publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_bodytemp_update', json.dumps(http_payload))                     
+                                            publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_bodytemp_update', json.dumps(http_payload))
                                 else:
-                                    self.log.info("publishing to 'Withings BodyTemp Update' with {userid} {date} {result}", userid=user_id, date=date, result=value)
+                                    self.log.info(str(TAG) + "publishing to 'Withings BodyTemp Update' with {userid} {date} {result}", userid=user_id, date=date, result=value)
                                     bodytemperature_data[user_id].append([date, value])
                                     yield self.publish('com.testlab.withings_bodytemp_update', [user_id, date, value])
-                                    
+
                                     if http_client_connected:
-                                        self.log.info("publishing a new Temp reading over HTTP bridge")
+                                        self.log.info(str(TAG) + "publishing a new Temp reading over HTTP bridge")
                                         publish_over_http_bridge(http_client, "com.testlab.withings_healthconnect_bodytemp_update", json.dumps(http_payload))
-                                        publish_over_http_bridge(http_client, "com.testlab.withings_ibm_bodytemp_update", json.dumps(http_payload))     
+                                        publish_over_http_bridge(http_client, "com.testlab.withings_ibm_bodytemp_update", json.dumps(http_payload))
 
                             elif(result["type"] == 10): #Systolic BP
                                 temp_bloodpressure[date] = []
@@ -304,25 +306,25 @@ class AppSession(ApplicationSession):
                                 http_payload = {}
                                 http_payload[user_id] = []
                                 http_payload[user_id].append([date, temp_bloodpressure[date]])
-                                http_payload = format_measurement_data_to_intersystems(http_payload, user_id, "bloodPressure")                               
-                                
+                                http_payload = format_measurement_data_to_intersystems(http_payload, user_id, "bloodPressure")
+
                                 if len([item for item in bloodpressure_data[user_id] if item[0] == date]) >= 1:
                                     if len(set(bloodpressure_data[user_id][get_list_index(bloodpressure_data[user_id], 0, date)][1]).intersection(temp_bloodpressure[date])) < 2: #check if bloodpressure readings are identical. If not, update
-                                        self.log.info("publishing to 'Withings BP Update' with {date} {old} -> {result}", date=date, old=bloodpressure_data[user_id][get_list_index(bloodpressure_data[user_id], 0, date)][1], result=temp_bloodpressure[date])
+                                        self.log.info(str(TAG) + "publishing to 'Withings BP Update' with {date} {old} -> {result}", date=date, old=bloodpressure_data[user_id][get_list_index(bloodpressure_data[user_id], 0, date)][1], result=temp_bloodpressure[date])
                                         bloodpressure_data[user_id][get_list_index(heartrate_data[user_id], 0, date)][1] = temp_bloodpressure[date]
                                         yield self.publish('com.testlab.withings_bloodpressure_update', [user_id, date, temp_bloodpressure[date]])
 
                                         if http_client_connected:
-                                            self.log.info("publishing a new BP reading over HTTP bridge ")
+                                            self.log.info(str(TAG) + "publishing a new BP reading over HTTP bridge ")
                                             publish_over_http_bridge(http_client, 'com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(http_payload))
-                                            publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_bloodpressure_update', json.dumps(http_payload))                                                                               
+                                            publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_bloodpressure_update', json.dumps(http_payload))
                                 else:
-                                    self.log.info("publishing to 'Withings BP Update' with {userid} {date} {result}", userid=user_id, date=date, result=temp_bloodpressure[date])
+                                    self.log.info(str(TAG) + "publishing to 'Withings BP Update' with {userid} {date} {result}", userid=user_id, date=date, result=temp_bloodpressure[date])
                                     bloodpressure_data[user_id].append([date, temp_bloodpressure[date]])
                                     yield self.publish('com.testlab.withings_bloodpressure_update', [user_id, date, temp_bloodpressure[date]])
 
                                     if http_client_connected:
-                                        self.log.info("publishing a new BP reading over HTTP bridge ")
+                                        self.log.info(str(TAG) + "publishing a new BP reading over HTTP bridge ")
                                         publish_over_http_bridge(http_client, 'com.testlab.withings_healthconnect_bloodpressure_update', json.dumps(http_payload))
-                                        publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_bloodpressure_update', json.dumps(http_payload))                                                                               
+                                        publish_over_http_bridge(http_client, 'com.testlab.withings_ibm_bloodpressure_update', json.dumps(http_payload))
             yield sleep(60)

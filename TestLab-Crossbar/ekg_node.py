@@ -13,6 +13,8 @@ from autobahn.twisted.wamp import ApplicationSession
 import time
 import json
 
+TAG = "ECG Node: "
+
 #generator that yields values from file
 def ecg_gen(f):
     while True:
@@ -28,11 +30,11 @@ class AppSession(ApplicationSession):
 
     @inlineCallbacks
     def onJoin(self, details):
-        self.log.info("ECG node up")
+        self.log.info(str(TAG) + "ECG node up")
         counter = 0
         with open("../ECG_data.txt", "r") as f: #simulated sample of an ECG-curve
             value = ecg_gen(f)
             while True:
                 counter += 1
-                yield self.publish('com.testlab.ecg_update', json.dumps([counter, int(next(value))]))                
+                yield self.publish('com.testlab.ecg_update', json.dumps([counter, int(next(value))]))
                 yield sleep(0.008)
