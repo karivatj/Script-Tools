@@ -2,7 +2,7 @@ iPost-PDF conversion tool is able to take .doc or .docx files and convert them t
 
 The script will try to invoke Microsoft Word via comtypes. If this fails it fallbacks to LibreOffice. Thus either Word or LibreOffice should be installed inorder for this script to function properly.
 
-###### Usage
+#### Usage
 
 python ipost_converter.py [OPTIONS]
 
