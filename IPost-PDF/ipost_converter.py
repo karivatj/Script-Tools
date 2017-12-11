@@ -99,7 +99,7 @@ if __name__== "__main__":
     logger.info("Using: " + work_directory + " as working directory")
 
     # check if archive directory exists. If not, create one
-    archive_directory = options.archive_directory
+    archive_directory = options.archivedir
     if not os.path.exists(archive_directory):
         os.makedirs(archive_directory)
 
