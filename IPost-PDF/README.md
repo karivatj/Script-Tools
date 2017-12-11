@@ -4,14 +4,16 @@ The script will try to invoke Microsoft Word via comtypes. If this fails it fall
 
 #### Usage
 
-python ipost_converter.py [OPTIONS]
-
 ```
+Usage: ipost_converter.py [OPTIONS]
 Try 'ipost_converter.py --help' for more information.
 
 Options:
   --version                 show program's version number and exit
   -h, --help                show this help message and exit
-  --libreoffice=Boolean     try to use LibreOffice as the primary converter
+  --libreoffice=BOOLEAN     try to use LibreOffice as the primary converter
   --workdir=WORKDIR         working directory where the script scans for files to convert
+  --archivedir=ARCHIVEDIR   archive directory where the script puts the processed files after conversion
+  --zipdir=ZIPDIR           directory where the script puts the finalized iPost packages
+
 ```
