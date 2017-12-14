@@ -75,7 +75,17 @@ if __name__== "__main__":
                   action="store",
                   dest="workdir",
                   default=os.getcwd(),
-                  help="working directory where the script scans for files to convert",)    
+                  help="working directory where the script scans for files to convert")
+    parser.add_option("--archivedir",
+                  action="store",
+                  dest="archivedir",
+                  default=os.getcwd() + "\\archive",
+                  help="archive directory where the script puts the processed files after conversion")   
+    parser.add_option("--zipdir",
+                  action="store",
+                  dest="zipdir",
+                  default=os.getcwd() + "\\zip",
+                  help="directory where the script puts the finalized iPost packages")                         
     (options, args) = parser.parse_args()
 
     wdFormatPDF = 17
@@ -89,14 +99,14 @@ if __name__== "__main__":
     logger.info("Using: " + work_directory + " as working directory")
 
     # check if archive directory exists. If not, create one
-    archive_directory = work_directory + "\\archive"
+    archive_directory = options.archivedir
     if not os.path.exists(archive_directory):
         os.makedirs(archive_directory)
 
     logger.info("Using: " + archive_directory + " as archive directory")
 
     # check if zip directory exists. If not, create one
-    zip_directory = work_directory + "\\zip"
+    zip_directory = options.zipdir
     if not os.path.exists(zip_directory):
         os.makedirs(zip_directory)
 
