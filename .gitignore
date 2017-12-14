@@ -73,8 +73,8 @@ CalendarInfoscreen/src/pyqtdeploy/deploy/*
 CalendarInfoscreen/src/release/*
 
 TestLab-Crossbar/access_tokens.py
+CalendarData/auth_credentials.py
 *.pdy
 *.zip
-TestLab-Crossbar/.crossbar/key.pub
 *.pub
 *.json
