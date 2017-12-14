@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import csv
 import requests
@@ -95,6 +97,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.server = "https://sposti.ppshp.fi/EWS/Exchange.asmx"
         self.interval = 5
         self.updatedata = 0
+        self.lastusedconfig = ""
 
         # connect signals / slots of UI controls
         self.btnAdd.clicked.connect(self.buttonAddPressed)
@@ -129,6 +132,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
     def closeEvent(self, event):
         if self.httpd.isRunning():
             self.httpd.stop()
+        self.savePreferences()
 
     def normalOutputWritten(self, text):       
         if len(text) == 1 and ord(str(text)) == 10:
@@ -150,10 +154,14 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                     items = [ str(field) for field in row ]
             for c in items[1]:
                 self.password += chr(ord(c) - 5)
-            self.username   = items[0]            
-            self.server     = items[2]
-            self.interval   = items[3]
-            self.updatedata = items[4]        
+            self.username         = items[0]            
+            self.server           = items[2]
+            self.interval         = items[3]
+            self.updatedata       = items[4]
+            self.lastusedconfig = items[5]
+
+            if self.lastusedconfig is not "":
+                self.load(self.lastusedconfig)        
 
         except FileNotFoundError:
             self.notify("It seems that this is the first time you are launching this program. Please configure necessary connection parameters to get started")
@@ -165,9 +173,14 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             for c in self.password:
                 temp_pw += chr(ord(c) + 5)
 
+            if self.lastusedconfig == "":
+                self.lastusedconfig = "calendar_configuration.conf"
+
+            self.save(self.lastusedconfig)
+
             with open("preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
                 writer = csv.writer(fileOutput)
-                writer.writerow([self.username, temp_pw, self.server, self.interval, self.updatedata])
+                writer.writerow([self.username, temp_pw, self.server, self.interval, self.updatedata, self.lastusedconfig])
         except FileNotFoundError:
             self.warning("Failed to save preferences!")
             sys.exit(0)
@@ -187,6 +200,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 return
 
         self.load(filename)
+        self.lastusedconfig = filename[0]
         self.enableUI()
 
     def saveActionTriggered(self):
@@ -423,10 +437,14 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
     def load(self, fileName):
         contents = []
 
-        if fileName[0] is "":
-            return
+        file = ""
 
-        with open(fileName[0], "r", encoding="iso-8859-1") as fileInput:
+        if type(fileName) == str:
+            file = fileName
+        else:
+            file = fileName[0]
+
+        with open(file, "r", encoding="iso-8859-1") as fileInput:
             reader = csv.reader(fileInput)
             templist = []
             for row in reader:
@@ -439,13 +457,21 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
     def save(self, fileName):
         contents = self.tableToList()
 
-        if fileName[0] is "":
+        file = ""
+
+        if type(fileName) == str:
+            file = fileName
+        else:
+            file = fileName[0]
+
+        if file is "":
             return
 
-        with open(fileName[0], "w", newline="\n", encoding="iso-8859-1") as fileOutput:
+        with open(file, "w", newline="\n", encoding="iso-8859-1") as fileOutput:
             writer = csv.writer(fileOutput)
             writer.writerows(contents)
 
+        self.lastusedconfig = file
         self.savePending = False
 
     def confirm(self, question):
