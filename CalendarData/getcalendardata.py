@@ -12,13 +12,30 @@ import datetime
 import logging
 import requests
 import sys
+import certifi
 
+from auth_credentials import *
 from dateutil.parser import parse
 from requests_ntlm import HttpNtlmAuth
 from xml.etree import ElementTree
 
-#configure logging
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(threadName)-10s) %(message)s', )
+# setup logging
+# create logger with 'ipost_converter'
+logger = logging.getLogger('getcalendardata')
+logger.setLevel(logging.DEBUG)
+# create file handler which logs even debug messages
+fh = logging.FileHandler('debug.log')
+fh.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+# create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+# add the handlers to the logger
+logger.addHandler(fh)
+logger.addHandler(ch)
 
 #content-type header must be this or server responds with 451
 headers = {'Content-Type': 'text/xml; charset=utf-8'} # set what your server accepts
@@ -69,14 +86,20 @@ calendar_list = ["RES_L3TestLab@ppshp.fi",
                  "RES_L3229Valtimo@ppshp.fi"]
 
 if __name__ == "__main__":
-    logging.debug("Starting up...")
+    logger.debug("Starting up...")
     calendar_data = {} #dictionary containing the data
-    response = requests.get("https://sposti.ppshp.fi/EWS/Exchange.asmx",auth=HttpNtlmAuth('',''))
+    try:
+        logger.info("Establishing connection to {0}...".format(server))
+        response = requests.get(server, auth=HttpNtlmAuth(username, password), verify=certifi.where())
+    except requests.exceptions.ConnectionError as e:
+        logger.info("Connection error ({0})".format(e))
+        sys.exit(0)
+
     if(response.status_code != 200):
-        logging.error("Error while connecting to EWS Service. Try again later!")
+        logger.error("Connection error. Status Code was {0}".format(response_status_code))
         sys.exit(0)
     else:
-        logging.debug("Connection OK - Continuing with the task")
+        logger.info("Connection OK - Continuing with the task")
 
     #Send a GetFolder request. Use Sample request as a template and replace necessary parts from it
     for calendar in calendar_list:
@@ -103,27 +126,24 @@ if __name__ == "__main__":
         else:
             continue
 
-        logging.debug("Creating field for " + calendar_name)
+        logger.debug("Creating field for " + calendar_name)
         calendar_data[calendar_name] = []
 
-        logging.debug("Get Calendar: " + calendar_name)
+        logger.debug("Get Calendar: " + calendar_name)
         start_time = datetime.datetime.today().strftime(format) + "T00:00:00.000Z"
         end_time = datetime.datetime.today().strftime(format) + "T23:59:59.999Z"
-        #logging.debug(start_time)
-        #logging.debug(end_time)
-
+        
         message = sample_getcalendar.replace("!Replace_Email_Of_Calendar!", calendar)
         message = message.replace("!Start_Date!", start_time)
         message = message.replace("!End_Date!", end_time)
-        #logging.debug(message)
         
-        response = requests.post("https://sposti.ppshp.fi/EWS/Exchange.asmx", data=message, headers=headers, auth=HttpNtlmAuth('OYSNET\\TestLab_Res','CP3525dn%4x4'))
+        response = requests.post(server, data=message, headers=headers, auth=HttpNtlmAuth(username, password), verify=certifi.where())
         
         if(response.status_code != 200):
-            logging.error("Error occured while fetching calendar: " + calendar)
+            logger.error("Error occured while fetching calendar: " + calendar)
             continue
         else:
-            logging.debug("Response OK. Parsing data...")        
+            logger.debug("Response OK. Parsing data...")        
             tree = ElementTree.fromstring(response.content)
             today = datetime.datetime.now()
             timedelta = 2
@@ -144,10 +164,10 @@ if __name__ == "__main__":
                         date = parse(child.text)                   
                         date = date + datetime.timedelta(hours=timedelta) #add timedifference
                         calendar_data[calendar_name].append(date.strftime("%H:%M"))
-        logging.debug("Success!")
+        logger.debug("Success!")
         print()
              
-    logging.debug("Calendar data retrieved. Outputting into HTML...")
+    logger.debug("Calendar data retrieved. Outputting into HTML...")
     now = datetime.datetime.now()
     calendar_data = collections.OrderedDict(sorted(calendar_data.items(), key=lambda t: t[0]))
 
@@ -197,4 +217,4 @@ if __name__ == "__main__":
                 f.write("</tr>\n")
             f.write("</table>")
 
-    logging.debug("Ready. Thank you and come again!")
+    logger.debug("Ready. Thank you and come again!")
