@@ -1,3 +1,3 @@
 # Scripts
 
-This repository contains a set of scripts that automate different kinds of tediois tasks that would be othervise very tedious to do by hand.
+This repository contains a set of scripts that automate different kinds of tedious tasks that would be otherwise very cumbersome to do by hand.
