@@ -75,15 +75,7 @@ sample_getcalendar = '''<?xml version="1.0" encoding="utf-8"?>
 </soap:Envelope>'''
 
 #Calendars that are going to be parsed
-calendar_list = ["RES_L3TestLab@ppshp.fi",
-                 "RES_L3212Aortta@ppshp.fi",
-                 "RES_L3213Cave@ppshp.fi",
-                 "RES_L3215Lappa@ppshp.fi",
-                 "RES_L3219OikKammio@ppshp.fi",
-                 "RES_L3219AVasKammio@ppshp.fi",
-                 "RES_L3223Pulssi@ppshp.fi",
-                 "RES_L3228Laskimo@ppshp.fi",
-                 "RES_L3229Valtimo@ppshp.fi"]
+calendar_list = ["calendar_email@domain.com"]
 
 if __name__ == "__main__":
     logger.debug("Starting up...")
