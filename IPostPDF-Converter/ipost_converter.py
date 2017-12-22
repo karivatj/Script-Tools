@@ -6,10 +6,10 @@ import time
 import sys
 import os
 import zipfile
-import comtypes.client
 import logging
 import shutil
-from subprocess import call
+import comtypes.client
+from subprocess import call, STDOUT, check_output
 from optparse import OptionParser
 
 # setup logging
@@ -61,10 +61,10 @@ def listfiles(path):
 def getWord():
     word = comtypes.client.CreateObject('Word.Application')
     word.Visible = False
-    return word    
+    return word   
 
 if __name__== "__main__":
-    logger.info("Doc to iPost-PDF conversion tool 0.1")
+    logger.info("Doc to iPost-PDF conversion tool 0.9")
     parser = OptionParser(usage="Usage: %prog [OPTIONS]\nTry '%prog --help' for more information.", version="%prog 1.0")
     parser.add_option("--libreoffice",
                   action="store",
@@ -75,17 +75,17 @@ if __name__== "__main__":
                   action="store",
                   dest="workdir",
                   default=os.getcwd(),
-                  help="working directory where the script scans for files to convert")
+                  help="working directory where the script scans for files to convert",)
     parser.add_option("--archivedir",
                   action="store",
                   dest="archivedir",
                   default=os.getcwd() + "\\archive",
-                  help="archive directory where the script puts the processed files after conversion")   
+                  help="archive directory where the script puts the processed files after conversion",)   
     parser.add_option("--zipdir",
                   action="store",
                   dest="zipdir",
                   default=os.getcwd() + "\\zip",
-                  help="directory where the script puts the finalized iPost packages")                         
+                  help="directory where the script puts the finalized iPost packages",)                         
     (options, args) = parser.parse_args()
 
     wdFormatPDF = 17
@@ -115,8 +115,10 @@ if __name__== "__main__":
     try:
         if options.try_libre == False:
             logger.info("Trying to set-up external file converter using Word...")
+            # test if word can be instantiated
             word = getWord()
             word_enabled = True
+            word.Quit()
             logger.info("Done!")
     except Exception as e:
         word_enabled = False
@@ -124,6 +126,7 @@ if __name__== "__main__":
         logger.info("Eror ({0})".format(e))
         logger.info("Creating Word instance failed. Check if you have Office installed.")
 
+    # if the test failed. Try LibreOffice
     if word_enabled == False:
         logger.info("Trying to set-up external file converter using LibreOffice...")
 
@@ -163,39 +166,30 @@ if __name__== "__main__":
             # conversion
             for file in arr_doc:
                 logger.info("Converting file {0}...".format(file))
+
+                # form the filename that is going to be used in conversion
+                file_stripped = ""
+                if file.endswith(".doc"):
+                    file_stripped = file.strip(".doc")
+                elif file.endswith(".docx"):
+                    file_stripped = file.strip(".docx")
+                outputfilename = file_stripped + ".pdf"
+
+                converter_cmd = "python \"{0}\wordconverter.py\" --input \"{1}\" --output \"{2}\"".format(work_directory, file, outputfilename)
+
                 if word_enabled:
-                    file_stripped = ""
-                    if file.endswith(".doc"):
-                        file_stripped = file.strip(".doc")
-                    elif file.endswith(".docx"):
-                        file_stripped = file.strip(".docx")
-                    try:
-                        filename = file_stripped + ".pdf"
-                        doc = word.Documents.Open(file)
-                        doc.SaveAs(filename, FileFormat=wdFormatPDF)
-                        doc.Close()
-                        # check if the file exists. If something went wrong attempt it again with LibreOffice
-                        if not os.path.isfile(filename):
-                            raise ConversionError
-                    except ConversionError as e:
-                        logging.error("Conversion failed. Trying again with LibreOffice..")
-                        if(which("soffice.exe") == None):
-                            logger.info("LibreOffice not present in target system. No other converters available. Exiting...")
-                            sys.exit()
-                        else:
-                            logger.info("Fallback to LibreOffice succesfull!")
-                            return_code = call("soffice --headless --convert-to pdf " + file, shell=True)
-                    except Exception as e:
-                        logger.info("Conversion failed with Word! Retrying...")                        
+                    for i in range(0, 2): # we will give two chances to word before we fallback to LibreOffice
                         try:
-                            word = getWord()
-                            word.Visible = False
-                            doc = word.Documents.Open(file)
-                            doc.SaveAs(filename, FileFormat=wdFormatPDF)
-                            doc.Close()
-                            # check if the file exists. If something went wrong attempt it again with LibreOffice
-                            if not os.path.isfile(filename):
+                            if os.path.isfile(outputfilename): # remove any residual files first
+                                os.remove(outputfilename)
+
+                            # launch a subprocess that converts the file. Wait for <timeout> seconds before forcing the process to end. Exit status > 0 raises an exception
+                            output = check_output(converter_cmd, stderr=STDOUT, timeout=10)   
+
+                            # check if the file exists. if subprocess did not raise CalledProcessorError and the filename does not exist still. raise our own exception
+                            if not os.path.isfile(outputfilename):
                                 raise ConversionError
+                            break # conversion done, jump out
                         except ConversionError as e:
                             logging.error("Conversion failed. Trying again with LibreOffice..")
                             if(which("soffice.exe") == None):
@@ -204,17 +198,24 @@ if __name__== "__main__":
                             else:
                                 logger.info("Fallback to LibreOffice succesfull!")
                                 return_code = call("soffice --headless --convert-to pdf " + file, shell=True)
-                        except Exception as e:
-                            logger.info("Conversion with Word fails repeatedly. Falling back to LibreOffice!")
-                            word.Quit()
-                            word_enabled = False
-                            if(which("soffice.exe") == None):
-                                logger.info("LibreOffice not present in target system. No other converters available. Exiting...")
-                                sys.exit()
+                                if os.path.isfile(outputfilename):
+                                    logger.info("Fallback conversion with LibreOffice was succesfull. Continuing")
+                                    break
+                        except CalledProcessError as e: # if the call to subprocess was a failure a CalledProcessError is raised
+                            logger.info("Conversion failed with Word! Retrying. {0}".format(e))
+                            if i == 0:
+                                continue
                             else:
-                                logger.info("Fallback to LibreOffice succesfull!")
-                                libreoffice_enabled = True
-                                return_code = call("soffice --headless --convert-to pdf " + file, shell=True)
+                                logger.info("Conversion with Word fails repeatedly. Falling back to LibreOffice. {0}".format(e))  
+                                word.Quit()
+                                word_enabled = False
+                                if(which("soffice.exe") == None):
+                                    logger.info("LibreOffice not present in target system. No other converters available. Exiting...")
+                                    sys.exit()
+                                else:
+                                    logger.info("Fallback to LibreOffice succesfull!")
+                                    libreoffice_enabled = True
+                                    return_code = call("soffice --headless --convert-to pdf " + file, shell=True)
 
                 elif libreoffice_enabled:
                     return_code = call("soffice --headless --convert-to pdf " + file, shell=True)
