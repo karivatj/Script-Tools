@@ -40,6 +40,7 @@ if __name__== "__main__":
         word.Visible = False
         result = convert(inputfilename, outputfilename, word)
         print("Conversion done.")
+        word.Quit()
         sys.exit(result)
     except Exception as e:
         print(e)

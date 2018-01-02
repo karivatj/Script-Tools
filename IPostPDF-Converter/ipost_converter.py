@@ -9,7 +9,7 @@ import sys
 import time
 import zipfile
 import comtypes.client
-from subprocess import call, STDOUT, check_output
+import subprocess
 from optparse import OptionParser
 
 # setup logging
@@ -184,7 +184,7 @@ if __name__== "__main__":
                                 os.remove(outputfilename)
 
                             # launch a subprocess that converts the file. Wait for <timeout> seconds before forcing the process to end. Exit status > 0 raises an exception
-                            output = check_output(converter_cmd, stderr=STDOUT, timeout=10)
+                            output = subprocess.check_output(converter_cmd, stderr=subprocess.STDOUT, timeout=20)
 
                             # check if the file exists. if subprocess did not raise CalledProcessorError and the filename does not exist still. raise our own exception
                             if not os.path.isfile(outputfilename):
@@ -197,7 +197,7 @@ if __name__== "__main__":
                                 sys.exit()
                             else:
                                 logger.info("Fallback to LibreOffice succesfull!")
-                                return_code = call("soffice --headless --convert-to pdf " + file, shell=True)
+                                return_code = subprocess.call("soffice --headless --convert-to pdf " + file, shell=True)
                                 if os.path.isfile(outputfilename):
                                     logger.info("Fallback conversion with LibreOffice was succesfull. Continuing")
                                     break
@@ -215,10 +215,10 @@ if __name__== "__main__":
                                 else:
                                     logger.info("Fallback to LibreOffice succesfull!")
                                     libreoffice_enabled = True
-                                    return_code = call("soffice --headless --convert-to pdf " + file, shell=True)
+                                    return_code = subprocess.call("soffice --headless --convert-to pdf " + file, shell=True)
 
                 elif libreoffice_enabled:
-                    return_code = call("soffice --headless --convert-to pdf " + file, shell=True)
+                    return_code = subprocess.call("soffice --headless --convert-to pdf " + file, shell=True)
 
             logger.info("Conversion completed...")
 
