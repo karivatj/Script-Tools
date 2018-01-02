@@ -201,7 +201,7 @@ if __name__== "__main__":
                                 if os.path.isfile(outputfilename):
                                     logger.info("Fallback conversion with LibreOffice was succesfull. Continuing")
                                     break
-                        except CalledProcessError as e: # if the call to subprocess was a failure a CalledProcessError is raised
+                        except subprocess.CalledProcessError as e: # if the call to subprocess was a failure a CalledProcessError is raised
                             logger.info("Conversion failed with Word! Retrying. {0}".format(e))
                             if i == 0:
                                 continue
