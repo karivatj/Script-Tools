@@ -2,12 +2,12 @@
 #  -*- coding: utf-8 -*-
 # code utilized in this script include modified examples from https://stackoverflow.com/a/377028 and https://stackoverflow.com/a/6018039
 
-import time
-import sys
-import os
-import zipfile
 import logging
+import os
 import shutil
+import sys
+import time
+import zipfile
 import comtypes.client
 from subprocess import call, STDOUT, check_output
 from optparse import OptionParser
@@ -61,7 +61,7 @@ def listfiles(path):
 def getWord():
     word = comtypes.client.CreateObject('Word.Application')
     word.Visible = False
-    return word   
+    return word
 
 if __name__== "__main__":
     logger.info("Doc to iPost-PDF conversion tool 0.9")
@@ -80,12 +80,12 @@ if __name__== "__main__":
                   action="store",
                   dest="archivedir",
                   default=os.getcwd() + "\\archive",
-                  help="archive directory where the script puts the processed files after conversion",)   
+                  help="archive directory where the script puts the processed files after conversion",)
     parser.add_option("--zipdir",
                   action="store",
                   dest="zipdir",
                   default=os.getcwd() + "\\zip",
-                  help="directory where the script puts the finalized iPost packages",)                         
+                  help="directory where the script puts the finalized iPost packages",)
     (options, args) = parser.parse_args()
 
     wdFormatPDF = 17
@@ -147,7 +147,7 @@ if __name__== "__main__":
 
     while True:
         try:
-            waittime = 10       
+            waittime = 10
 
             # Step 1: Convert .doc/x files to .pdf
             # get list of files
@@ -184,7 +184,7 @@ if __name__== "__main__":
                                 os.remove(outputfilename)
 
                             # launch a subprocess that converts the file. Wait for <timeout> seconds before forcing the process to end. Exit status > 0 raises an exception
-                            output = check_output(converter_cmd, stderr=STDOUT, timeout=10)   
+                            output = check_output(converter_cmd, stderr=STDOUT, timeout=10)
 
                             # check if the file exists. if subprocess did not raise CalledProcessorError and the filename does not exist still. raise our own exception
                             if not os.path.isfile(outputfilename):
@@ -206,7 +206,7 @@ if __name__== "__main__":
                             if i == 0:
                                 continue
                             else:
-                                logger.info("Conversion with Word fails repeatedly. Falling back to LibreOffice. {0}".format(e))  
+                                logger.info("Conversion with Word fails repeatedly. Falling back to LibreOffice. {0}".format(e))
                                 word.Quit()
                                 word_enabled = False
                                 if(which("soffice.exe") == None):
@@ -223,10 +223,10 @@ if __name__== "__main__":
             logger.info("Conversion completed...")
 
             # Step 2: bundle xml and the converted pdf to zip file
-            # get list of files            
+            # get list of files
             arr = listfiles(work_directory)
 
-            # filter all pdf files            
+            # filter all pdf files
             arr_pdf = [x for x in arr if x.endswith(".pdf")]
 
             logger.info("Creating zip files...")
@@ -251,7 +251,7 @@ if __name__== "__main__":
                     except FileExistsError as e:
                         logger.info("Zip file in archive exists. Attempting to replace it...")
                         os.remove(zip_directory + "\\" + zip_file)
-                        os.rename(zip_file, zip_directory + "\\" + zip_file)                        
+                        os.rename(zip_file, zip_directory + "\\" + zip_file)
                         pass
                 else:
                     logger.info("XML does not exist for {0}. Skipping zipping step.".format(file.strip(".pdf")))
@@ -289,13 +289,13 @@ if __name__== "__main__":
                     shutil.copy(xml_filename, xml_archive_file)
                     os.remove(xml_filename)
                 except FileExistsError as e:
-                    logger.info("XML file in archive exists. Attempting to replace it...")                        
+                    logger.info("XML file in archive exists. Attempting to replace it...")
                     os.remove(xml_archive_file)
                     os.rename(xml_filename, xml_archive_file)
                     pass
                 except PermissionError as e:
                     logger.info("XML file in use. Check for permissions. Skipping...")
-                    pass                    
+                    pass
                 except FileNotFoundError as e:
                     logger.info("XML file not found or does not exist. Skipping...")
                     pass
@@ -304,7 +304,7 @@ if __name__== "__main__":
 
             while waittime > 0:
                 waittime -= 1
-                time.sleep(1)                
+                time.sleep(1)
 
         except KeyboardInterrupt:
             break
