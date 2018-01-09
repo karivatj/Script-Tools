@@ -86,6 +86,11 @@ if __name__== "__main__":
                   dest="zipdir",
                   default=os.getcwd() + "\\zip",
                   help="directory where the script puts the finalized iPost packages",)
+    parser.add_option("--trashdir",
+                  action="store",
+                  dest="trashdir",
+                  default=os.getcwd() + "\\trash",
+                  help="directory where the script puts any faulcould't convert",)
     (options, args) = parser.parse_args()
 
     wdFormatPDF = 17
@@ -111,6 +116,13 @@ if __name__== "__main__":
         os.makedirs(zip_directory)
 
     logger.info("Using: " + zip_directory + " as zip directory")
+
+    # check if trash directory exists. If not, create one
+    trash_directory = options.trashdir
+    if not os.path.exists(trash_directory):
+        os.makedirs(trash_directory)
+
+    logger.info("Using: " + trash_directory + " as trash directory")
 
     try:
         if options.try_libre == False:
@@ -147,7 +159,7 @@ if __name__== "__main__":
 
     while True:
         try:
-            waittime = 10
+            waittime = 60
 
             # Step 1: Convert .doc/x files to .pdf
             # get list of files
@@ -300,7 +312,34 @@ if __name__== "__main__":
                     logger.info("XML file not found or does not exist. Skipping...")
                     pass
 
-            logger.info("Done. Waiting for {0} seconds".format(waittime))
+            # Step 4: Cleanup any stuff left behind
+
+            arr = listfiles(work_directory)
+
+            # filter all xml and doc files
+            arr = [x for x in arr if x.endswith(".xml") or x.endswith(".doc")]
+
+            for file in arr:
+                filename = file.split("\\")[-1]
+                trash_file = trash_directory + "\\" + filename
+
+                # try to move the file to trash
+                try:
+                    shutil.copy(file, trash_file)
+                    os.remove(file)
+                except FileExistsError as e:
+                    logger.info("File in archive exists. Attempting to replace it...")
+                    os.remove(trash_file)
+                    os.rename(file, trash_file)
+                    pass
+                except PermissionError as e:
+                    logger.info("File in use. Check for permissions. Skipping...")
+                    pass
+                except FileNotFoundError as e:
+                    logger.info("File not found or does not exist. Skipping...")
+                    pass
+
+            logger.info("Done. Waiting for new files for {0} seconds".format(waittime))
 
             while waittime > 0:
                 waittime -= 1
