@@ -65,7 +65,6 @@ Temporary Items
 *.pub
 *.conf
 *.dat
-CalendarInfoscreen/src/pyqtdeploy/build-win-32/*
 CalendarInfoscreen/src/web/content.html
 CalendarInfoscreen/src/release/*
 
@@ -84,3 +83,4 @@ IPostPDF-Converter\*.pdf
 IPostPDF-Converter\archive
 IPostPDF-Converter\zip
 IPostPDF-Converter\trash
+Calendar-Infoscreen/src/pyqtdeploy/build-win-32/*
