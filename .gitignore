@@ -65,7 +65,7 @@ Temporary Items
 *.pub
 *.conf
 *.dat
-CalendarInfoscreen/src/pyqtdeploy/deploy/*
+CalendarInfoscreen/src/pyqtdeploy/build-win-32/*
 CalendarInfoscreen/src/web/content.html
 CalendarInfoscreen/src/release/*
 
