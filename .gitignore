@@ -64,12 +64,9 @@ Temporary Items
 *.priv
 *.pub
 *.conf
-CalendarInfoscreen/src/content.html
-CalendarInfoscreen/src/web/content.html
 *.dat
 CalendarInfoscreen/src/pyqtdeploy/deploy/*
-
-#release directory
+CalendarInfoscreen/src/web/content.html
 CalendarInfoscreen/src/release/*
 
 TestLab-Crossbar/access_tokens.py
@@ -79,3 +76,11 @@ CalendarData/auth_credentials.py
 *.pub
 *.json
 *.html
+
+# iPost PDF workfiles
+IPostPDF-Converter\*.doc
+IPostPDF-Converter\*.xml
+IPostPDF-Converter\*.pdf
+IPostPDF-Converter\archive
+IPostPDF-Converter\zip
+IPostPDF-Converter\trash
