@@ -29,11 +29,11 @@ class HttpDaemon(QtCore.QThread):
 
     def run(self):
         print("HTTP Server Starting Up")
-        self.stopped = False        
+        self.stopped = False
         self._server = HTTPServer((HOST, PORT), SimpleHTTPRequestHandler)
         self.serve_forever()
 
-    def serve_forever(self):  
+    def serve_forever(self):
         print("Serving over HTTP")
         while not self.stopped:
             self._server.handle_request() #blocks
@@ -61,8 +61,8 @@ class EmittingStream(QtCore.QObject):
     textWritten = QtCore.pyqtSignal(str)
     def write(self, text):
         self.textWritten.emit(str(text))
-    def writelines(self, l): 
-        map(self.write, l) 
+    def writelines(self, l):
+        map(self.write, l)
     def flush(self):
         pass
 
@@ -81,8 +81,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 6 )
 
         # redirect stdout
-        sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)        
-        
+        sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)
+
         # member variables
         self.selectedRow  = -1
         self.selectedCol  = -1
@@ -123,18 +123,18 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
         self.loadPreferences()
 
-        self.timer = QtCore.QTimer()        
+        self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.generateCalendarPage)
-        
+
     def __del__(self):
-        sys.stdout = sys.__stdout__ 
+        sys.stdout = sys.__stdout__
 
     def closeEvent(self, event):
         if self.httpd.isRunning():
             self.httpd.stop()
         self.savePreferences()
 
-    def normalOutputWritten(self, text):       
+    def normalOutputWritten(self, text):
         if len(text) == 1 and ord(str(text)) == 10:
             return
         self.statusBar().showMessage(text, 0)
@@ -154,14 +154,14 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                     items = [ str(field) for field in row ]
             for c in items[1]:
                 self.password += chr(ord(c) - 5)
-            self.username         = items[0]            
+            self.username         = items[0]
             self.server           = items[2]
             self.interval         = items[3]
             self.updatedata       = items[4]
             self.lastusedconfig = items[5]
 
             if self.lastusedconfig is not "":
-                self.load(self.lastusedconfig)        
+                self.load(self.lastusedconfig)
 
         except FileNotFoundError:
             self.notify("It seems that this is the first time you are launching this program. Please configure necessary connection parameters to get started")
@@ -208,7 +208,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
         if filename == "":
             return
-        else:            
+        else:
             self.save(filename)
 
     def closeActionTriggered(self):
@@ -228,7 +228,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 self.updatedata = result[4]
 
                 self.savePreferences()
-                
+
             except ValueError:
                 QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters.", QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                 return
@@ -238,12 +238,12 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def generateCalendarPage(self):
         self.progressBar.setValue(0)
-        self.thread.startworking(self.tableToList(), self.username, self.password, self.server)                
+        self.thread.startworking(self.tableToList(), self.username, self.password, self.server)
 
     def buttonStartPressed(self):
         if self.btnStart.text() == "Start Server":
             self.generateCalendarPage()
-            self.httpd.start()            
+            self.httpd.start()
             self.btnStart.setText("Stop Server")
             self.disableUI()
             self.timer.start(int(self.interval) * 1000 * 60)
@@ -314,7 +314,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                     self.savePending = True
                 except ValueError:
                     QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters.", QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
-                    return       
+                    return
 
     def buttonMoveUpPressed(self):
         row = self.table.currentRow()
@@ -396,7 +396,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                     self.table.setItem(i , j, QtWidgets.QTableWidgetItem(str(list[0][i][j])))
                     self.table.item(i, j).setTextAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter | QtCore.Qt.AlignCenter)
         except AttributeError:
-            self.clearTable()            
+            self.clearTable()
             self.warning("Failed to load data. Check configuration files integrity and try again")
 
     def updateTableEntry(self, row, name, email):
@@ -419,7 +419,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         for w in self.findChildren(QtWidgets.QLineEdit):
             w.setEnabled(False)
         for w in self.findChildren(QtWidgets.QCheckBox):
-            w.setEnabled(False)            
+            w.setEnabled(False)
 
         self.table.setEnabled(False)
         self.btnStart.setEnabled(True)
@@ -430,7 +430,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         for w in self.findChildren(QtWidgets.QLineEdit):
             w.setEnabled(True)
         for w in self.findChildren(QtWidgets.QCheckBox):
-            w.setEnabled(True)              
+            w.setEnabled(True)
 
         self.table.setEnabled(True)
 
@@ -483,10 +483,10 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             return False
 
     def warning(self, message):
-        QtWidgets.QMessageBox.warning(self, 'Warning', message, QtWidgets.QMessageBox.Ok)  
+        QtWidgets.QMessageBox.warning(self, 'Warning', message, QtWidgets.QMessageBox.Ok)
 
     def notify(self, message):
-        QtWidgets.QMessageBox.information(self, 'Page Generated', message, QtWidgets.QMessageBox.Ok)  
+        QtWidgets.QMessageBox.information(self, 'Page Generated', message, QtWidgets.QMessageBox.Ok)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
