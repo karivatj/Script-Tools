@@ -162,6 +162,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
             if self.lastusedconfig is not "":
                 self.load(self.lastusedconfig)
+                self.enableUI()
 
         except FileNotFoundError:
             self.notify("It seems that this is the first time you are launching this program. Please configure necessary connection parameters to get started")
