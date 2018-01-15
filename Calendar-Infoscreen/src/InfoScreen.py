@@ -15,8 +15,6 @@ from AboutUI import Ui_About
 import Preferences
 import AddCalendar
 
-import ctypes
-
 # workthread which executes calendar data fetching
 from PageGeneratorThread import PageGeneratorThread
 
@@ -78,7 +76,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.setupUi(self)
 
         # minimize the console on startup
-        ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 6 )
+        #ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 6 )
 
         # redirect stdout
         sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)
