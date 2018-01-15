@@ -61,9 +61,9 @@ class PageGeneratorThread(QtCore.QThread):
         items = {}
 
         try:
-            items = account.calendar.filter(
-                start__gt=self.tz.localize(EWSDateTime(now.year, now.month, now.day, 0, 0)),
-                end__lt=self.tz.localize(EWSDateTime(now.year, now.month, now.day, 23, 59)),
+            items = account.calendar.view(
+                start=self.tz.localize(EWSDateTime(now.year, now.month, now.day, 6, 0)),
+                end=self.tz.localize(EWSDateTime(now.year, now.month, now.day, 18, 0)),
             ).order_by('start')
         except Exception as e:
             print("Failed to get appointments. Trying again later. Error: {0}".format(e))
