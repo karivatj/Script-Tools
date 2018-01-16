@@ -15,6 +15,24 @@ from AboutUI import Ui_About
 import Preferences
 import AddCalendar
 
+import logging
+# setup logging
+logger = logging.getLogger('infoscreen')
+logger.setLevel(logging.DEBUG)
+# create file handler which logs debug messages
+fh = logging.FileHandler('debug.log')
+fh.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+# create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+# add the handlers to the logger
+logger.addHandler(fh)
+logger.addHandler(ch)
+
 # workthread which executes calendar data fetching
 from PageGeneratorThread import PageGeneratorThread
 
@@ -26,19 +44,19 @@ class HttpDaemon(QtCore.QThread):
     allow_reuse_address = True
 
     def run(self):
-        print("HTTP Server Starting Up")
+        logger.debug("HTTP Server Starting Up")
         self.stopped = False
         self._server = HTTPServer((HOST, PORT), SimpleHTTPRequestHandler)
         self.serve_forever()
 
     def serve_forever(self):
-        print("Serving over HTTP")
+        logger.debug("Serving over HTTP")
         while not self.stopped:
             self._server.handle_request() #blocks
-        print("HTTP Server Exiting")
+        logger.debug("HTTP Server Exiting")
 
     def force_stop(self):
-        print("Requesting HTTP Server Shutdown")
+        logger.debug("Requesting HTTP Server Shutdown")
         self.stopped = True
         self.create_dummy_request()
 
@@ -159,11 +177,15 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             self.lastusedconfig = items[5]
 
             if self.lastusedconfig is not "":
-                self.load(self.lastusedconfig)
-                self.enableUI()
+                if(self.load(self.lastusedconfig)):
+                    self.enableUI()
+                else:
+                    self.lastusedconfig = ""
+                    self.disableUI()
 
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             self.notify("It seems that this is the first time you are launching this program. Please configure necessary connection parameters to get started")
+            logger.debug("loadPreferences FileNotFoundError: {0}".format(e))
             self.preferencesActionTriggered()
 
     def savePreferences(self):
@@ -180,12 +202,12 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             with open("preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
                 writer = csv.writer(fileOutput)
                 writer.writerow([self.username, temp_pw, self.server, self.interval, self.updatedata, self.lastusedconfig])
-        except FileNotFoundError:
-            self.warning("Failed to save preferences!")
+        except FileNotFoundError as e:
+            self.warning("Failed to save preferences: {0}".format(e))
             sys.exit(0)
 
     def onWorkerThreadStatusUpdate(self, value, message):
-        print("Status: %s: %s" %(str(value), message))
+        logger.debug("Status: %s: %s" %(str(value), message))
         self.progressBar.setValue(0)
 
     def loadActionTriggered(self):
@@ -198,8 +220,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             else:
                 return
 
-        self.load(filename)
-        self.lastusedconfig = filename[0]
+        if(self.load(filename)):
+            self.lastusedconfig = filename[0]
         self.enableUI()
 
     def saveActionTriggered(self):
@@ -228,8 +250,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
                 self.savePreferences()
 
-            except ValueError:
-                QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters.", QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
+            except ValueError as e:
+                QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters: {0}".format(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                 return
 
     def updateProgressBar(self, value):
@@ -283,8 +305,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 self.btnDelete.setEnabled(False)
 
                 self.savePending = True
-            except ValueError:
-                QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters.", QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
+            except ValueError as e:
+                QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters: {0}".format(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                 return
 
     def buttonUpdatePressed(self):
@@ -311,8 +333,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                     self.btnClear.setEnabled(True)
 
                     self.savePending = True
-                except ValueError:
-                    QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters.", QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
+                except ValueError as e:
+                    QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters: {0}".format(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     return
 
     def buttonMoveUpPressed(self):
@@ -394,9 +416,9 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 for j in range(len(list[0][i])):
                     self.table.setItem(i , j, QtWidgets.QTableWidgetItem(str(list[0][i][j])))
                     self.table.item(i, j).setTextAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter | QtCore.Qt.AlignCenter)
-        except AttributeError:
+        except AttributeError as e:
             self.clearTable()
-            self.warning("Failed to load data. Check configuration files integrity and try again")
+            self.warning("Failed to load data. Check configuration files integrity and try again: {0}".format(e))
 
     def updateTableEntry(self, row, name, email):
         self.insertRow(row, name, email)
@@ -443,15 +465,20 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         else:
             file = fileName[0]
 
-        with open(file, "r", encoding="iso-8859-1") as fileInput:
-            reader = csv.reader(fileInput)
-            templist = []
-            for row in reader:
-                items = [ str(field) for field in row ]
-                templist.append(items)
-            contents.append(templist)
+        try:
+            with open(file, "r", encoding="iso-8859-1") as fileInput:
+                reader = csv.reader(fileInput)
+                templist = []
+                for row in reader:
+                    items = [ str(field) for field in row ]
+                    templist.append(items)
+                contents.append(templist)
 
-        self.listToTable(contents)
+            self.listToTable(contents)
+            return True
+        except Exception as e:
+            logger.error("Failed to load configuration file: {0}".format(e))
+            return False
 
     def save(self, fileName):
         contents = self.tableToList()
@@ -485,7 +512,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         QtWidgets.QMessageBox.warning(self, 'Warning', message, QtWidgets.QMessageBox.Ok)
 
     def notify(self, message):
-        QtWidgets.QMessageBox.information(self, 'Page Generated', message, QtWidgets.QMessageBox.Ok)
+        QtWidgets.QMessageBox.information(self, 'Attention', message, QtWidgets.QMessageBox.Ok)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

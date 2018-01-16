@@ -4,8 +4,9 @@
 from __future__ import print_function
 from builtins import str
 
-import collections
 import codecs
+import collections
+import os
 
 from datetime import timedelta
 
@@ -13,6 +14,24 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import pyqtSignal
 
 from exchangelib import EWSDateTime, EWSTimeZone, DELEGATE, Account, Credentials, NTLM, Configuration
+
+import logging
+# setup logging
+logger = logging.getLogger('pagegenerator')
+logger.setLevel(logging.DEBUG)
+# create file handler which logs debug messages
+fh = logging.FileHandler('debug.log')
+fh.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+# create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+# add the handlers to the logger
+logger.addHandler(fh)
+logger.addHandler(ch)
 
 class PageGeneratorThread(QtCore.QThread):
     #signals
@@ -40,13 +59,12 @@ class PageGeneratorThread(QtCore.QThread):
     def startworking(self, calendars, username, password, server):
         self.calendar_list = calendars
         try:
-            print(server)
             self.credentials = Credentials(username=username, password=password)
             self.config = Configuration(service_endpoint=server, credentials=self.credentials, auth_type=NTLM)
             self.exiting = False
             self.start()
         except Exception as e:
-            print("Failed to connect to EWS server. Check your settings: {0}".format(e))
+            logger.debug("Failed to connect to EWS server. Check your settings: {0}".format(e))
             self.exiting = True
 
     def stopworking(self):
@@ -66,7 +84,7 @@ class PageGeneratorThread(QtCore.QThread):
                 end=self.tz.localize(EWSDateTime(now.year, now.month, now.day, 18, 0)),
             ).order_by('start')
         except Exception as e:
-            print("Failed to get appointments. Trying again later. Error: {0}".format(e))
+            logger.debug("Failed to get appointments. Trying again later. Error: {0}".format(e))
             return items, False
 
         return items, True
@@ -82,7 +100,7 @@ class PageGeneratorThread(QtCore.QThread):
             calendar_name  = calendar[0]
             calendar_email = calendar[1]
 
-            print("Fetching data for: " + calendar_name)
+            logger.debug("Fetching data for: " + calendar_name)
 
             # setup EWS account where the data is coming from
             self.account = Account(primary_smtp_address=calendar_email, config=self.config, autodiscover=False, access_type=DELEGATE)
@@ -93,10 +111,13 @@ class PageGeneratorThread(QtCore.QThread):
             self.progress.emit(progress_now)
 
             if result is not True:
-                print("Failed to fetch calendar data.")
+                logger.debug("Failed to fetch calendar data.")
 
-        print("Calendar data retrieved. Outputting webpage...")
+        logger.debug("Calendar data retrieved. Outputting webpage...")
         calendar_data = collections.OrderedDict(sorted(calendar_data.items(), key=lambda t: t[0]))
+
+        if not os.path.exists("./web/"):
+            os.makedirs("./web/")
 
         try:
             with codecs.open("./web/content.html", "w", "utf-8") as f:
@@ -132,7 +153,6 @@ class PageGeneratorThread(QtCore.QThread):
                             start_time = EWSDateTime(item.start.year, item.start.month, item.start.day, item.start.hour, item.start.minute, 0) + timedelta(hours=delta)
                             end_time = EWSDateTime(item.end.year, item.end.month, item.end.day, item.end.hour, item.end.minute, 0) + timedelta(hours=delta)
                             if(now < end_time and primary_event_found == False):
-                                print(str(now) + " < " + str(end_time))
                                 primary_event_found = True
                                 f.write("<td class=\"event_primary\">" + item.subject + "</td>\n")
                                 f.write("<td class=\"eventdate_primary\">%d:%02d - %d:%02d</td>\n" % (start_time.hour, start_time.minute, end_time.hour, end_time.minute))
@@ -142,7 +162,7 @@ class PageGeneratorThread(QtCore.QThread):
                                 f.write("<td class=\"eventdate_secondary\">%d:%02d - %d:%02d</td>\n" % (start_time.hour, start_time.minute, end_time.hour, end_time.minute))
                                 break
                     except Exception as e: # failure in data communication
-                        print("Failed to parse calendar data: {0}".format(e))
+                        logger.debug("Failed to parse calendar data: {0}".format(e))
                         f.write("<td class=\"event_primary\">Virhe tiedonsiirrossa</td>\n")
                         f.write("<td class=\"eventdate_primary\"></td>\n")
                         f.write("<td class=\"event_secondary\">Virhe tiedonsiirrossa</td>\n")
@@ -161,7 +181,7 @@ class PageGeneratorThread(QtCore.QThread):
                     f.write("</tr>\n")
                 f.write("</table>")
         except FileNotFoundError:
-            print("Failed to open file ./web/content.html. No such file or directory")
+            logger.debug("Failed to open file ./web/content.html. No such file or directory")
             self.statusupdate.emit(-1, "Failed to open file ./web/content.html. No such file or directory")
             return
 
