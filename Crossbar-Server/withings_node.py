@@ -12,7 +12,7 @@ from autobahn.twisted.wamp import ApplicationSession
 from autobahn.wamp.exception import ApplicationError
 
 from dateutil.parser import parse
-from withings_api import WithingsCredentials, WithingsApi
+from withings_api import WithingsCredentials, WithingsApi, WithingsAPIError
 from requests import ConnectionError
 import crossbarhttp
 import datetime
