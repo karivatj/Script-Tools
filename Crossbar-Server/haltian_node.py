@@ -43,7 +43,7 @@ class AppSession(ApplicationSession):
                 #get location information
                 r = requests.post(haltian_url, data=None, headers=headers)
             except ConnectionError:
-                self.log.error(str(TAG) + "Haltian Node: Connection Error. Check connectivity and / or connection parameters and try again!")
+                #self.log.error(str(TAG) + "Haltian Node: Connection Error. Check connectivity and / or connection parameters and try again!")
                 yield sleep(300)
                 continue
 
