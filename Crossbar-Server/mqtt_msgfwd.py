@@ -106,6 +106,60 @@ def on_withings_bodytemp(msg):
         mqtt_client.disconnect()
     #mqtt_client.publish('com/testlab/user/' + targetId + '/bodytemp', json.dumps(data))
 
+def on_withings_activity(msg):
+    print(str(TAG) + "event for 'on_withings_activity' received: {}".format(msg))
+    try:
+        mqtt_client.username_pw_set(mqtt_activity_accesstoken)
+        mqtt_client.connect(mqtt_broker_url, 1883, 60)
+        targetId = msg[0]
+        date = msg[1]
+        payload = msg[2]
+        data = dict()
+        data["value"] = payload
+        data["date"] = date
+        mqtt_client.publish('v1/devices/me/telemetry', json.dumps(data))
+    except socket.gaierror:
+        print(str(TAG) + "Connection error: MQTT Broker unavailable")
+    finally:
+        mqtt_client.disconnect()
+    #mqtt_client.publish('com/testlab/user/' + targetId + '/activity', json.dumps(data))
+
+def on_withings_sleep(msg):
+    print(str(TAG) + "event for 'on_withings_sleep' received: {}".format(msg))
+    try:
+        mqtt_client.username_pw_set(mqtt_sleep_accesstoken)
+        mqtt_client.connect(mqtt_broker_url, 1883, 60)
+        targetId = msg[0]
+        date = msg[1]
+        payload = msg[2]
+        data = dict()
+        data["value"] = payload
+        data["date"] = date
+        mqtt_client.publish('v1/devices/me/telemetry', json.dumps(data))
+    except socket.gaierror:
+        print(str(TAG) + "Connection error: MQTT Broker unavailable")
+    finally:
+        mqtt_client.disconnect()
+    #mqtt_client.publish('com/testlab/user/' + targetId + '/sleep', json.dumps(data))
+
+def on_withings_energy(msg):
+    print(str(TAG) + "event for 'on_withings_energy' received: {}".format(msg))
+    try:
+        mqtt_client.username_pw_set(mqtt_energy_accesstoken)
+        mqtt_client.connect(mqtt_broker_url, 1883, 60)
+        targetId = msg[0]
+        date = msg[1]
+        payload = msg[2]
+        data = dict()
+        data["value"] = payload
+        data["date"] = date
+        mqtt_client.publish('v1/devices/me/telemetry', json.dumps(data))
+    except socket.gaierror:
+        print(str(TAG) + "Connection error: MQTT Broker unavailable")
+    finally:
+        mqtt_client.disconnect()
+    #mqtt_client.publish('com/testlab/user/' + targetId + '/sleep', json.dumps(data))
+
 def on_mqtt_connect(client, userdata, flags, rc):
     print(str(TAG) + "MQTT node up")
 
@@ -134,6 +188,12 @@ class AppSession(ApplicationSession):
         print(str(TAG) + "subscribed to topic 'on_withings_heartrate'")
         sub = yield self.subscribe(on_withings_bodytemp, 'com.testlab.withings_bodytemp_update')
         print(str(TAG) + "subscribed to topic 'on_withings_bodytemp'")
+        sub = yield self.subscribe(on_withings_activity, 'com.testlab.withings_activity_update')
+        print(str(TAG) + "subscribed to topic 'on_withings_activity'")
+        sub = yield self.subscribe(on_withings_sleep, 'com.testlab.withings_sleep_update')
+        print(str(TAG) + "subscribed to topic 'on_withings_sleep'")
+        sub = yield self.subscribe(on_withings_energy, 'com.testlab.withings_energy_update')
+        print(str(TAG) + "subscribed to topic 'on_withings_energy'")
 
         while True:
             yield sleep(60)
