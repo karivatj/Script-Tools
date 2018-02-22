@@ -34,7 +34,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ambulance Case sensor & location information</title>
+    <title>Sensor telemetry</title>
     <link rel="stylesheet" href="stylesheet.css">
     <script src="./dist/autobahn.min.js"></script>
     <script src="./dist/plotly-latest.min.js"></script>
@@ -140,7 +140,7 @@
         // the WAMP connection to the Router
         var connection = new autobahn.Connection({
             url: wsuri,
-            realm: "realm2"
+            realm: "realm1"
         });
 
         //Utility functions:
@@ -630,6 +630,7 @@
                     console.log('failed to subscribe to topic!', err);
                 }
             );
+
         };
 
         // fired when connection was lost (or could not be established)
@@ -645,12 +646,13 @@
             connection.open();
         });
     </script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9mV0Epe5stYJC0_DR-HHlzbMwM4WComs&callback=initGoogleMaps">
+    <!--
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJtI-Y8YQichxP3hsXwvvwnMRF5p7BnEM&callback=initGoogleMaps">
     </script>
     <div
         id="footer"><a href="#" onClick="MyWindow=window.open('https://videoneukkari.com/connect/testlab?room=TestLab&pin=1234&name=Potilas','Video Connection',width='600',height='300'); return false;" class="no-underline"><div class="footer-text">Call Doctor</div></a>
     </div>
+    -->
     <!--<div class="footer"></div>-->
 </body>
-
 </html>
