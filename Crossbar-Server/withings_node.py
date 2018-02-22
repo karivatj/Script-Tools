@@ -164,7 +164,12 @@ class AppSession(ApplicationSession):
                 credentials = WithingsCredentials(user_access_tokens[i], user_access_secret[i], withings_api_token, withings_api_secret, user_id)
                 withings_client = WithingsApi(credentials)
 
+                # get the dates beforehand for easy usage
                 today = datetime.date.today()
+                startdate = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+                enddate = datetime.datetime.today().replace(hour=23, minute=59, second=59, microsecond=999)
+                startepoch = startdate.timestamp()
+                endepoch = enddate.timestamp()
 
                 measures = []
                 temp_activity = {}
@@ -173,9 +178,7 @@ class AppSession(ApplicationSession):
 
                 try:
                     #fetch updated data for this user:
-                    startepoch = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
-                    endepoch = datetime.datetime.today().replace(hour=23, minute=59, second=59, microsecond=999).timestamp()
-                    temp_activity = withings_client.get_activity(date=today)
+                    temp_activity = withings_client.get_activity(startdateymd=today, enddateymd=today)
                     temp_sleep = withings_client.get_sleepsummary(startdateymd=today - datetime.timedelta(days=1), enddateymd=today)
                     for m in meastype: measures.append(withings_client.get_measures(lastupdate=startepoch, meastype=m))
                 except ConnectionError:
