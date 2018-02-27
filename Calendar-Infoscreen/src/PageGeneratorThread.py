@@ -148,21 +148,27 @@ class PageGeneratorThread(QtCore.QThread):
                     delta = 2
                     if now > EWSDateTime(now.year, 3, 26, 3, 0, 0) and now < EWSDateTime(now.year, 10, 29, 4, 0, 0):
                         delta = 3
+
                     try:
                         for item in calendar_data[calendar]:
+                            subject = item.subject
+                            if subject is None or subject is "":
+                                subject = "Varaus ilman otsikkoa"
                             start_time = EWSDateTime(item.start.year, item.start.month, item.start.day, item.start.hour, item.start.minute, 0) + timedelta(hours=delta)
                             end_time = EWSDateTime(item.end.year, item.end.month, item.end.day, item.end.hour, item.end.minute, 0) + timedelta(hours=delta)
+
                             if(now < end_time and primary_event_found == False):
                                 primary_event_found = True
-                                f.write("<td class=\"event_primary\">" + item.subject + "</td>\n")
+                                f.write("<td class=\"event_primary\">" + str(subject) + "</td>\n")
                                 f.write("<td class=\"eventdate_primary\">%d:%02d - %d:%02d</td>\n" % (start_time.hour, start_time.minute, end_time.hour, end_time.minute))
                             elif(now < end_time and secondary_event_found == False):
                                 secondary_event_found = True
-                                f.write("<td class=\"event_secondary\">" + item.subject + "</td>\n")
+                                f.write("<td class=\"event_secondary\">" + str(subject) + "</td>\n")
                                 f.write("<td class=\"eventdate_secondary\">%d:%02d - %d:%02d</td>\n" % (start_time.hour, start_time.minute, end_time.hour, end_time.minute))
                                 break
+
                     except Exception as e: # failure in data communication
-                        logger.debug("Failed to parse calendar data: {0}".format(e))
+                        logger.error("Failed to parse calendar data: {0}".format(e))
                         f.write("<td class=\"event_primary\">Virhe tiedonsiirrossa</td>\n")
                         f.write("<td class=\"eventdate_primary\"></td>\n")
                         f.write("<td class=\"event_secondary\">Virhe tiedonsiirrossa</td>\n")
@@ -181,7 +187,7 @@ class PageGeneratorThread(QtCore.QThread):
                     f.write("</tr>\n")
                 f.write("</table>")
         except FileNotFoundError:
-            logger.debug("Failed to open file ./web/content.html. No such file or directory")
+            logger.error("Failed to open file ./web/content.html. No such file or directory")
             self.statusupdate.emit(-1, "Failed to open file ./web/content.html. No such file or directory")
             return
 
