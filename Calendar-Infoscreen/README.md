@@ -8,3 +8,6 @@ A tool to configure a webpage that displays information about meetingroom appoin
 # Instructions
 Either download the release executable from the releases page (top of the page) or download the source package and run Infoscreen.py with a python intepreter.
 Any suggestions or feature requests can be forwarded to kari.vatjusanttila [{at}] gmail.com
+
+# Deployment
+I used pyinstaller to create a runnable exe in Windows. Usage: pyinstaller --onefile InfoScreen.py or just pyinstaller InfoScreen.py if you don't want to package the program into a single file (might cause problems in some setups)
