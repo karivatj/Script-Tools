@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import csv
+import logging
+import os
 import requests
+import sys
+
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 from PyQt5 import QtCore, QtWidgets
@@ -15,12 +18,12 @@ from AboutUI import Ui_About
 import Preferences
 import AddCalendar
 
-import logging
 # setup logging
+from logging import handlers
 logger = logging.getLogger('infoscreen')
 logger.setLevel(logging.DEBUG)
 # create file handler which logs debug messages
-fh = logging.FileHandler('debug.log')
+fh = handlers.TimedRotatingFileHandler('logs/debug.log', when="d", interval=1, backupCount=7)
 fh.setLevel(logging.DEBUG)
 # create console handler with a higher log level
 ch = logging.StreamHandler()
@@ -92,6 +95,9 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         QtWidgets.QMainWindow.__init__(self, parent)
 
         self.setupUi(self)
+
+        if not os.path.exists("./logs/"):
+            os.makedirs("./logs/")
 
         # minimize the console on startup
         #ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 6 )

@@ -6,6 +6,7 @@ from builtins import str
 
 import codecs
 import collections
+import logging
 import os
 
 from datetime import timedelta
@@ -15,12 +16,12 @@ from PyQt5.QtCore import pyqtSignal
 
 from exchangelib import EWSDateTime, EWSTimeZone, DELEGATE, Account, Credentials, NTLM, Configuration
 
-import logging
 # setup logging
+from logging import handlers
 logger = logging.getLogger('pagegenerator')
 logger.setLevel(logging.DEBUG)
 # create file handler which logs debug messages
-fh = logging.FileHandler('debug.log')
+fh = handlers.TimedRotatingFileHandler('logs/debug.log', when="d", interval=1, backupCount=7)
 fh.setLevel(logging.DEBUG)
 # create console handler with a higher log level
 ch = logging.StreamHandler()
@@ -79,39 +80,50 @@ class PageGeneratorThread(QtCore.QThread):
         items = {}
 
         try:
+            logger.debug("Getting appointments")
             items = account.calendar.view(
                 start=self.tz.localize(EWSDateTime(now.year, now.month, now.day, 6, 0)),
                 end=self.tz.localize(EWSDateTime(now.year, now.month, now.day, 18, 0)),
             ).order_by('start')
+            logger.debug("Getting appointments was a success")
         except Exception as e:
-            logger.debug("Failed to get appointments. Trying again later. Error: {0}".format(e))
+            logger.error("Failed to get appointments. Trying again later. Error: {0}".format(e))
             return items, False
 
         return items, True
 
     def work(self):
+        logger.debug("Starting work thread")
         calendar_data = {} #dictionary containing the data
 
         progress_step = 100 / len(self.calendar_list)
         progress_now = 0
 
         #Get appointment data for each calendar
-        for calendar in self.calendar_list:
-            calendar_name  = calendar[0]
-            calendar_email = calendar[1]
+        try:
+            for calendar in self.calendar_list:
+                calendar_name  = calendar[0]
+                calendar_email = calendar[1]
 
-            logger.debug("Fetching data for: " + calendar_name)
+                logger.debug("Fetching data for calendar: {0}".format(calendar_name))
 
-            # setup EWS account where the data is coming from
-            self.account = Account(primary_smtp_address=calendar_email, config=self.config, autodiscover=False, access_type=DELEGATE)
+                # setup EWS account where the data is coming from
+                logger.debug("Setting up EWS account for calendar: {0}".format(calendar_email))
+                self.account = Account(primary_smtp_address=calendar_email, config=self.config, autodiscover=False, access_type=DELEGATE)
 
-            calendar_data[calendar_name], result = self.get_appointments(self.account)
+                calendar_data[calendar_name], result = self.get_appointments(self.account)
 
-            progress_now += progress_step
-            self.progress.emit(progress_now)
+                progress_now += progress_step
+                self.progress.emit(progress_now)
 
-            if result is not True:
-                logger.debug("Failed to fetch calendar data.")
+                if result is not True:
+                    logger.error("Failed to fetch calendar data for calendar: {0}".format(calendar_email))
+                logger.debug("Done with calendar: {0}".format(calendar_email))
+        except Exception as e:
+            logger.debug("General failure occured when fetching calendar data! Error: {0}".format(e))
+            self.statusupdate.emit(-1, "Failure while fetching calendar data!")
+            self.progress.emit(100)
+            return
 
         logger.debug("Calendar data retrieved. Outputting webpage...")
         calendar_data = collections.OrderedDict(sorted(calendar_data.items(), key=lambda t: t[0]))
@@ -189,6 +201,7 @@ class PageGeneratorThread(QtCore.QThread):
         except FileNotFoundError:
             logger.error("Failed to open file ./web/content.html. No such file or directory")
             self.statusupdate.emit(-1, "Failed to open file ./web/content.html. No such file or directory")
+            self.progress.emit(100)
             return
 
         self.statusupdate.emit(1, "Calendar data succesfully fetched!")
