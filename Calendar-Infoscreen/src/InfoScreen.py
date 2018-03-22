@@ -19,11 +19,13 @@ import Preferences
 import AddCalendar
 
 # setup logging
+if not os.path.exists(os.getcwd() + "/logs/"):
+    os.makedirs(os.getcwd() + "/logs/")
 from logging import handlers
 logger = logging.getLogger('infoscreen')
 logger.setLevel(logging.DEBUG)
 # create file handler which logs debug messages
-fh = handlers.TimedRotatingFileHandler('logs/debug.log', when="d", interval=1, backupCount=7)
+fh = handlers.TimedRotatingFileHandler(os.getcwd() + '/logs/debug.log', when="d", interval=1, backupCount=7)
 fh.setLevel(logging.DEBUG)
 # create console handler with a higher log level
 ch = logging.StreamHandler()
@@ -39,17 +41,25 @@ logger.addHandler(ch)
 # workthread which executes calendar data fetching
 from PageGeneratorThread import PageGeneratorThread
 
-HOST, PORT = '127.0.0.1', 8080
+#HOST, PORT = '127.0.0.1', 8080
 
 class HttpDaemon(QtCore.QThread):
 
     stopped = False
     allow_reuse_address = True
+    def __init__(self, port, parent=None):
+        QtCore.QThread.__init__(self, parent)
+        self.notifyProgress = QtCore.pyqtSignal(int)
+        self.port = port
 
     def run(self):
         logger.debug("HTTP Server Starting Up")
         self.stopped = False
-        self._server = HTTPServer((HOST, PORT), SimpleHTTPRequestHandler)
+        try:
+            self._server = HTTPServer(('0.0.0.0', int(self.port)), SimpleHTTPRequestHandler)
+        except OSError:
+            logger.debug("Could not start the server. Perhaps the port is in use. Exiting!!")
+            return
         self.serve_forever()
 
     def serve_forever(self):
@@ -63,9 +73,12 @@ class HttpDaemon(QtCore.QThread):
         self.stopped = True
         self.create_dummy_request()
 
+    def set_port(self, port):
+        self.port = port
+
     def create_dummy_request(self):
         try:
-            requests.get("http://%s:%s/web/" % (HOST, PORT), timeout=1)
+            requests.get("http://%s:%s/web/" % ('127.0.0.1', int(self.port)), timeout=1)
         except requests.exceptions.ReadTimeout:
             pass
         except requests.exceptions.ConnectionError:
@@ -96,9 +109,6 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
         self.setupUi(self)
 
-        if not os.path.exists("./logs/"):
-            os.makedirs("./logs/")
-
         # minimize the console on startup
         #ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 6 )
 
@@ -111,14 +121,16 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.savePending  = False
 
         # HTTP daemon
-        self.httpd = HttpDaemon(self)
+        self.httpd = HttpDaemon(port=8080)
 
         # preferences variables
         self.username = ""
         self.password = ""
         self.server = "https://sposti.ppshp.fi/EWS/Exchange.asmx"
+        self.serverport = 8080
         self.interval = 5
         self.updatedata = 0
+        self.ignoreSSL = 0
         self.lastusedconfig = ""
 
         # connect signals / slots of UI controls
@@ -178,9 +190,11 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 self.password += chr(ord(c) - 5)
             self.username         = items[0]
             self.server           = items[2]
-            self.interval         = items[3]
-            self.updatedata       = items[4]
-            self.lastusedconfig = items[5]
+            self.serverport       = items[3]
+            self.interval         = items[4]
+            self.updatedata       = items[5]
+            self.ignoreSSL        = items[6]
+            self.lastusedconfig   = items[7]
 
             if self.lastusedconfig is not "":
                 if(self.load(self.lastusedconfig)):
@@ -207,7 +221,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
             with open("preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
                 writer = csv.writer(fileOutput)
-                writer.writerow([self.username, temp_pw, self.server, self.interval, self.updatedata, self.lastusedconfig])
+                writer.writerow([self.username, temp_pw, self.server, self.serverport, self.interval, self.updatedata, self.ignoreSSL, self.lastusedconfig])
         except FileNotFoundError as e:
             self.warning("Failed to save preferences: {0}".format(e))
             sys.exit(0)
@@ -243,7 +257,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def preferencesActionTriggered(self):
         dialog = Preferences.PreferencesDialog()
-        dialog.setPreferences([self.username, self.password, self.server, self.interval, self.updatedata])
+        dialog.setPreferences([self.username, self.password, self.server, self.serverport, self.interval, self.updatedata, self.ignoreSSL])
         if dialog.exec_():
             try:
                 result = dialog.getPreferences()
@@ -251,8 +265,10 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 self.username   = result[0]
                 self.password   = result[1]
                 self.server     = result[2]
-                self.interval   = result[3]
-                self.updatedata = result[4]
+                self.serverport = result[3]
+                self.interval   = result[4]
+                self.updatedata = result[5]
+                self.ignoreSSL  = result[6]
 
                 self.savePreferences()
 
@@ -265,16 +281,17 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def generateCalendarPage(self):
         self.progressBar.setValue(0)
-        self.thread.startworking(self.tableToList(), self.username, self.password, self.server)
+        self.thread.startworking(self.tableToList(), self.username, self.password, self.server, self.ignoreSSL)
 
     def buttonStartPressed(self):
         if self.btnStart.text() == "Start Server":
             self.generateCalendarPage()
+            self.httpd.set_port(self.serverport)
             self.httpd.start()
             self.btnStart.setText("Stop Server")
             self.disableUI()
             self.timer.start(int(self.interval) * 1000 * 60)
-            self.notify("HTTP Server running. Open your browser and point to http://localhost:8080/web/")
+            self.notify("HTTP Server running. Open your browser and point to http://localhost:" + self.serverport + "/web/")
         elif self.btnStart.text() == "Stop Server":
             self.httpd.force_stop()
             self.thread.stopworking()
