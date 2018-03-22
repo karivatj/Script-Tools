@@ -20,16 +20,20 @@ from exchangelib import EWSDateTime, EWSTimeZone, DELEGATE, Account, Credentials
 from logging import handlers
 logger = logging.getLogger('pagegenerator')
 logger.setLevel(logging.DEBUG)
+
 # create file handler which logs debug messages
-fh = handlers.TimedRotatingFileHandler('logs/debug.log', when="d", interval=1, backupCount=7)
+fh = handlers.TimedRotatingFileHandler(os.getcwd() + '/logs/pagegenerator.log', when="d", interval=1, backupCount=7)
 fh.setLevel(logging.DEBUG)
+
 # create console handler with a higher log level
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
+
 # create formatter and add it to the handlers
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
 ch.setFormatter(formatter)
+
 # add the handlers to the logger
 logger.addHandler(fh)
 logger.addHandler(ch)
@@ -57,9 +61,12 @@ class PageGeneratorThread(QtCore.QThread):
         self.exiting = True
         self.wait()
 
-    def startworking(self, calendars, username, password, server):
+    def startworking(self, calendars, username, password, server, ignoreSSL):
         self.calendar_list = calendars
         try:
+            if ignoreSSL == 2:
+                from exchangelib.protocol import BaseProtocol, NoVerifyHTTPAdapter
+                BaseProtocol.HTTP_ADAPTER_CLS = NoVerifyHTTPAdapter
             self.credentials = Credentials(username=username, password=password)
             self.config = Configuration(service_endpoint=server, credentials=self.credentials, auth_type=NTLM)
             self.exiting = False
