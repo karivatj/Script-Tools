@@ -8,6 +8,7 @@ import codecs
 import collections
 import logging
 import os
+import requests
 
 from datetime import timedelta
 
@@ -15,6 +16,7 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import pyqtSignal
 
 from exchangelib import EWSDateTime, EWSTimeZone, DELEGATE, Account, Credentials, NTLM, Configuration
+from exchangelib.protocol import BaseProtocol, NoVerifyHTTPAdapter
 
 # setup logging
 from logging import handlers
@@ -65,8 +67,12 @@ class PageGeneratorThread(QtCore.QThread):
         self.calendar_list = calendars
         try:
             if ignoreSSL == 2:
-                from exchangelib.protocol import BaseProtocol, NoVerifyHTTPAdapter
+                logger.info("Using unverified HTTP adapter")
                 BaseProtocol.HTTP_ADAPTER_CLS = NoVerifyHTTPAdapter
+            else:
+                logger.info("Using standard HTTP adapter")
+                BaseProtocol.HTTP_ADAPTER_CLS = requests.adapters.HTTPAdapter
+
             self.credentials = Credentials(username=username, password=password)
             self.config = Configuration(service_endpoint=server, credentials=self.credentials, auth_type=NTLM)
             self.exiting = False
@@ -133,7 +139,7 @@ class PageGeneratorThread(QtCore.QThread):
             return
 
         logger.debug("Calendar data retrieved. Outputting webpage...")
-        calendar_data = collections.OrderedDict(sorted(calendar_data.items(), key=lambda t: t[0]))
+        #calendar_data = collections.OrderedDict(sorted(calendar_data.items(), key=lambda t: t[0]))
 
         if not os.path.exists("./web/"):
             os.makedirs("./web/")
