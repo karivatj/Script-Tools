@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import argparse
 import csv
 import logging
 import os
@@ -21,27 +22,34 @@ import AddCalendar
 # setup logging
 if not os.path.exists(os.getcwd() + "/logs/"):
     os.makedirs(os.getcwd() + "/logs/")
+
 from logging import handlers
+
 logger = logging.getLogger('infoscreen')
 logger.setLevel(logging.DEBUG)
-# create file handler which logs debug messages
+
 fh = handlers.TimedRotatingFileHandler(os.getcwd() + '/logs/debug.log', when="d", interval=1, backupCount=7)
 fh.setLevel(logging.DEBUG)
-# create console handler with a higher log level
+
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
-# create formatter and add it to the handlers
+
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
 ch.setFormatter(formatter)
-# add the handlers to the logger
+
 logger.addHandler(fh)
 logger.addHandler(ch)
 
+# commandline arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("--headless", help="run the program in headless mode", action='store_true')
+parser.add_argument("--preferences", help="preferences.dat that contains necessary configuration information", type=str, default="")
+parser.add_argument("--configuration", help="calendar configuration to be used", type=str, default="")
+args = parser.parse_args()
+
 # workthread which executes calendar data fetching
 from PageGeneratorThread import PageGeneratorThread
-
-#HOST, PORT = '127.0.0.1', 8080
 
 class HttpDaemon(QtCore.QThread):
 
@@ -538,7 +546,14 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         QtWidgets.QMessageBox.information(self, 'Attention', message, QtWidgets.QMessageBox.Ok)
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    myWindow = Infoscreen(None)
-    myWindow.show()
-    app.exec_()
+    if not args.headless:
+        app = QtWidgets.QApplication(sys.argv)
+        myWindow = Infoscreen(None)
+        myWindow.show()
+        app.exec_()
+    else:
+        logger.info("Requested to run in headless mode")
+        if args.preferences == "":
+            logger.error("Preferences file is mandatory in headless mode. Please provide a preferences configuration and try again!")
+        if args.configuration == "":
+            logger.error("Configuration file is mandatory in headless mode. Please provide a calendar configuration and try again!")
