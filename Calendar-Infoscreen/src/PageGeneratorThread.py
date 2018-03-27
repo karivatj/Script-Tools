@@ -9,6 +9,7 @@ import collections
 import logging
 import os
 import requests
+import traceback
 
 from datetime import timedelta
 
@@ -78,7 +79,7 @@ class PageGeneratorThread(QtCore.QThread):
             self.exiting = False
             self.start()
         except Exception as e:
-            logger.debug("Failed to connect to EWS server. Check your settings: {0}".format(e))
+            logger.debug("Failed to connect to EWS server. Check your settings: {0}".format(traceback.print_exc()))
             self.exiting = True
 
     def stopworking(self):
@@ -100,7 +101,7 @@ class PageGeneratorThread(QtCore.QThread):
             ).order_by('start')
             logger.debug("Getting appointments was a success")
         except Exception as e:
-            logger.error("Failed to get appointments. Trying again later. Error: {0}".format(e))
+            logger.error("Failed to get appointments. Trying again later. Error: {0}".format(traceback.print_exc()))
             return items, False
 
         return items, True
@@ -133,7 +134,7 @@ class PageGeneratorThread(QtCore.QThread):
                     logger.error("Failed to fetch calendar data for calendar: {0}".format(calendar_email))
                 logger.debug("Done with calendar: {0}".format(calendar_email))
         except Exception as e:
-            logger.debug("General failure occured when fetching calendar data! Error: {0}".format(e))
+            logger.debug("General failure occured when fetching calendar data! Error: {0}".format(traceback.print_exc()))
             self.statusupdate.emit(-1, "Failure while fetching calendar data!")
             self.progress.emit(100)
             return
@@ -193,14 +194,14 @@ class PageGeneratorThread(QtCore.QThread):
                                 break
 
                     except Exception as e: # failure in data communication
-                        logger.error("Failed to parse calendar data: {0}".format(e))
+                        logger.error("Failed to parse calendar data: {0}".format(traceback.print_exc()))
                         f.write("<td class=\"event_primary\">Virhe tiedonsiirrossa</td>\n")
                         f.write("<td class=\"eventdate_primary\"></td>\n")
                         f.write("<td class=\"event_secondary\">Virhe tiedonsiirrossa</td>\n")
                         f.write("<td class=\"eventdate_secondary\"></td>\n")
                         primary_event_found = True
                         secondary_event_found = True
-                        break
+                        continue
 
                     if(primary_event_found != True):
                         f.write("<td class=\"event_primary\">Vapaa</td>\n")
