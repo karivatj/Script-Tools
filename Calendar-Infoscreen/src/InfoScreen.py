@@ -6,6 +6,7 @@ import logging
 import os
 import requests
 import sys
+import traceback
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
@@ -44,12 +45,15 @@ logger.addHandler(ch)
 # commandline arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("--headless", help="run the program in headless mode", action='store_true')
-parser.add_argument("--preferences", help="preferences.dat that contains necessary configuration information", type=str, default="")
-parser.add_argument("--configuration", help="calendar configuration to be used", type=str, default="")
+parser.add_argument("--preferences", help="preferences.dat that contains necessary configuration information", type=str, default="preferences.dat")
+parser.add_argument("--configuration", help="calendar configuration to be used", type=str, default="calendar_configuration.conf")
 args = parser.parse_args()
 
 # workthread which executes calendar data fetching
 from PageGeneratorThread import PageGeneratorThread
+
+# utility methods for running this program in headless mode
+from HeadlessUtilities import *
 
 class HttpDaemon(QtCore.QThread):
 
@@ -213,7 +217,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
         except FileNotFoundError as e:
             self.notify("It seems that this is the first time you are launching this program. Please configure necessary connection parameters to get started")
-            logger.debug("loadPreferences FileNotFoundError: {0}".format(e))
+            logger.debug("loadPreferences FileNotFoundError: {0}".format(traceback.print_exc()))
             self.preferencesActionTriggered()
 
     def savePreferences(self):
@@ -231,7 +235,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 writer = csv.writer(fileOutput)
                 writer.writerow([self.username, temp_pw, self.server, self.serverport, self.interval, self.updatedata, self.ignoreSSL, self.lastusedconfig])
         except FileNotFoundError as e:
-            self.warning("Failed to save preferences: {0}".format(e))
+            self.warning("Failed to save preferences: {0}".format(traceback.print_exc()))
             sys.exit(0)
 
     def onWorkerThreadStatusUpdate(self, value, message):
@@ -281,7 +285,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 self.savePreferences()
 
             except ValueError as e:
-                QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters: {0}".format(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
+                QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters: {0}".format(traceback.print_exc()), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                 return
 
     def updateProgressBar(self, value):
@@ -337,7 +341,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
                 self.savePending = True
             except ValueError as e:
-                QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters: {0}".format(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
+                QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters: {0}".format(traceback.print_exc()), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                 return
 
     def buttonUpdatePressed(self):
@@ -365,7 +369,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
                     self.savePending = True
                 except ValueError as e:
-                    QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters: {0}".format(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
+                    QtWidgets.QMessageBox.question(self, 'Error', "Invalid values given. Please check your parameters: {0}".format(traceback.print_exc()), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     return
 
     def buttonMoveUpPressed(self):
@@ -449,7 +453,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                     self.table.item(i, j).setTextAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter | QtCore.Qt.AlignCenter)
         except AttributeError as e:
             self.clearTable()
-            self.warning("Failed to load data. Check configuration files integrity and try again: {0}".format(e))
+            self.warning("Failed to load data. Check configuration files integrity and try again: {0}".format(traceback.print_exc()))
 
     def updateTableEntry(self, row, name, email):
         self.insertRow(row, name, email)
@@ -508,7 +512,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             self.listToTable(contents)
             return True
         except Exception as e:
-            logger.error("Failed to load configuration file: {0}".format(e))
+            logger.error("Failed to load configuration file: {0}".format(traceback.print_exc()))
             return False
 
     def save(self, fileName):
@@ -552,8 +556,7 @@ if __name__ == "__main__":
         myWindow.show()
         app.exec_()
     else:
-        logger.info("Requested to run in headless mode")
-        if args.preferences == "":
-            logger.error("Preferences file is mandatory in headless mode. Please provide a preferences configuration and try again!")
-        if args.configuration == "":
-            logger.error("Configuration file is mandatory in headless mode. Please provide a calendar configuration and try again!")
+        logger.info("User request to run in headless mode")
+        logger.error("Reading preferences from {0}\{1}.".format(os.getcwd(), args.preferences))
+        logger.error("Reading calendar configuration from {0}\{1}.".format(os.getcwd(), args.configuration))
+
