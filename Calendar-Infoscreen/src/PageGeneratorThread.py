@@ -20,6 +20,7 @@ from exchangelib import EWSDateTime, EWSTimeZone, DELEGATE, Account, Credentials
 from exchangelib.protocol import BaseProtocol, NoVerifyHTTPAdapter
 
 # setup logging
+
 from logging import handlers
 logger = logging.getLogger('pagegenerator')
 logger.setLevel(logging.DEBUG)
@@ -37,9 +38,11 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 ch.setFormatter(formatter)
 
-# add the handlers to the logger
-logger.addHandler(fh)
-logger.addHandler(ch)
+from exchangelib.util import PrettyXmlHandler
+
+logging.basicConfig(level=logging.DEBUG, handlers=[PrettyXmlHandler(), fh,ch])
+
+
 
 class PageGeneratorThread(QtCore.QThread):
     #signals
@@ -48,13 +51,10 @@ class PageGeneratorThread(QtCore.QThread):
 
     exiting = False
 
-    calendar_list = list()
+    calendars = {}
     credentials = None
     config = None
-    account = None
-
-    # define the timezone
-    tz = EWSTimeZone.timezone('Europe/Helsinki')
+    headless = False
 
     def __init__(self, parent = None):
         QtCore.QThread.__init__(self, parent)
@@ -64,18 +64,17 @@ class PageGeneratorThread(QtCore.QThread):
         self.exiting = True
         self.wait()
 
-    def startworking(self, calendars, username, password, server, ignoreSSL):
-        self.calendar_list = calendars
+    def startworking(self, calendars, username, password, server, ignoreSSL, headless):
+        self.calendars = calendars
         try:
-            if ignoreSSL == 2:
+            if int(ignoreSSL) == 2:
                 logger.info("Using unverified HTTP adapter")
                 BaseProtocol.HTTP_ADAPTER_CLS = NoVerifyHTTPAdapter
-            else:
-                logger.info("Using standard HTTP adapter")
-                BaseProtocol.HTTP_ADAPTER_CLS = requests.adapters.HTTPAdapter
 
-            self.credentials = Credentials(username=username, password=password)
-            self.config = Configuration(service_endpoint=server, credentials=self.credentials, auth_type=NTLM)
+            self.headless = headless
+
+            self.credentials = Credentials(username=str(username), password=str(password))
+            self.config = Configuration(service_endpoint=str(server), credentials=self.credentials, auth_type=NTLM)
             self.exiting = False
             self.start()
         except Exception as e:
@@ -88,55 +87,71 @@ class PageGeneratorThread(QtCore.QThread):
     def run(self):
         self.work()
 
-    def get_appointments(self, account):
-        now = self.tz.localize(EWSDateTime.now())
+    def get_appointments(self, acc):
+
+        # define the timezone
+        tz = EWSTimeZone.timezone('Europe/Helsinki')        
+        now = tz.localize(EWSDateTime.now())
 
         items = {}
 
         try:
             logger.debug("Getting appointments")
-            items = account.calendar.view(
-                start=self.tz.localize(EWSDateTime(now.year, now.month, now.day, 6, 0)),
-                end=self.tz.localize(EWSDateTime(now.year, now.month, now.day, 18, 0)),
-            ).order_by('start')
+
+            items = acc.calendar.view(
+                start=tz.localize(EWSDateTime(now.year, now.month, now.day, 6, 0)),
+                end=tz.localize(EWSDateTime(now.year, now.month, now.day, 18, 0)),
+            )
+            
             logger.debug("Getting appointments was a success")
+            return items, True
         except Exception as e:
             logger.error("Failed to get appointments. Trying again later. Error: {0}".format(traceback.print_exc()))
             return items, False
-
-        return items, True
 
     def work(self):
         logger.debug("Starting work thread")
         calendar_data = {} #dictionary containing the data
 
-        progress_step = 100 / len(self.calendar_list)
+        progress_step = 100 / len(self.calendars)
         progress_now = 0
 
         #Get appointment data for each calendar
         try:
-            for calendar in self.calendar_list:
-                calendar_name  = calendar[0]
-                calendar_email = calendar[1]
+            for key, value in self.calendars.items():
+                calendar_name  = key
+                calendar_email = value
 
                 logger.debug("Fetching data for calendar: {0}".format(calendar_name))
-
-                # setup EWS account where the data is coming from
                 logger.debug("Setting up EWS account for calendar: {0}".format(calendar_email))
-                self.account = Account(primary_smtp_address=calendar_email, config=self.config, autodiscover=False, access_type=DELEGATE)
+                logger.debug("ACCOUNT DEBUG2")
 
-                calendar_data[calendar_name], result = self.get_appointments(self.account)
+                try:
+                    logger.debug("ACCOUNT DEBUG3")
+                    account = Account(primary_smtp_address=str(calendar_email), config=self.config, autodiscover=False, access_type=DELEGATE)
+                    logger.debug("ACCOUNT DEBUG4")
+                except Exception as e:
+                    logger.error("Failure")
+                    continue
 
-                progress_now += progress_step
-                self.progress.emit(progress_now)
+                logger.debug("ACCOUNT DEBUG")
+                logger.debug("Account : " + str(account))
+
+                calendar_data[calendar_name], result = self.get_appointments(account)
 
                 if result is not True:
                     logger.error("Failed to fetch calendar data for calendar: {0}".format(calendar_email))
+
+                progress_now += progress_step
+                if self.headless is not True:
+                    self.progress.emit(progress_now)
+
                 logger.debug("Done with calendar: {0}".format(calendar_email))
         except Exception as e:
             logger.debug("General failure occured when fetching calendar data! Error: {0}".format(traceback.print_exc()))
-            self.statusupdate.emit(-1, "Failure while fetching calendar data!")
-            self.progress.emit(100)
+            if self.headless is not True:
+                self.statusupdate.emit(-1, "Failure while fetching calendar data!")
+                self.progress.emit(100)
             return
 
         logger.debug("Calendar data retrieved. Outputting webpage...")
@@ -177,12 +192,18 @@ class PageGeneratorThread(QtCore.QThread):
 
                     try:
                         for item in calendar_data[calendar]:
+                           
+                            #logger.debug(item)
                             subject = item.subject
                             if subject is None or subject is "":
                                 subject = "Varaus ilman otsikkoa"
+                           
+                            logger.debug(calendar + " " + subject)
                             start_time = EWSDateTime(item.start.year, item.start.month, item.start.day, item.start.hour, item.start.minute, 0) + timedelta(hours=delta)
                             end_time = EWSDateTime(item.end.year, item.end.month, item.end.day, item.end.hour, item.end.minute, 0) + timedelta(hours=delta)
-
+                            logger.debug(start_time)
+                            logger.debug(end_time)
+                            logger.debug(now)
                             if(now < end_time and primary_event_found == False):
                                 primary_event_found = True
                                 f.write("<td class=\"event_primary\">" + str(subject) + "</td>\n")
@@ -204,9 +225,11 @@ class PageGeneratorThread(QtCore.QThread):
                         continue
 
                     if(primary_event_found != True):
+                        logger.debug("Ei varauksia kalenterille " + calendar)
                         f.write("<td class=\"event_primary\">Vapaa</td>\n")
                         f.write("<td class=\"eventdate_primary\"></td>\n")
                     if(secondary_event_found != True):
+                        logger.debug("Ei toissijaisia kalenterille " + calendar)
                         f.write("<td class=\"event_secondary\">Vapaa</td>\n")
                         f.write("<td class=\"eventdate_secondary\"></td>\n")
 
@@ -214,8 +237,10 @@ class PageGeneratorThread(QtCore.QThread):
                 f.write("</table>")
         except FileNotFoundError:
             logger.error("Failed to open file ./web/content.html. No such file or directory")
-            self.statusupdate.emit(-1, "Failed to open file ./web/content.html. No such file or directory")
-            self.progress.emit(100)
+            if self.headless is not True:
+                self.statusupdate.emit(-1, "Failed to open file ./web/content.html. No such file or directory")
+                self.progress.emit(100)
             return
 
-        self.statusupdate.emit(1, "Calendar data succesfully fetched!")
+        if self.headless is not True:
+            self.statusupdate.emit(1, "Calendar data succesfully fetched!")

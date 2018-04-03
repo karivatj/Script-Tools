@@ -20,16 +20,25 @@ from AboutUI import Ui_About
 import Preferences
 import AddCalendar
 
+# commandline arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("--headless", help="run the program in headless mode", action='store_true')
+parser.add_argument("--preferences", help="preferences file that contains necessary configuration information", type=str, default="preferences.dat")
+parser.add_argument("--configuration", help="calendar configuration to be used", type=str, default="calendar_configuration.conf")
+parser.add_argument("--daemon", help="run the program as daemon", action='store_true')
+parser.add_argument("--workdir", help="working directory for the program", type=str, default=os.getcwd())
+args = parser.parse_args()
+
 # setup logging
-if not os.path.exists(os.getcwd() + "/logs/"):
-    os.makedirs(os.getcwd() + "/logs/")
+if not os.path.exists(args.workdir + "/logs/"):
+    os.makedirs(args.workdir + "/logs/")
 
 from logging import handlers
 
 logger = logging.getLogger('infoscreen')
 logger.setLevel(logging.DEBUG)
 
-fh = handlers.TimedRotatingFileHandler(os.getcwd() + '/logs/debug.log', when="d", interval=1, backupCount=7)
+fh = handlers.TimedRotatingFileHandler(args.workdir + '/logs/debug.log', when="d", interval=1, backupCount=7)
 fh.setLevel(logging.DEBUG)
 
 ch = logging.StreamHandler()
@@ -42,18 +51,11 @@ ch.setFormatter(formatter)
 logger.addHandler(fh)
 logger.addHandler(ch)
 
-# commandline arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("--headless", help="run the program in headless mode", action='store_true')
-parser.add_argument("--preferences", help="preferences.dat that contains necessary configuration information", type=str, default="preferences.dat")
-parser.add_argument("--configuration", help="calendar configuration to be used", type=str, default="calendar_configuration.conf")
-args = parser.parse_args()
-
 # workthread which executes calendar data fetching
 from PageGeneratorThread import PageGeneratorThread
 
 # utility methods for running this program in headless mode
-from HeadlessUtilities import *
+import HeadlessUtilities
 
 class HttpDaemon(QtCore.QThread):
 
@@ -138,7 +140,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         # preferences variables
         self.username = ""
         self.password = ""
-        self.server = "https://sposti.ppshp.fi/EWS/Exchange.asmx"
+        self.server = ""
         self.serverport = 8080
         self.interval = 5
         self.updatedata = 0
@@ -168,6 +170,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.thread.statusupdate.connect(self.onWorkerThreadStatusUpdate)
 
         self.loadPreferences()
+        self.generateCalendarPage()
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.generateCalendarPage)
@@ -293,7 +296,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def generateCalendarPage(self):
         self.progressBar.setValue(0)
-        self.thread.startworking(self.tableToList(), self.username, self.password, self.server, self.ignoreSSL)
+        self.thread.startworking(self.tabletoDict(), self.username, self.password, self.server, self.ignoreSSL, args.headless)
 
     def buttonStartPressed(self):
         if self.btnStart.text() == "Start Server":
@@ -433,6 +436,16 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.btnStart.setEnabled(False)
         self.btnEdit.setEnabled(False)
 
+    def tabletoDict(self):
+        contents = {}
+
+        for i in range(self.table.rowCount()):
+            templist = []
+            for j in range(self.table.columnCount()):
+                templist.append(str(self.table.item(i, j).text()))
+            contents[templist[0]] = templist[1]
+        return contents
+
     def tableToList(self):
         contents = []
 
@@ -557,6 +570,27 @@ if __name__ == "__main__":
         app.exec_()
     else:
         logger.info("User request to run in headless mode")
-        logger.error("Reading preferences from {0}\{1}.".format(os.getcwd(), args.preferences))
-        logger.error("Reading calendar configuration from {0}\{1}.".format(os.getcwd(), args.configuration))
+        logger.info("Reading preferences from {0}\{1}.".format(os.getcwd(), args.preferences))
+        
+        preferences = HeadlessUtilities.headless_load_preferences(args.preferences)
+        
+        if preferences is None:
+            logger.error("Failure while reading preferences. Check data integrity. Exiting.")
+            sys.exit(0)
 
+        logger.info("Preferences OK.")
+        logger.info("Reading calendar configuration from {0}\{1}.".format(os.getcwd(), args.configuration))
+        
+        calendars = HeadlessUtilities.headless_load_calendar_configuration(args.configuration)
+
+        if calendars is None:
+            logger.error("Failure while reading calendars. Check data integrity. Exiting")
+            sys.exit(0)
+
+        logger.info("Calendar data OK.")
+
+        if args.daemon:
+            pass
+        else:
+            generatorthread = PageGeneratorThread()
+            generatorthread.startworking(calendars, preferences["username"], preferences["password"], preferences["server"], preferences["ignoreSSL"], args.headless)
