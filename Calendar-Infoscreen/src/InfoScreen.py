@@ -53,6 +53,7 @@ logger.addHandler(ch)
 
 # workthread which executes calendar data fetching
 from PageGeneratorThread import PageGeneratorThread
+from HeadlessPageGeneratorThread import HeadlessPageGeneratorThread
 
 # utility methods for running this program in headless mode
 import HeadlessUtilities
@@ -170,7 +171,6 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.thread.statusupdate.connect(self.onWorkerThreadStatusUpdate)
 
         self.loadPreferences()
-        self.generateCalendarPage()
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.generateCalendarPage)
@@ -571,16 +571,16 @@ if __name__ == "__main__":
     else:
         logger.info("User request to run in headless mode")
         logger.info("Reading preferences from {0}\{1}.".format(os.getcwd(), args.preferences))
-        
+
         preferences = HeadlessUtilities.headless_load_preferences(args.preferences)
-        
+
         if preferences is None:
             logger.error("Failure while reading preferences. Check data integrity. Exiting.")
             sys.exit(0)
 
         logger.info("Preferences OK.")
         logger.info("Reading calendar configuration from {0}\{1}.".format(os.getcwd(), args.configuration))
-        
+
         calendars = HeadlessUtilities.headless_load_calendar_configuration(args.configuration)
 
         if calendars is None:
@@ -592,5 +592,6 @@ if __name__ == "__main__":
         if args.daemon:
             pass
         else:
-            generatorthread = PageGeneratorThread()
-            generatorthread.startworking(calendars, preferences["username"], preferences["password"], preferences["server"], preferences["ignoreSSL"], args.headless)
+            generatorthread = HeadlessPageGeneratorThread(calendars, preferences["username"], preferences["password"], preferences["server"], preferences["ignoreSSL"], args.headless)
+            generatorthread.start()
+            generatorthread.join()
