@@ -38,11 +38,8 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 ch.setFormatter(formatter)
 
-from exchangelib.util import PrettyXmlHandler
-
-logging.basicConfig(level=logging.DEBUG, handlers=[PrettyXmlHandler(), fh,ch])
-
-
+logger.addHandler(fh)
+logger.addHandler(ch)
 
 class PageGeneratorThread(QtCore.QThread):
     #signals
@@ -90,7 +87,7 @@ class PageGeneratorThread(QtCore.QThread):
     def get_appointments(self, acc):
 
         # define the timezone
-        tz = EWSTimeZone.timezone('Europe/Helsinki')        
+        tz = EWSTimeZone.timezone('Europe/Helsinki')
         now = tz.localize(EWSDateTime.now())
 
         items = {}
@@ -102,7 +99,7 @@ class PageGeneratorThread(QtCore.QThread):
                 start=tz.localize(EWSDateTime(now.year, now.month, now.day, 6, 0)),
                 end=tz.localize(EWSDateTime(now.year, now.month, now.day, 18, 0)),
             )
-            
+
             logger.debug("Getting appointments was a success")
             return items, True
         except Exception as e:
@@ -131,7 +128,7 @@ class PageGeneratorThread(QtCore.QThread):
                     account = Account(primary_smtp_address=str(calendar_email), config=self.config, autodiscover=False, access_type=DELEGATE)
                     logger.debug("ACCOUNT DEBUG4")
                 except Exception as e:
-                    logger.error("Failure")
+                    logger.error("Failure: {0}".format(traceback.print_exc()))
                     continue
 
                 logger.debug("ACCOUNT DEBUG")
@@ -192,12 +189,12 @@ class PageGeneratorThread(QtCore.QThread):
 
                     try:
                         for item in calendar_data[calendar]:
-                           
+
                             #logger.debug(item)
                             subject = item.subject
                             if subject is None or subject is "":
                                 subject = "Varaus ilman otsikkoa"
-                           
+
                             logger.debug(calendar + " " + subject)
                             start_time = EWSDateTime(item.start.year, item.start.month, item.start.day, item.start.hour, item.start.minute, 0) + timedelta(hours=delta)
                             end_time = EWSDateTime(item.end.year, item.end.month, item.end.day, item.end.hour, item.end.minute, 0) + timedelta(hours=delta)
