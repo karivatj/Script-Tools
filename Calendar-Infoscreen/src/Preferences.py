@@ -21,12 +21,13 @@ class PreferencesDialog(QtWidgets.QDialog, Ui_Preferences_Window):
         self.updateData = 0
         self.ignoreSSL = 0
         self.updateInterval = 5
+        self.httpServer = 0
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.rejected.connect(self.rejected)
         self.destroyed.connect(self.rejected)
 
     def getPreferences(self):
-        return [self.username, self.password, self.server, self.port, self.updateInterval, self.updateData, self.ignoreSSL]
+        return [self.username, self.password, self.server, self.port, self.updateInterval, self.updateData, self.ignoreSSL, self.httpServer]
 
     def setPreferences(self, preferences):
         self.username = preferences[0]
@@ -36,10 +37,12 @@ class PreferencesDialog(QtWidgets.QDialog, Ui_Preferences_Window):
         self.updateInterval = int(preferences[4])
         self.updateData = int(preferences[5])
         self.ignoreSSL = int(preferences[6])
+        self.httpServer = int(preferences[7])
 
         self.lineUsername.setText(self.username)
         self.linePassword.setText(self.password)
-        self.lineServer.setText(self.server)
+        if self.server is not "":
+            self.lineServer.setText(self.server)
         self.linePort.setText(str(self.port))
         self.spinInterval.setValue(int(self.updateInterval))
 
@@ -52,6 +55,11 @@ class PreferencesDialog(QtWidgets.QDialog, Ui_Preferences_Window):
             self.chkSSL.setChecked(True)
         else:
             self.chkSSL.setChecked(False)
+
+        if self.httpServer == 2:
+            self.chkServer.setChecked(True)
+        else:
+            self.chkServer.setChecked(False)
 
     def accepted(self):
         self.username = self.lineUsername.text()
@@ -69,6 +77,11 @@ class PreferencesDialog(QtWidgets.QDialog, Ui_Preferences_Window):
             self.ignoreSSL = 2
         else:
             self.ignoreSSL = 0
+
+        if self.chkServer.isChecked():
+            self.httpServer = 2
+        else:
+            self.httpServer = 0
 
         self.accept()
 

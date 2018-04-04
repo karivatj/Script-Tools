@@ -6,6 +6,7 @@ import logging
 import os
 import requests
 import sys
+import time
 import traceback
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -26,6 +27,7 @@ parser.add_argument("--headless", help="run the program in headless mode", actio
 parser.add_argument("--preferences", help="preferences file that contains necessary configuration information", type=str, default="preferences.dat")
 parser.add_argument("--configuration", help="calendar configuration to be used", type=str, default="calendar_configuration.conf")
 parser.add_argument("--daemon", help="run the program as daemon", action='store_true')
+parser.add_argument("--serverport", help="server port is mandatory if daemon is defined", type=int, default=8080)
 parser.add_argument("--workdir", help="working directory for the program", type=str, default=os.getcwd())
 args = parser.parse_args()
 
@@ -62,7 +64,7 @@ class HttpDaemon(QtCore.QThread):
 
     stopped = False
     allow_reuse_address = True
-    def __init__(self, port, parent=None):
+    def __init__(self, port=8080, parent=None):
         QtCore.QThread.__init__(self, parent)
         self.notifyProgress = QtCore.pyqtSignal(int)
         self.port = port
@@ -87,6 +89,7 @@ class HttpDaemon(QtCore.QThread):
         logger.debug("Requesting HTTP Server Shutdown")
         self.stopped = True
         self.create_dummy_request()
+        self.stop()
 
     def set_port(self, port):
         self.port = port
@@ -138,15 +141,17 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         # HTTP daemon
         self.httpd = HttpDaemon(port=8080)
 
-        # preferences variables
-        self.username = ""
-        self.password = ""
-        self.server = ""
-        self.serverport = 8080
-        self.interval = 5
-        self.updatedata = 0
-        self.ignoreSSL = 0
-        self.lastusedconfig = ""
+        # preferences dictionary
+        self.preferences = {}
+        self.preferences["username"] = ""
+        self.preferences["password"] = ""
+        self.preferences["server"] = ""
+        self.preferences["serverport"] = 8080
+        self.preferences["interval"] = 5
+        self.preferences["updatedata"] = 0
+        self.preferences["ignoreSSL"] = 0
+        self.preferences["httpServer"] = 0
+        self.preferences["lastusedconfig"] = ""
 
         # connect signals / slots of UI controls
         self.btnAdd.clicked.connect(self.buttonAddPressed)
@@ -162,9 +167,6 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.actionPreferences.triggered.connect(self.preferencesActionTriggered)
         self.btnStart.clicked.connect(self.buttonStartPressed)
         self.table.itemClicked.connect(self.cellClicked)
-        self.chkUseHTTP.stateChanged.connect(self.HTTPCheckBoxToggled)
-
-        self.btnStart.setText("Generate")
 
         self.thread = PageGeneratorThread()
         self.thread.progress.connect(self.updateProgressBar)
@@ -197,25 +199,32 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def loadPreferences(self):
         try:
-            with open("preferences.dat", "r") as fileInput:
-                reader = csv.reader(fileInput)
-                for row in reader:
-                    items = [ str(field) for field in row ]
-            for c in items[1]:
-                self.password += chr(ord(c) - 5)
-            self.username         = items[0]
-            self.server           = items[2]
-            self.serverport       = items[3]
-            self.interval         = items[4]
-            self.updatedata       = items[5]
-            self.ignoreSSL        = items[6]
-            self.lastusedconfig   = items[7]
+            items = []
+            with open("preferences.dat", "r", newline="\n", encoding="utf-8") as fileInput:
+                while True:
+                    line = fileInput.readline()
+                    if not line:
+                        break
+                    else:
+                        items.append(line.strip("\n"))
 
-            if self.lastusedconfig is not "":
-                if(self.load(self.lastusedconfig)):
+            for c in items[1]:
+                self.preferences["password"]  += chr(ord(c) - 5)
+
+            self.preferences["username"]       = str(items[0])
+            self.preferences["server"]         = str(items[2])
+            self.preferences["serverport"]     = str(items[3])
+            self.preferences["interval"]       = int(items[4])
+            self.preferences["updatedata"]     = int(items[5])
+            self.preferences["ignoreSSL"]      = int(items[6])
+            self.preferences["httpServer"]     = int(items[7])
+            self.preferences["lastusedconfig"] = str(items[8])
+
+            if self.preferences["lastusedconfig"] is not "":
+                if(self.load(self.preferences["lastusedconfig"])):
                     self.enableUI()
                 else:
-                    self.lastusedconfig = ""
+                    self.preferences["lastusedconfig"] = ""
                     self.disableUI()
 
         except FileNotFoundError as e:
@@ -226,17 +235,25 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
     def savePreferences(self):
         try:
             temp_pw = ""
-            for c in self.password:
+            for c in self.preferences["password"]:
                 temp_pw += chr(ord(c) + 5)
 
-            if self.lastusedconfig == "":
-                self.lastusedconfig = "calendar_configuration.conf"
+            if self.preferences["lastusedconfig"] == "":
+                self.preferences["lastusedconfig"] = "./calendar_configuration.conf"
 
-            self.save(self.lastusedconfig)
+            self.save(self.preferences["lastusedconfig"])
 
             with open("preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
-                writer = csv.writer(fileOutput)
-                writer.writerow([self.username, temp_pw, self.server, self.serverport, self.interval, self.updatedata, self.ignoreSSL, self.lastusedconfig])
+                fileOutput.write(self.preferences["username"] + "\n")
+                fileOutput.write(temp_pw + "\n")
+                fileOutput.write(self.preferences["server"] + "\n")
+                fileOutput.write(self.preferences["serverport"] + "\n")
+                fileOutput.write(str(self.preferences["interval"]) + "\n")
+                fileOutput.write(str(self.preferences["updatedata"]) + "\n")
+                fileOutput.write(str(self.preferences["ignoreSSL"]) + "\n")
+                fileOutput.write(str(self.preferences["httpServer"]) + "\n")
+                fileOutput.write(self.preferences["lastusedconfig"] + "\n")
+
         except FileNotFoundError as e:
             self.warning("Failed to save preferences: {0}".format(traceback.print_exc()))
             sys.exit(0)
@@ -256,7 +273,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 return
 
         if(self.load(filename)):
-            self.lastusedconfig = filename[0]
+            self.preferences["lastusedconfig"] = filename[0]
         self.enableUI()
 
     def saveActionTriggered(self):
@@ -272,18 +289,27 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def preferencesActionTriggered(self):
         dialog = Preferences.PreferencesDialog()
-        dialog.setPreferences([self.username, self.password, self.server, self.serverport, self.interval, self.updatedata, self.ignoreSSL])
+        dialog.setPreferences([self.preferences["username"],
+                               self.preferences["password"],
+                               self.preferences["server"],
+                               self.preferences["serverport"],
+                               self.preferences["interval"],
+                               self.preferences["updatedata"],
+                               self.preferences["ignoreSSL"],
+                               self.preferences["httpServer"]])
+
         if dialog.exec_():
             try:
                 result = dialog.getPreferences()
 
-                self.username   = result[0]
-                self.password   = result[1]
-                self.server     = result[2]
-                self.serverport = result[3]
-                self.interval   = result[4]
-                self.updatedata = result[5]
-                self.ignoreSSL  = result[6]
+                self.preferences["username"]   = result[0]
+                self.preferences["password"]   = result[1]
+                self.preferences["server"]     = result[2]
+                self.preferences["serverport"] = result[3]
+                self.preferences["interval"]   = result[4]
+                self.preferences["updatedata"] = result[5]
+                self.preferences["ignoreSSL"]  = result[6]
+                self.preferences["httpServer"] = result[7]
 
                 self.savePreferences()
 
@@ -296,31 +322,40 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def generateCalendarPage(self):
         self.progressBar.setValue(0)
-        self.thread.startworking(self.tabletoDict(), self.username, self.password, self.server, self.ignoreSSL, args.headless)
+        self.thread.startworking(self.tabletoDict(), self.preferences["username"],
+                                                     self.preferences["password"],
+                                                     self.preferences["server"],
+                                                     self.preferences["ignoreSSL"])
 
     def buttonStartPressed(self):
-        if self.btnStart.text() == "Start Server":
-            self.generateCalendarPage()
-            self.httpd.set_port(self.serverport)
-            self.httpd.start()
-            self.btnStart.setText("Stop Server")
-            self.disableUI()
-            self.timer.start(int(self.interval) * 1000 * 60)
-            self.notify("HTTP Server running. Open your browser and point to http://localhost:" + self.serverport + "/web/")
-        elif self.btnStart.text() == "Stop Server":
-            self.httpd.force_stop()
-            self.thread.stopworking()
-            self.btnStart.setText("Start Server")
-            self.enableUI()
-            self.timer.stop()
+        if self.preferences["httpServer"] == 2:
+            if self.btnStart.text() == "Start":
+                self.btnStart.setText("Stop")
+                self.httpd.set_port(self.preferences["serverport"])
+                self.httpd.start()
+                self.disableUI()
+                if self.preferences["updatedata"] == 2:
+                    self.timer.start(self.preferences["interval"] * 1000 * 60)
+                self.notify("HTTP Server running. Open your browser and point to http://<server_ip>:" + self.preferences["serverport"] + "/web/")
+                self.generateCalendarPage()
+            elif self.btnStart.text() == "Stop":
+                self.btnStart.setText("Start")
+                self.httpd.force_stop()
+                self.thread.stopworking()
+                self.enableUI()
+                self.timer.stop()
         else:
-            self.generateCalendarPage()
-
-    def HTTPCheckBoxToggled(self, value):
-        if value == 2:
-            self.btnStart.setText("Start Server")
-        else:
-            self.btnStart.setText("Generate")
+            if self.btnStart.text() == "Start":
+                self.btnStart.setText("Stop")
+                self.disableUI()
+                if self.preferences["updatedata"] == 2:
+                    self.timer.start(self.preferences["interval"] * 1000 * 60)
+                self.generateCalendarPage()
+            elif self.btnStart.text() == "Stop":
+                self.btnStart.setText("Start")
+                self.thread.stopworking()
+                self.enableUI()
+                self.timer.stop()
 
     def buttonAddPressed(self):
         dialog = AddCalendar.AddCalendarDialog()
@@ -590,8 +625,24 @@ if __name__ == "__main__":
         logger.info("Calendar data OK.")
 
         if args.daemon:
-            pass
+            if int(preferences["httpServer"]) == 2:
+                httpd = HttpDaemon()
+                httpd.set_port(args.serverport)
+                httpd.start()
+                logger.debug("HTTP server up. Using port: {0}".format(args.serverport))
+            try:
+                while True:
+                    generatorthread = HeadlessPageGeneratorThread(calendars, preferences["username"], preferences["password"], preferences["server"], preferences["ignoreSSL"])
+                    generatorthread.start()
+                    generatorthread.join()
+                    logger.debug("Sleeping for {0} seconds before refreshing...".format(int(preferences["interval"]) * 60))
+                    time.sleep(int(preferences["interval"]) * 60)
+            except KeyboardInterrupt as e:
+                if int(preferences["httpServer"]) == 2:
+                    logger.debug("Server shutdown requested")
+                    httpd.force_stop()
+                generatorthread.join()
         else:
-            generatorthread = HeadlessPageGeneratorThread(calendars, preferences["username"], preferences["password"], preferences["server"], preferences["ignoreSSL"], args.headless)
+            generatorthread = HeadlessPageGeneratorThread(calendars, preferences["username"], preferences["password"], preferences["server"], preferences["ignoreSSL"])
             generatorthread.start()
             generatorthread.join()
