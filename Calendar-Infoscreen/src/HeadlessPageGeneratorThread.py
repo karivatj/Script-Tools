@@ -22,35 +22,19 @@ from exchangelib.protocol import BaseProtocol, NoVerifyHTTPAdapter
 import WebpageTemplate
 
 # setup logging
-from logging import handlers
-logger = logging.getLogger('headlesspagegenerator')
-logger.setLevel(logging.DEBUG)
-
-# create file handler which logs debug messages
-fh = handlers.TimedRotatingFileHandler(os.getcwd() + '/logs/pagegenerator.log', when="d", interval=1, backupCount=7)
-fh.setLevel(logging.DEBUG)
-
-# create console handler with a higher log level
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-
-# create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-ch.setFormatter(formatter)
-
-logger.addHandler(fh)
-logger.addHandler(ch)
+logger = logging.getLogger('infoscreen')
 
 class HeadlessPageGeneratorThread(Thread):
     exiting = False
     calendars = {}
+    workdirectory = os.getcwd()
     credentials = None
     config = None
 
-    def __init__(self, calendars, username, password, server, ignoreSSL):
+    def __init__(self, calendars, username, password, server, ignoreSSL, workdir):
         Thread.__init__(self)
         self.calendars = calendars
+        self.workdirectory = workdir
         try:
             if int(ignoreSSL) == 2:
                 logger.info("Using unverified HTTP adapter. Please reconsider!")
@@ -119,8 +103,8 @@ class HeadlessPageGeneratorThread(Thread):
         logger.debug("Calendar data retrieved. Outputting webpage...")
         #calendar_data = collections.OrderedDict(sorted(calendar_data.items(), key=lambda t: t[0]))
 
-        if not os.path.exists("./web/"):
-            os.makedirs("./web/")
+        if not os.path.exists(self.workdirectory + "/web/"):
+            os.makedirs(self.workdirectory + "/web/")
 
         try:
             content = ""
@@ -197,8 +181,10 @@ class HeadlessPageGeneratorThread(Thread):
             webpage = WebpageTemplate.template
             webpage = webpage.replace("%REPLACE_THIS_WITH_CONTENT%", content)
 
-            with codecs.open("./web/index.html", "w", "utf-8") as f:
+            with codecs.open(self.workdirectory + "/web/index.html", "w+", "utf-8") as f:
                 f.write(webpage)
+            with codecs.open(self.workdirectory + "/web/stylesheet.css", "w+", "utf-8") as f:
+                f.write(WebpageTemplate.css_template)
 
         except Exception:
             logger.error("Failure during content output: {0}".format(traceback.print_exc()))
