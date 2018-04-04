@@ -50,13 +50,6 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="chkUseHTTP">
-             <property name="text">
-              <string>Use SimpleHTTP</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QPushButton" name="btnStart">
              <property name="enabled">
               <bool>false</bool>
@@ -215,7 +208,6 @@
  <tabstops>
   <tabstop>btnAdd</tabstop>
   <tabstop>btnEdit</tabstop>
-  <tabstop>chkUseHTTP</tabstop>
   <tabstop>btnStart</tabstop>
   <tabstop>btnMoveUp</tabstop>
   <tabstop>btnMoveDown</tabstop>

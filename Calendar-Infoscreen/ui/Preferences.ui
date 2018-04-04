@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
-    <height>304</height>
+    <width>558</width>
+    <height>331</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -94,17 +94,34 @@
       <string>Other</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="6">
-       <widget class="QSpinBox" name="spinInterval">
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <number>5</number>
+      <item row="1" column="5">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Port:</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="7">
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="chkServer">
+        <property name="text">
+         <string>Use HTTP Server</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="8">
        <widget class="QLabel" name="lblMinutes">
         <property name="text">
          <string>Minutes</string>
@@ -115,6 +132,16 @@
        <widget class="QCheckBox" name="chkUpdateData">
         <property name="text">
          <string>Update data</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="7">
+       <widget class="QSpinBox" name="spinInterval">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>5</number>
         </property>
        </widget>
       </item>
@@ -138,14 +165,7 @@
         </property>
        </spacer>
       </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="chkSSL">
-        <property name="text">
-         <string>Ignore SSL</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="6">
+      <item row="1" column="7">
        <widget class="QLineEdit" name="linePort">
         <property name="inputMethodHints">
          <set>Qt::ImhFormattedNumbersOnly</set>
@@ -161,23 +181,10 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="4">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="5">
-       <widget class="QLabel" name="label_2">
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="chkSSL">
         <property name="text">
-         <string>HTTP Server Port:</string>
+         <string>Ignore SSL</string>
         </property>
        </widget>
       </item>
