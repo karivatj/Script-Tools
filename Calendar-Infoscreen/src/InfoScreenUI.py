@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '../ui/InfoScreen.ui'
+# Form implementation generated from reading ui file 'InfoScreen.ui'
 #
-# Created by: PyQt5 UI code generator 5.9
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -35,9 +35,6 @@ class Ui_InfoScreen_Window(object):
         self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName("progressBar")
         self.horizontalLayout.addWidget(self.progressBar)
-        self.chkUseHTTP = QtWidgets.QCheckBox(self.groupBox)
-        self.chkUseHTTP.setObjectName("chkUseHTTP")
-        self.horizontalLayout.addWidget(self.chkUseHTTP)
         self.btnStart = QtWidgets.QPushButton(self.groupBox)
         self.btnStart.setEnabled(False)
         self.btnStart.setObjectName("btnStart")
@@ -116,8 +113,7 @@ class Ui_InfoScreen_Window(object):
         self.retranslateUi(InfoScreen_Window)
         QtCore.QMetaObject.connectSlotsByName(InfoScreen_Window)
         InfoScreen_Window.setTabOrder(self.btnAdd, self.btnEdit)
-        InfoScreen_Window.setTabOrder(self.btnEdit, self.chkUseHTTP)
-        InfoScreen_Window.setTabOrder(self.chkUseHTTP, self.btnStart)
+        InfoScreen_Window.setTabOrder(self.btnEdit, self.btnStart)
         InfoScreen_Window.setTabOrder(self.btnStart, self.btnMoveUp)
         InfoScreen_Window.setTabOrder(self.btnMoveUp, self.btnMoveDown)
         InfoScreen_Window.setTabOrder(self.btnMoveDown, self.btnDelete)
@@ -130,7 +126,6 @@ class Ui_InfoScreen_Window(object):
         self.groupBox.setTitle(_translate("InfoScreen_Window", "Resource Calendars"))
         self.btnAdd.setText(_translate("InfoScreen_Window", "Add"))
         self.btnEdit.setText(_translate("InfoScreen_Window", "Edit"))
-        self.chkUseHTTP.setText(_translate("InfoScreen_Window", "Use SimpleHTTP"))
         self.btnStart.setText(_translate("InfoScreen_Window", "Start"))
         self.btnMoveUp.setText(_translate("InfoScreen_Window", "Move Up"))
         self.btnMoveDown.setText(_translate("InfoScreen_Window", "Move Down"))
