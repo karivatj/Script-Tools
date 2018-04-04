@@ -66,6 +66,7 @@ Temporary Items
 *.conf
 *.dat
 CalendarInfoscreen/src/web/content.html
+CalendarInfoscreen/src/web/index.html
 CalendarInfoscreen/src/release/*
 
 TestLab-Crossbar/access_tokens.py
