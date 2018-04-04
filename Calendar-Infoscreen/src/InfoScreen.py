@@ -31,6 +31,8 @@ parser.add_argument("--serverport", help="server port is mandatory if daemon is 
 parser.add_argument("--workdir", help="working directory for the program", type=str, default=os.getcwd())
 args = parser.parse_args()
 
+workdirectory = args.workdir
+
 # setup logging
 if not os.path.exists(args.workdir + "/logs/"):
     os.makedirs(args.workdir + "/logs/")
@@ -325,7 +327,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.thread.startworking(self.tabletoDict(), self.preferences["username"],
                                                      self.preferences["password"],
                                                      self.preferences["server"],
-                                                     self.preferences["ignoreSSL"])
+                                                     self.preferences["ignoreSSL"],
+                                                     args.workdir)
 
     def buttonStartPressed(self):
         if self.preferences["httpServer"] == 2:
@@ -632,7 +635,7 @@ if __name__ == "__main__":
                 logger.debug("HTTP server up. Using port: {0}".format(args.serverport))
             try:
                 while True:
-                    generatorthread = HeadlessPageGeneratorThread(calendars, preferences["username"], preferences["password"], preferences["server"], preferences["ignoreSSL"])
+                    generatorthread = HeadlessPageGeneratorThread(calendars, preferences["username"], preferences["password"], preferences["server"], preferences["ignoreSSL"], args.workdir)
                     generatorthread.start()
                     generatorthread.join()
                     logger.debug("Sleeping for {0} seconds before refreshing...".format(int(preferences["interval"]) * 60))
