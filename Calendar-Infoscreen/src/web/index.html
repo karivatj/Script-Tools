@@ -3,52 +3,99 @@
 <head>
     <meta charset="utf-8">
     <title>Neuvotteluhuoneet</title>
-    <meta http-equiv="refresh" content="900" >
+    <meta http-equiv="refresh" content="120" >
     <link rel="stylesheet" href="./stylesheet.css"/>
 </head>
 <body>
-    <script src="./dist/jquery-3.2.1.min.js"></script>
+    <script src="./dist/jquery-3.3.1.min.js"></script>
     <div id="textbox">
     <p class="headline">NEUVOTTELUHUONEET</p>
     <p id="datetime" class="text"></p>
     </div>
     <div style="clear: both;"></div>
-    <p id="meeting_content"></p>
-    
+    <p id="meeting_content">
+    <table>
+<colgroup
+<col class="column10"/>
+<col class="column30"/>
+<col class="column15"/>
+<col class="column30"/>
+<col class="column15"/>
+</colgroup>
+<tr><th>Huone</th><th>Tällä hetkellä / Seuraavaksi</th><th></th><th>Myöhemmin tänä päivänä</th><th></th></tr><tr>
+<td class="meetingroom">OYS TestLab</td>
+<td class="event_primary">5. vuosikurssin eHealth-teemapäivä</td>
+<td class="eventdate_primary">8:00 - 16:00</td>
+<td class="event_secondary">Vapaa</td>
+<td class="eventdate_secondary"></td>
+</tr>
+<tr>
+<td class="meetingroom">Aortta</td>
+<td class="event_primary">Master Plan työskentely</td>
+<td class="eventdate_primary">9:00 - 16:00</td>
+<td class="event_secondary">Vapaa</td>
+<td class="eventdate_secondary"></td>
+</tr>
+<tr>
+<td class="meetingroom">Cave</td>
+<td class="event_primary">Vapaa</td>
+<td class="eventdate_primary"></td>
+<td class="event_secondary">Vapaa</td>
+<td class="eventdate_secondary"></td>
+</tr>
+<tr>
+<td class="meetingroom">Läppä</td>
+<td class="event_primary">Vapaa</td>
+<td class="eventdate_primary"></td>
+<td class="event_secondary">Vapaa</td>
+<td class="eventdate_secondary"></td>
+</tr>
+<tr>
+<td class="meetingroom">Oikea Kammio</td>
+<td class="event_primary">Vapaa</td>
+<td class="eventdate_primary"></td>
+<td class="event_secondary">Vapaa</td>
+<td class="eventdate_secondary"></td>
+</tr>
+<tr>
+<td class="meetingroom">Vasen Kammio</td>
+<td class="event_primary">Vapaa</td>
+<td class="eventdate_primary"></td>
+<td class="event_secondary">Vapaa</td>
+<td class="eventdate_secondary"></td>
+</tr>
+<tr>
+<td class="meetingroom">Pulssi</td>
+<td class="event_primary">Tierna/Origoryhmä</td>
+<td class="eventdate_primary">8:00 - 16:00</td>
+<td class="event_secondary">Vapaa</td>
+<td class="eventdate_secondary"></td>
+</tr>
+<tr>
+<td class="meetingroom">Laskimo</td>
+<td class="event_primary">Vapaa</td>
+<td class="eventdate_primary"></td>
+<td class="event_secondary">Vapaa</td>
+<td class="eventdate_secondary"></td>
+</tr>
+<tr>
+<td class="meetingroom">Valtimo</td>
+<td class="event_primary">Vapaa</td>
+<td class="eventdate_primary"></td>
+<td class="event_secondary">Vapaa</td>
+<td class="eventdate_secondary"></td>
+</tr>
+</table>
+    </p>
+
     <script language="javascript">
         function init() {
-            console.log("Initialize");            
-            readCalendarData("./content.html")
             updateClock();
         }
 
-        function readCalendarData(file)
-        {
-          var rawFile = new XMLHttpRequest();
-          rawFile.open("GET", file + "?_=" + new Date().getTime(), true);
-          rawFile.setRequestHeader('Cache-Control', 'no-cache');
-
-          rawFile.onreadystatechange = function ()
-          {
-              if(rawFile.readyState === 4)
-              {
-                  if(rawFile.status === 200 || rawFile.status == 0)
-                  {
-                      var data = rawFile.responseText;
-                      document.getElementById('meeting_content').innerHTML = data;
-                  }
-              }
-          }
-          rawFile.send(null);
-
-          setTimeout(function() {
-              readCalendarData("./content.html");
-          }, 300000)
-        }    
-
-        function updateClock() {                
+        function updateClock() {
             var currentTime = new Date()
-            var year = currentTime.getFullYear()                    
+            var year = currentTime.getFullYear()
             var month = currentTime.getMonth() + 1;
             var day = currentTime.getDate();
             var hours = currentTime.getHours();
@@ -64,7 +111,7 @@
 
             document.getElementById('datetime').innerHTML = [day + "." + month + "." + year + " " + hours + ":" + minutes];
             setTimeout(updateClock, 1000);
-        }  
+        }
 
         window.onload = init();
     </script>
