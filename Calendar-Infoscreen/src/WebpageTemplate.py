@@ -46,3 +46,132 @@ template = """<!DOCTYPE html>
     </script>
 </body>
 </html>"""
+
+css_template = """html, body {
+    position: relative;
+    height: 100%;
+    background: #00b0db;
+    font-family: calibri, Helvetica Neue, Helvetica, Arial;
+    font-size: 14px;
+    color:#000;
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+}
+table {
+    border-spacing: 0px 0px;
+    border-color: white;
+    table-layout: fixed;
+    position: absolute;
+    top: 10vh;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 90vh;
+}
+th, td {
+    padding-left: 1em;
+    text-align: left;
+    border-bottom: solid 4px white;
+    color: white;
+    height: 2vh;
+}
+.headline {
+    font-family: calibri;
+    font-size: 41px;
+    color: white;
+    float:left;
+    padding-left: 1em;
+}
+.headline_archive {
+    font-size: 41px;
+    color: white;
+    margin-top: 50px;
+    margin-bottom: 10px;
+}
+.text {
+    font-size: 41px;
+    color: white;
+    float: right;
+    padding-right: 1em;
+}
+
+.meetingroom {
+    font-family: calibri;
+    font-size: 32px;
+    color: white;
+    border-right: solid 4px white;
+    border-bottom: solid 4px white;
+    padding-top: 30px;
+    padding-left: 1em;
+    padding-bottom: 30px;
+}
+.event_name {
+    font-family: calibri;
+    font-size: 32px;
+    color: white;
+    border-right: solid 4px white;
+    border-bottom: solid 4px white;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.event_info {
+    font-family: calibri;
+    font-size: 24px;
+    color: white;
+    border-bottom: solid 4px white;
+    padding-left: 1em;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    line-height: 125%;
+}
+.event_primary {
+    font-family: calibri;
+    font-size: 24px;
+    color: white;
+    border-bottom: solid 4px white;
+    padding-left: 1em;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    line-height: 125%;
+}
+.event_secondary {
+    font-family: calibri;
+    font-size: 24px;
+    color: white;
+    border-bottom: solid 4px white;
+    padding-left: 1em;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    line-height: 125%;
+}
+.eventdate {
+    font-family: calibri;
+    font-size: 26px;
+    color: white;
+    border-bottom: solid 4px white;
+    border-right: solid 4px white;
+}
+.eventdate_primary {
+    font-family: calibri;
+    font-size: 26px;
+    text-align: center;
+    color: white;
+    border-bottom: solid 4px white;
+    border-right: solid 4px white;
+}
+.eventdate_secondary {
+    font-family: calibri;
+    font-size: 26px;
+    text-align: center;
+    color: white;
+    border-bottom: solid 4px white;
+}
+/*
+//Hide the scrollbar
+::-webkit-scrollbar { 
+    display: none; 
+}
+*/
+"""
