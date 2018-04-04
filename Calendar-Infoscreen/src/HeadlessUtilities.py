@@ -28,13 +28,18 @@ logger.addHandler(ch)
 def headless_load_preferences(fileinput):
     try:
         prefs = {}
+        items = []
         password = ""
-        with open(fileinput, "r") as finput:
-            reader = csv.reader(finput)
-            for row in reader:
-                items = [ str(field) for field in row ]
+        with open("preferences.dat", "r", newline="\n", encoding="utf-8") as fileInput:
+            while True:
+                line = fileInput.readline()
+                if not line:
+                    break
+                else:
+                    items.append(line.strip("\n"))
+
         for c in items[1]:
-            password += chr(ord(c) - 5)
+            password  += chr(ord(c) - 5)
 
         prefs["password"]       = password
         prefs["username"]       = items[0]
@@ -43,7 +48,8 @@ def headless_load_preferences(fileinput):
         prefs["interval"]       = items[4]
         prefs["updatedata"]     = items[5]
         prefs["ignoreSSL"]      = items[6]
-        prefs["lastusedconfig"] = items[7]
+        prefs["httpServer"]     = items[7]
+        prefs["lastusedconfig"] = items[8]
 
         return prefs
     except FileNotFoundError as e:
