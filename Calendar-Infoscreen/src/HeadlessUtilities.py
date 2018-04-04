@@ -7,23 +7,10 @@ import requests
 import sys
 import traceback
 
+from InfoScreen import workdirectory
 from logging import handlers
 
-logger = logging.getLogger('headless')
-logger.setLevel(logging.DEBUG)
-
-fh = handlers.TimedRotatingFileHandler(os.getcwd() + '/logs/headless.log', when="d", interval=1, backupCount=7)
-fh.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-ch.setFormatter(formatter)
-
-logger.addHandler(fh)
-logger.addHandler(ch)
+logger = logging.getLogger('infoscreen')
 
 def headless_load_preferences(fileinput):
     try:
