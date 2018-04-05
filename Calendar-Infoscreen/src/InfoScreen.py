@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import argparse
 import csv
 import logging
-import os
-import requests
 import sys
-import time
 import traceback
-
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QDialog
@@ -18,95 +12,14 @@ from PyQt5.QtWidgets import QDialog
 from InfoScreenUI import Ui_InfoScreen_Window
 from AboutUI import Ui_About
 
+from HttpDaemon import HttpDaemon
 import Preferences
 import AddCalendar
 
-# commandline arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("--headless", help="run the program in headless mode", action='store_true')
-parser.add_argument("--preferences", help="preferences file that contains necessary configuration information", type=str, default="preferences.dat")
-parser.add_argument("--configuration", help="calendar configuration to be used", type=str, default="calendar_configuration.conf")
-parser.add_argument("--daemon", help="run the program as daemon", action='store_true')
-parser.add_argument("--serverport", help="server port is mandatory if daemon is defined", type=int, default=8080)
-parser.add_argument("--workdir", help="working directory for the program", type=str, default=os.getcwd())
-args = parser.parse_args()
-
-workdirectory = args.workdir
-
-# setup logging
-if not os.path.exists(args.workdir + "/logs/"):
-    os.makedirs(args.workdir + "/logs/")
-
-from logging import handlers
-
-logger = logging.getLogger('infoscreen')
-logger.setLevel(logging.DEBUG)
-
-fh = handlers.TimedRotatingFileHandler(args.workdir + '/logs/debug.log', when="d", interval=1, backupCount=7)
-fh.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-ch.setFormatter(formatter)
-
-logger.addHandler(fh)
-logger.addHandler(ch)
-
 # workthread which executes calendar data fetching
 from PageGeneratorThread import PageGeneratorThread
-from HeadlessPageGeneratorThread import HeadlessPageGeneratorThread
 
-# utility methods for running this program in headless mode
-import HeadlessUtilities
-
-class HttpDaemon(QtCore.QThread):
-
-    stopped = False
-    allow_reuse_address = True
-    def __init__(self, port=8080, parent=None):
-        QtCore.QThread.__init__(self, parent)
-        self.notifyProgress = QtCore.pyqtSignal(int)
-        self.port = port
-
-    def run(self):
-        logger.debug("HTTP Server Starting Up")
-        self.stopped = False
-        try:
-            self._server = HTTPServer(('0.0.0.0', int(self.port)), SimpleHTTPRequestHandler)
-        except OSError:
-            logger.debug("Could not start the server. Perhaps the port is in use. Exiting!!")
-            return
-        self.serve_forever()
-
-    def serve_forever(self):
-        logger.debug("Serving over HTTP")
-        while not self.stopped:
-            self._server.handle_request() #blocks
-        logger.debug("HTTP Server Exiting")
-
-    def force_stop(self):
-        logger.debug("Requesting HTTP Server Shutdown")
-        self.stopped = True
-        self.create_dummy_request()
-        self.stop()
-
-    def set_port(self, port):
-        self.port = port
-
-    def create_dummy_request(self):
-        try:
-            requests.get("http://%s:%s/web/" % ('127.0.0.1', int(self.port)), timeout=1)
-        except requests.exceptions.ReadTimeout:
-            pass
-        except requests.exceptions.ConnectionError:
-            pass
-
-    def stop(self):
-        self._server.server_close()
-
+logger = logging.getLogger('infoscreen')
 
 # class for used for stdout redirecting
 class EmittingStream(QtCore.QObject):
@@ -124,13 +37,12 @@ class InvalidComboBoxValue(Exception):
 
 # main program
 class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
-    def __init__(self, parent=None):
+    def __init__(self, workdir="", parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
 
         self.setupUi(self)
 
-        # minimize the console on startup
-        #ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 6 )
+        self.lblInfoScreen.setText("InfoScreen Setup 1.1")
 
         # redirect stdout
         sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)
@@ -139,9 +51,10 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.selectedRow  = -1
         self.selectedCol  = -1
         self.savePending  = False
+        self.workdir = workdir
 
         # HTTP daemon
-        self.httpd = HttpDaemon(port=8080)
+        self.httpd = None
 
         # preferences dictionary
         self.preferences = {}
@@ -183,8 +96,6 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         sys.stdout = sys.__stdout__
 
     def closeEvent(self, event):
-        if self.httpd.isRunning():
-            self.httpd.stop()
         self.savePreferences()
 
     def normalOutputWritten(self, text):
@@ -328,12 +239,13 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                                                      self.preferences["password"],
                                                      self.preferences["server"],
                                                      self.preferences["ignoreSSL"],
-                                                     args.workdir)
+                                                     self.workdir)
 
     def buttonStartPressed(self):
         if self.preferences["httpServer"] == 2:
             if self.btnStart.text() == "Start":
                 self.btnStart.setText("Stop")
+                self.httpd = HttpDaemon(port=8080)
                 self.httpd.set_port(self.preferences["serverport"])
                 self.httpd.start()
                 self.disableUI()
@@ -599,53 +511,3 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
     def notify(self, message):
         QtWidgets.QMessageBox.information(self, 'Attention', message, QtWidgets.QMessageBox.Ok)
-
-if __name__ == "__main__":
-    if not args.headless:
-        app = QtWidgets.QApplication(sys.argv)
-        myWindow = Infoscreen(None)
-        myWindow.show()
-        app.exec_()
-    else:
-        logger.info("User request to run in headless mode")
-        logger.info("Reading preferences from {0}\{1}.".format(os.getcwd(), args.preferences))
-
-        preferences = HeadlessUtilities.headless_load_preferences(args.preferences)
-
-        if preferences is None:
-            logger.error("Failure while reading preferences. Check data integrity. Exiting.")
-            sys.exit(0)
-
-        logger.info("Preferences OK.")
-        logger.info("Reading calendar configuration from {0}\{1}.".format(os.getcwd(), args.configuration))
-
-        calendars = HeadlessUtilities.headless_load_calendar_configuration(args.configuration)
-
-        if calendars is None:
-            logger.error("Failure while reading calendars. Check data integrity. Exiting")
-            sys.exit(0)
-
-        logger.info("Calendar data OK.")
-
-        if args.daemon:
-            if int(preferences["httpServer"]) == 2:
-                httpd = HttpDaemon()
-                httpd.set_port(args.serverport)
-                httpd.start()
-                logger.debug("HTTP server up. Using port: {0}".format(args.serverport))
-            try:
-                while True:
-                    generatorthread = HeadlessPageGeneratorThread(calendars, preferences["username"], preferences["password"], preferences["server"], preferences["ignoreSSL"], args.workdir)
-                    generatorthread.start()
-                    generatorthread.join()
-                    logger.debug("Sleeping for {0} seconds before refreshing...".format(int(preferences["interval"]) * 60))
-                    time.sleep(int(preferences["interval"]) * 60)
-            except KeyboardInterrupt as e:
-                if int(preferences["httpServer"]) == 2:
-                    logger.debug("Server shutdown requested")
-                    httpd.force_stop()
-                generatorthread.join()
-        else:
-            generatorthread = HeadlessPageGeneratorThread(calendars, preferences["username"], preferences["password"], preferences["server"], preferences["ignoreSSL"])
-            generatorthread.start()
-            generatorthread.join()
