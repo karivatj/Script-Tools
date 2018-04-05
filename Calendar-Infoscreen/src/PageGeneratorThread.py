@@ -5,10 +5,8 @@ from __future__ import print_function
 from builtins import str
 
 import codecs
-import collections
 import logging
 import os
-import requests
 import traceback
 
 import urllib3
