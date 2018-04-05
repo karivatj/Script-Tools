@@ -2,13 +2,7 @@
 
 import csv
 import logging
-import os
-import requests
-import sys
 import traceback
-
-from InfoScreen import workdirectory
-from logging import handlers
 
 logger = logging.getLogger('infoscreen')
 

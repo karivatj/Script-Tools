@@ -6,10 +6,8 @@ from builtins import str
 from threading import Thread
 
 import codecs
-import collections
 import logging
 import os
-import requests
 import traceback
 
 import urllib3
