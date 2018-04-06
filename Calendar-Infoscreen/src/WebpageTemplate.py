@@ -7,7 +7,6 @@ template = """<!DOCTYPE html>
     <link rel="stylesheet" href="./stylesheet.css"/>
 </head>
 <body>
-    <script src="./dist/jquery-3.3.1.min.js"></script>
     <div id="textbox">
     <p class="headline">NEUVOTTELUHUONEET</p>
     <p id="datetime" class="text"></p>
