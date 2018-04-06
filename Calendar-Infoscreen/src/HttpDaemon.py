@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import logging
 import requests
 
@@ -11,15 +12,23 @@ class HttpDaemon(Thread):
 
     stopped = False
     allow_reuse_address = True
+    siteroot = ""
 
-    def __init__(self, port=8080, parent=None):
+    def __init__(self, port=8080, root="", parent=None):
         Thread.__init__(self)
         self.port = port
+        self.siteroot = root
 
     def run(self):
         logger.debug("HTTP Server Starting Up")
         self.stopped = False
         try:
+            if self.siteroot is not "":
+                logger.debug("Changing siteroot to {0}".format(self.siteroot))
+                os.chdir(self.siteroot)
+            else:
+                logger.debug("Using default siteroot {0}".format(os.getcwd()))
+
             self._server = HTTPServer(('0.0.0.0', int(self.port)), SimpleHTTPRequestHandler)
         except OSError:
             logger.debug("Could not start the server. Perhaps the port is in use. Exiting.")
@@ -43,7 +52,7 @@ class HttpDaemon(Thread):
 
     def create_dummy_request(self):
         try:
-            requests.get("http://%s:%s/web/" % ('127.0.0.1', int(self.port)), timeout=1)
+            requests.get("http://%s:%s" % ('127.0.0.1', int(self.port)), timeout=1)
         except requests.exceptions.ReadTimeout:
             pass
         except requests.exceptions.ConnectionError:
