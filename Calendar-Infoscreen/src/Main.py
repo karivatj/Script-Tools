@@ -20,7 +20,7 @@ parser.add_argument("--configuration", help="calendar configuration to be used",
 parser.add_argument("--daemon", help="run the program as daemon", action='store_true')
 parser.add_argument("--http", help="use simpleHttp to serve the content", action='store_true')
 parser.add_argument("--serverport", help="server port is mandatory if daemon is defined", type=int, default=8080)
-parser.add_argument("--workdir", help="working directory for the program", type=str, default=os.getcwd())
+parser.add_argument("--workdir", help="working directory for the program", type=str, default="")
 args = parser.parse_args()
 
 # setup logging
@@ -78,8 +78,7 @@ if __name__ == "__main__":
 
         if args.daemon:
             if args.http:
-                httpd = HttpDaemon()
-                httpd.set_port(args.serverport)
+                httpd = HttpDaemon(port=args.serverport, root=args.workdir)
                 httpd.start()
                 logger.debug("HTTP server up. Using port: {0}".format(args.serverport))
             try:
