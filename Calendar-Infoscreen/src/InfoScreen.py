@@ -245,7 +245,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         if self.preferences["httpServer"] == 2:
             if self.btnStart.text() == "Start":
                 self.btnStart.setText("Stop")
-                self.httpd = HttpDaemon(port=8080)
+                self.httpd = HttpDaemon(port=8080, root=self.workdir)
                 self.httpd.set_port(self.preferences["serverport"])
                 self.httpd.start()
                 self.disableUI()
