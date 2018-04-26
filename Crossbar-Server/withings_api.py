@@ -106,11 +106,14 @@ class WithingsApi(object):
             r = self.client.request(method, '%s/%s' % (self.v2_URL, service), params=params)
         else:
             r = self.client.request(method, '%s/%s' % (self.URL, service), params=params)
-        response = json.loads(r.text)
-        status = response['status']
-        if status != 0:
-            raise WithingsAPIError("%d" % status)
-        return response.get('body', None)
+        try:
+            response = json.loads(r.text)
+            status = response['status']
+            if status != 0:
+                raise WithingsAPIError("%d" % status)
+            return response.get('body', None)
+        except json.decoder.JSONDecodeError as e:
+            return { "error" : e.message }
 
     def get_user(self):
         return self.request('user', 'getbyuserid')
