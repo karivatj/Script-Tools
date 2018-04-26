@@ -23,6 +23,24 @@ mqtt_client = mqtt.Client("Crossbar MQTT Bridge")
 debug = False
 
 #These handler functions forward received WAMP events to a external MQTT Broker
+def on_ecg_update(msg):
+    print(str(TAG) + "event for 'on_ecg_update' received: {}".format(msg))
+    try:
+        mqtt_client.username_pw_set(mqtt_ekg_accesstoken)
+        mqtt_client.connect(mqtt_broker_url, 1883, 60)
+        targetId = msg[0]
+        date = msg[1]
+        payload = msg[2]
+        data = dict()
+        data["value"] = payload
+        data["date"] = date
+        mqtt_client.publish('v1/devices/me/telemetry', json.dumps(data))
+    except socket.gaierror:
+        print(str(TAG) + "Connection error: MQTT Broker unavailable")
+    finally:
+        mqtt_client.disconnect()
+    #mqtt_client.publish('com/testlab/user/' + targetId + '/avgheartrate', json.dumps(data))
+
 def on_haltian_location(msg):
     print(str(TAG) + "event for 'on_haltian_location' received: {}".format(msg))
     try:
@@ -180,6 +198,8 @@ class AppSession(ApplicationSession):
             self.log.error(str(TAG) + "Connection error: MQTT Broker unavailable")
         '''
         ## SUBSCRIBE to topics and receive events
+        sub = yield self.subscribe(on_ecg_update, 'com.testlab.ecg_update')
+        print(str(TAG) + "subscribed to topic 'on_ecg_update'")
         sub = yield self.subscribe(on_haltian_location, 'com.testlab.haltian_location_update')
         print(str(TAG) + "subscribed to topic 'on_haltian_location'")
         sub = yield self.subscribe(on_withings_bp, 'com.testlab.withings_bloodpressure_update')
