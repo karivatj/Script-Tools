@@ -38,6 +38,12 @@ class AppSession(ApplicationSession):
         location_data = {}
         last_location = {}
 
+	#send initial locaton data
+        location_data = dict()
+        location_data["lat"] = 65.0067789
+        location_data["lon"] = 25.5236168
+        yield self.publish('com.testlab.haltian_location_update', json.dumps(location_data))
+
         while True:
             try:
                 #get location information
