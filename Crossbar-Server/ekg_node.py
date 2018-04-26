@@ -37,5 +37,5 @@ class AppSession(ApplicationSession):
             value = ecg_gen(f)
             while True:
                 counter += 1
-                yield self.publish('com.testlab.ecg_update', json.dumps(['12762571', datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f'), int(next(value))]))
-                yield sleep(0.016)
+                yield self.publish('com.testlab.ecg_update', json.dumps(['12762571', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'), int(next(value))]))
+                yield sleep(0.033)
