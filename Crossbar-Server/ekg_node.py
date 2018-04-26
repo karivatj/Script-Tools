@@ -12,6 +12,7 @@ from autobahn.twisted.wamp import ApplicationSession
 
 import time
 import json
+import datetime
 
 TAG = "ECG Node: "
 
@@ -36,5 +37,5 @@ class AppSession(ApplicationSession):
             value = ecg_gen(f)
             while True:
                 counter += 1
-                yield self.publish('com.testlab.ecg_update', json.dumps([counter, int(next(value))]))
+                yield self.publish('com.testlab.ecg_update', json.dumps(['12762571', datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f'), int(next(value))]))
                 yield sleep(0.016)
