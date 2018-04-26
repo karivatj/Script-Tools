@@ -28,6 +28,7 @@ def on_ecg_update(msg):
     try:
         mqtt_client.username_pw_set(mqtt_ekg_accesstoken)
         mqtt_client.connect(mqtt_broker_url, 1883, 60)
+        msg = json.loads(msg)
         targetId = msg[0]
         date = msg[1]
         payload = msg[2]
