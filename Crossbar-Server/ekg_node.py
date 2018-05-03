@@ -36,6 +36,9 @@ class AppSession(ApplicationSession):
         with open("../ECG_data.txt", "r") as f: #simulated sample of an ECG-curve
             value = ecg_gen(f)
             while True:
-                counter += 1
-                yield self.publish('com.testlab.ecg_update', json.dumps(['12762571', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'), int(next(value))]))
-                yield sleep(0.033)
+                try:
+                    yield self.publish('com.testlab.ecg_update', json.dumps(['12762571', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'), int(next(value))]))
+                    yield sleep(0.033)
+                except Exception as e:
+                    self.log.error(str(TAG) + "Error: {}".format(e.message))
+                    pass
