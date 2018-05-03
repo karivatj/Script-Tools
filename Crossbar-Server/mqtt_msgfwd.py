@@ -23,6 +23,9 @@ mqtt_client = mqtt.Client("Crossbar MQTT Bridge")
 debug = False
 
 #These handler functions forward received WAMP events to a external MQTT Broker
+def on_ibm_cloud_update(msg):
+    pass
+
 def on_ecg_update(msg):
     print(str(TAG) + "event for 'on_ecg_update' received: {}".format(msg))
     try:
@@ -201,6 +204,8 @@ class AppSession(ApplicationSession):
         ## SUBSCRIBE to topics and receive events
         sub = yield self.subscribe(on_ecg_update, 'com.testlab.ecg_update')
         print(str(TAG) + "subscribed to topic 'on_ecg_update'")
+        sub = yield self.subscribe(on_ibm_cloud_update, 'com.testlab.ibm_cloud_update')
+        print(str(TAG) + "subscribed to topic 'on_ibm_cloud_update'")
         sub = yield self.subscribe(on_haltian_location, 'com.testlab.haltian_location_update')
         print(str(TAG) + "subscribed to topic 'on_haltian_location'")
         sub = yield self.subscribe(on_withings_bp, 'com.testlab.withings_bloodpressure_update')
