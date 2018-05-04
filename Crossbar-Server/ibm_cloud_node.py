@@ -23,12 +23,13 @@ class AppSession(ApplicationSession):
 
     log = Logger()
 
-    def messageHandler(self, event)
-        print(event.deviceId)
-        print(event.deviceType)
-        print(event.timestamp)
-        print(event.timestamp.strftime("%H:%M:%S"))
-        print(event.payload)
+    def messageHandler(self, event):
+        self.log(str(TAG) + "¨Received data from IBM Cloud"))
+        self.log(str(TAG) + event.deviceId)
+        self.log(str(TAG) + event.deviceType)
+        self.log(str(TAG) + event.timestamp)
+        self.log(str(TAG) + event.timestamp.strftime("%H:%M:%S"))
+        self.log(str(TAG) + event.payload)
 
     @inlineCallbacks
     def onJoin(self, details):

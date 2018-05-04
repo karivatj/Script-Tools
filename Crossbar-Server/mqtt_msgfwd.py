@@ -190,7 +190,6 @@ class AppSession(ApplicationSession):
 
     @inlineCallbacks
     def onJoin(self, details):
-
         '''
         try:
             self.log.info(str(TAG) + "Connecting to MQTT Broker")
