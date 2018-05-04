@@ -27,7 +27,7 @@ def on_ibm_cloud_update(msg):
     pass
 
 def on_ecg_update(msg):
-    print(str(TAG) + "event for 'on_ecg_update' received: {}".format(msg))
+    #print(str(TAG) + "event for 'on_ecg_update' received: {}".format(msg))
     try:
         mqtt_client.username_pw_set(mqtt_ekg_accesstoken)
         mqtt_client.connect(mqtt_broker_url, 1883, 60)

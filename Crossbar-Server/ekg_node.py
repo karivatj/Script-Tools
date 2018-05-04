@@ -25,7 +25,7 @@ class AppSession(ApplicationSession):
     @inlineCallbacks
     def onJoin(self, details):
         self.log.info(str(TAG) + "ECG node up")
-        for value in itertools.cycle(ecg_data)
+        for value in itertools.cycle(ecg_data):
             try:
                 yield self.publish('com.testlab.ecg_update', json.dumps(['12762571', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'), int(value)]))
                 yield sleep(0.033)

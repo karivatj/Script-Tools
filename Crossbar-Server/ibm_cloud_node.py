@@ -24,7 +24,7 @@ class AppSession(ApplicationSession):
     log = Logger()
 
     def messageHandler(self, event):
-        self.log(str(TAG) + "¨Received data from IBM Cloud"))
+        self.log(str(TAG) + "Received data from IBM Cloud")
         self.log(str(TAG) + event.deviceId)
         self.log(str(TAG) + event.deviceType)
         self.log(str(TAG) + event.timestamp)
