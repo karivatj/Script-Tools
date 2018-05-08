@@ -16,6 +16,7 @@ import json
 import paho.mqtt.client as mqtt
 import requests
 import socket
+from collections import OrderedDict
 
 TAG = "MQTT Node: "
 
@@ -24,7 +25,18 @@ debug = False
 
 #These handler functions forward received WAMP events to a external MQTT Broker
 def on_ibm_cloud_update(msg):
-    pass
+    print(str(TAG) + "event for 'on_ibm_cloud_update' received: {}")
+    try:
+        mqtt_client.username_pw_set(mqtt_ibm_steelhr_accesstoken)
+        mqtt_client.connect(mqtt_broker_url, 1883, 60)
+        msg = json.loads(msg)
+        for elem in msg:
+            #print(json.dumps(elem, sort_keys=True))
+            mqtt_client.publish('v1/devices/me/telemetry', json.dumps(elem, sort_keys=True))
+    except socket.gaierror:
+        print(str(TAG) + "Connection error: MQTT Broker unavailable")
+    finally:
+        mqtt_client.disconnect()
 
 def on_ecg_update(msg):
     #print(str(TAG) + "event for 'on_ecg_update' received: {}".format(msg))
