@@ -25,10 +25,10 @@ class AppSession(ApplicationSession):
     @inlineCallbacks
     def onJoin(self, details):
         self.log.info(str(TAG) + "ECG node up")
-        for value in itertools.cycle(ecg_data):
-            try:
+        try:
+            for value in itertools.cycle(ecg_data):
                 yield self.publish('com.testlab.ecg_update', json.dumps(['12762571', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'), int(value)]))
                 yield sleep(0.033)
-            except Exception as e:
-                self.log.error(str(TAG) + "Error: {}".format(e.message))
-                pass
+        except Exception as e:
+            self.log.error(str(TAG) + "Error: {}".format(e.message))
+            pass
