@@ -35,7 +35,7 @@ debug = False
 
 #These handler functions forward received WAMP events to a external MQTT Broker
 def on_ibm_cloud_update(msg):
-    print(str(TAG) + "event for 'on_ibm_cloud_update' received: {}")
+    print(str(TAG) + "event for 'on_ibm_cloud_update' received: {}".format(msg))
     try:
         msg = json.loads(msg)
         for elem in msg:
@@ -46,15 +46,12 @@ def on_ibm_cloud_update(msg):
 def on_ecg_update(msg):
     try:
         msg = json.loads(msg)
-        targetId = msg[0]
-        date = msg[1]
-        payload = msg[2]
         data = dict()
-        data["value"] = payload
-        data["date"] = date
+        data["date"] = msg[1]
+        data["value"] = msg[2]
         ecg_mqtt_client.publish('v1/devices/me/telemetry', json.dumps(data))
-    except socket.gaierror:
-        print(str(TAG) + "Connection error: MQTT Broker unavailable")
+    except Exception as e:
+        print(str(TAG) + "Error occured while sending data {}".format(e))
 
 def on_haltian_location(msg):
     print(str(TAG) + "event for 'on_haltian_location' received: {}".format(msg))
@@ -82,13 +79,12 @@ def on_haltian_location(msg):
 def on_withings_bp(msg):
     print(str(TAG) + "event for 'on_withings_bp' received: {}".format(msg))
     try:
-        targetId = msg[0]
         date = msg[1]
         payload = msg[2]
         data = dict()
+        data["date"] = date
         data["systolic"] = payload[0]
         data["diastolic"] = payload[1]
-        data["date"] = date
         withings_bp_mqtt_client.publish('v1/devices/me/telemetry', json.dumps(data))
     except socket.gaierror:
         print(str(TAG) + "Connection error: MQTT Broker unavailable")
@@ -96,12 +92,9 @@ def on_withings_bp(msg):
 def on_withings_heartrate(msg):
     print(str(TAG) + "event for 'on_withings_heartrate' received: {}".format(msg))
     try:
-        targetId = msg[0]
-        date = msg[1]
-        payload = msg[2]
         data = dict()
-        data["value"] = payload
-        data["date"] = date
+        data["date"] = msg[1]
+        data["value"] = msg[2]
         withings_heartrate_mqtt_client.publish('v1/devices/me/telemetry', json.dumps(data))
     except socket.gaierror:
         print(str(TAG) + "Connection error: MQTT Broker unavailable")
@@ -109,12 +102,9 @@ def on_withings_heartrate(msg):
 def on_withings_bodytemp(msg):
     print(str(TAG) + "event for 'on_withings_bodytemp' received: {}".format(msg))
     try:
-        targetId = msg[0]
-        date = msg[1]
-        payload = msg[2]
         data = dict()
-        data["value"] = payload
-        data["date"] = date
+        data["date"] = msg[1]
+        data["value"] = msg[2]
         withings_bodytemp_mqtt_client.publish('v1/devices/me/telemetry', json.dumps(data))
     except socket.gaierror:
         print(str(TAG) + "Connection error: MQTT Broker unavailable")
@@ -122,12 +112,9 @@ def on_withings_bodytemp(msg):
 def on_withings_activity(msg):
     print(str(TAG) + "event for 'on_withings_activity' received: {}".format(msg))
     try:
-        targetId = msg[0]
-        date = msg[1]
-        payload = msg[2]
         data = dict()
-        data["value"] = payload
-        data["date"] = date
+        data["date"] = msg[1]
+        data["value"] = msg[2]
         withings_activity_mqtt_client.publish('v1/devices/me/telemetry', json.dumps(data))
     except socket.gaierror:
         print(str(TAG) + "Connection error: MQTT Broker unavailable")
@@ -135,12 +122,9 @@ def on_withings_activity(msg):
 def on_withings_sleep(msg):
     print(str(TAG) + "event for 'on_withings_sleep' received: {}".format(msg))
     try:
-        targetId = msg[0]
-        date = msg[1]
-        payload = msg[2]
         data = dict()
-        data["value"] = payload
-        data["date"] = date
+        data["date"] = msg[1]
+        data["value"] = msg[2]
         withings_sleep_mqtt_client.publish('v1/devices/me/telemetry', json.dumps(data))
     except socket.gaierror:
         print(str(TAG) + "Connection error: MQTT Broker unavailable")
@@ -148,12 +132,9 @@ def on_withings_sleep(msg):
 def on_withings_energy(msg):
     print(str(TAG) + "event for 'on_withings_energy' received: {}".format(msg))
     try:
-        targetId = msg[0]
-        date = msg[1]
-        payload = msg[2]
         data = dict()
-        data["value"] = payload
-        data["date"] = date
+        data["date"] = msg[1]
+        data["value"] = msg[2]
         withings_energy_mqtt_client.publish('v1/devices/me/telemetry', json.dumps(data))
     except socket.gaierror:
         print(str(TAG) + "Connection error: MQTT Broker unavailable")
@@ -205,6 +186,17 @@ class AppSession(ApplicationSession):
         withings_sleep_mqtt_client.connect(mqtt_broker_url, 1883, 60)
         withings_energy_mqtt_client.username_pw_set(mqtt_energy_accesstoken)
         withings_energy_mqtt_client.connect(mqtt_broker_url, 1883, 60)
+
+        # start the loops
+        ecg_mqtt_client.loop_start()
+        ibm_cloud_mqtt_client.loop_start()
+        haltian_mqtt_client.loop_start()
+        withings_bp_mqtt_client.loop_start()
+        withings_heartrate_mqtt_client.loop_start()
+        withings_bodytemp_mqtt_client.loop_start()
+        withings_activity_mqtt_client.loop_start()
+        withings_sleep_mqtt_client.loop_start()
+        withings_energy_mqtt_client.loop_start()
 
         try:
             while True:
