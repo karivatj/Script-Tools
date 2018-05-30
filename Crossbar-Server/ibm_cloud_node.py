@@ -72,9 +72,10 @@ class AppSession(ApplicationSession):
         self.log.info(str(TAG) + event.deviceType)
         self.log.info(str(TAG) + str(event.timestamp))
         self.log.info(str(TAG) + event.timestamp.strftime("%H:%M:%S"))
-        #date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(measuregroup["date"])))
-        '''
+        date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(measuregroup["date"])))
         payload = json.loads(event.payload.decode('utf-8'))
+        '''
+        print("IBM Payload: {}".format(payload))
 
         data_list = []
 
