@@ -38,6 +38,7 @@ def on_ibm_cloud_update(msg):
     print(str(TAG) + "event for 'on_ibm_cloud_update' received: {}".format(msg))
     try:
         msg = json.loads(msg)
+        msg.sort(key=lambda x:x['ts'])
         for elem in msg:
             ibm_cloud_mqtt_client.publish('v1/devices/me/telemetry', json.dumps(elem, sort_keys=True))
     except socket.gaierror:
