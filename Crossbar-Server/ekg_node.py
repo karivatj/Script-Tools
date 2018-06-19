@@ -30,5 +30,5 @@ class AppSession(ApplicationSession):
                 yield self.publish('com.testlab.ecg_update', json.dumps(['12762571', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'), int(value)]))
                 yield sleep(0.033)
         except Exception as e:
-            self.log.error(str(TAG) + "Error: {}".format(e.message))
+            self.log.error(str(TAG) + "Error: {}".format(e))
             pass
