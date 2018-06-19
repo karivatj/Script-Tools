@@ -35,11 +35,13 @@ debug = False
 
 #These handler functions forward received WAMP events to a external MQTT Broker
 def on_ibm_cloud_update(msg):
-    print(str(TAG) + "event for 'on_ibm_cloud_update' received: {}".format(msg))
+    # print(str(TAG) + "event for 'on_ibm_cloud_update' received: {}".format(msg))
     try:
         msg = json.loads(msg)
-        msg.sort(key=lambda x:x['ts'])
+        msg.sort(key=lambda x:x['ts'], reverse=False)
         for elem in msg:
+            # debug
+            print(elem)
             ibm_cloud_mqtt_client.publish('v1/devices/me/telemetry', json.dumps(elem, sort_keys=True))
     except socket.gaierror:
         print(str(TAG) + "Connection error: MQTT Broker unavailable")
