@@ -18,13 +18,14 @@ import json
 import ibmiotf.application
 import ibmiotf.device
 
+import queue
+
 TAG = "IBM Cloud Node: "
 
 class AppSession(ApplicationSession):
 
     log = Logger()
-    mutex = Lock()
-    data = None
+    data_container = None
 
     def normalize_value(self, value, unit):
         return value * pow(10, unit)
@@ -67,16 +68,9 @@ class AppSession(ApplicationSession):
 
     def messageHandler(self, event):
         self.log.info(str(TAG) + "Received data from IBM Cloud")
-        '''
-        self.log.info(str(TAG) + event.deviceId)
-        self.log.info(str(TAG) + event.deviceType)
-        self.log.info(str(TAG) + str(event.timestamp))
-        self.log.info(str(TAG) + event.timestamp.strftime("%H:%M:%S"))
-        date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(measuregroup["date"])))
-        '''
-        payload = json.loads(event.payload.decode('utf-8'))
-
         #print("IBM Payload: {}".format(payload))
+
+        payload = json.loads(event.payload.decode('utf-8'))
 
         data_list = []
 
@@ -116,15 +110,16 @@ class AppSession(ApplicationSession):
                 print(str(TAG) + "Unrecognized data received. Skipping")
                 return
 
-        self.mutex.acquire()
-        try:
-            self.data = data_list
-        finally:
-            self.mutex.release()
+        if data_list is not None:
+            self.data_container.put(data_list)
+        else:
+            self.log.info(str(TAG) + "empty data payload. Skipping.")
 
     @inlineCallbacks
     def onJoin(self, details):
         self.log.info(str(TAG) + "node up")
+
+        self.data_container = queue.Queue()
 
         appCli = ibmiotf.application.Client(ibm_options)
         appCli.connect()
@@ -132,11 +127,12 @@ class AppSession(ApplicationSession):
         appCli.deviceEventCallback = self.messageHandler
 
         while True:
-            self.mutex.acquire()
             try:
-                if self.data is not None:
-                    yield self.publish('com.testlab.ibm_cloud_update', json.dumps(self.data))
-                    self.data = None
+                payload = self.data_container.get_nowait()
+                if payload is not None:
+                    yield self.publish('com.testlab.ibm_cloud_update', json.dumps(payload))
+                self.data_container.task_done()
+            except queue.Empty:
+                pass
             finally:
-                self.mutex.release()
-            yield sleep(5)
+                yield sleep(1)
