@@ -86,18 +86,18 @@ class AppSession(ApplicationSession):
                     value = self.normalize_value(measure['value'], measure['unit'])
                     parsed_data["values"][measure_type] = value
                 data_list.append(parsed_data)
-        except KeyError:
+        except KeyError as e1:
             # if an exception is raised. Check if 'measure' key is present and loop through the results
             try:
                 for measure in payload["d"]["measures"]:
                     measure_type = self.get_meas_type(measure)
                     parsed_data = {}
-                    parsed_data["ts"] = int(payload["d"]["data"] * 1000.0)
+                    parsed_data["ts"] = int(payload["d"]["date"] * 1000.0)
                     parsed_data["values"] = {}
                     value = self.normalize_value(measure['value'], measure['unit'])
                     parsed_data["values"][measure_type] = value
                     data_list.append(parsed_data)
-            except KeyError:
+            except KeyError as e2:
                 # if an exception is raised. Check if activity key is present
                 try:
                     for exercise in payload["d"]["body"]["activities"]:
@@ -116,9 +116,9 @@ class AppSession(ApplicationSession):
                         parsed_data["values"]["soft"] = exercise["soft"]
                         parsed_data["values"]["intense"] = exercise["intense"]
                         data_list.append(parsed_data)
-                except KeyError:
+                except KeyError as e3:
                     # if parsing still fails -> give up
-                    print(str(TAG) + "Unrecognized data received. Skipping")
+                    print(str(TAG) + "Unrecognized data received. Skipping. Errors encountered:\n{1}\n, {2}\n, {3}\n".format(e1.message, e2.message, e3.message))
                     return
 
         if data_list is not None:
