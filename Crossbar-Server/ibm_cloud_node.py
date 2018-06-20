@@ -68,18 +68,17 @@ class AppSession(ApplicationSession):
 
     def messageHandler(self, event):
         self.log.info(str(TAG) + "Received data from IBM Cloud")
-        #print("IBM Payload: {}".format(payload))
 
         payload = json.loads(event.payload.decode('utf-8'))
 
+        #print("IBM Payload: {}".format(payload))
+
         data_list = []
 
-        # check if measuregroups is present. If yes, we are talking about bodymeasures
+        # check if measuregroups is present. If yes, we are talking about blob of bodymeasures that we have to loop through
         try:
             for measuregroup in payload["d"]["body"]["measuregrps"]:
                 parsed_data = {}
-                #date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(measuregroup["date"])))
-                #parsed_data["date"] = date
                 parsed_data["ts"] = int(measuregroup["date"] * 1000.0)
                 parsed_data["values"] = {}
                 for measure in measuregroup["measures"]:
@@ -88,27 +87,39 @@ class AppSession(ApplicationSession):
                     parsed_data["values"][measure_type] = value
                 data_list.append(parsed_data)
         except KeyError:
-            # if an exception is raised. Check if activity key is present
+            # if an exception is raised. Check if 'measure' key is present and loop through the results
             try:
-                for exercise in payload["d"]["body"]["activities"]:
+                for measure in payload["d"]["measures"]:
+                    measure_type = self.get_meas_type(measure)
                     parsed_data = {}
-                    parsed_data["ts"] = int(datetime.strptime(exercise["date"], "%Y-%m-%d").timestamp() * 1000.0)
+                    parsed_data["ts"] = int(payload["d"]["data"] * 1000.0)
                     parsed_data["values"] = {}
-                    parsed_data["values"]["distance"] = exercise["distance"]
-                    parsed_data["values"]["elevation"] = exercise["elevation"]
-                    parsed_data["values"]["brand"] = exercise["brand"]
-                    parsed_data["values"]["calories"] = exercise["calories"]
-                    parsed_data["values"]["is_tracker"] = exercise["is_tracker"]
-                    parsed_data["values"]["steps"] = exercise["steps"]
-                    parsed_data["values"]["totalcalories"] = exercise["totalcalories"]
-                    parsed_data["values"]["timezone"] = exercise["timezone"]
-                    parsed_data["values"]["moderate"] = exercise["moderate"]
-                    parsed_data["values"]["soft"] = exercise["soft"]
-                    parsed_data["values"]["intense"] = exercise["intense"]
+                    value = self.normalize_value(measure['value'], measure['unit'])
+                    parsed_data["values"][measure_type] = value
                     data_list.append(parsed_data)
             except KeyError:
-                print(str(TAG) + "Unrecognized data received. Skipping")
-                return
+                # if an exception is raised. Check if activity key is present
+                try:
+                    for exercise in payload["d"]["body"]["activities"]:
+                        parsed_data = {}
+                        parsed_data["ts"] = int(datetime.strptime(exercise["date"], "%Y-%m-%d").timestamp() * 1000.0)
+                        parsed_data["values"] = {}
+                        parsed_data["values"]["distance"] = exercise["distance"]
+                        parsed_data["values"]["elevation"] = exercise["elevation"]
+                        parsed_data["values"]["brand"] = exercise["brand"]
+                        parsed_data["values"]["calories"] = exercise["calories"]
+                        parsed_data["values"]["is_tracker"] = exercise["is_tracker"]
+                        parsed_data["values"]["steps"] = exercise["steps"]
+                        parsed_data["values"]["totalcalories"] = exercise["totalcalories"]
+                        parsed_data["values"]["timezone"] = exercise["timezone"]
+                        parsed_data["values"]["moderate"] = exercise["moderate"]
+                        parsed_data["values"]["soft"] = exercise["soft"]
+                        parsed_data["values"]["intense"] = exercise["intense"]
+                        data_list.append(parsed_data)
+                except KeyError:
+                    # if parsing still fails -> give up
+                    print(str(TAG) + "Unrecognized data received. Skipping")
+                    return
 
         if data_list is not None:
             self.data_container.put(data_list)
