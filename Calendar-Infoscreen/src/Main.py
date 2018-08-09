@@ -20,8 +20,11 @@ parser.add_argument("--configuration", help="calendar configuration to be used",
 parser.add_argument("--daemon", help="run the program as daemon", action='store_true')
 parser.add_argument("--http", help="use simpleHttp to serve the content", action='store_true')
 parser.add_argument("--serverport", help="server port is mandatory if daemon is defined", type=int, default=8080)
-parser.add_argument("--workdir", help="working directory for the program", type=str, default="")
+parser.add_argument("--workdir", help="working directory for the program", type=str, default=r'{0}'.format(sys.path[0]))
 args = parser.parse_args()
+
+# change workdir to scripts location
+os.chdir(os.path.dirname(args.workdir))
 
 # setup logging
 if not os.path.exists(args.workdir + "/logs/"):
