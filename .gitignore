@@ -85,3 +85,8 @@ IPostPDF-Converter\archive
 IPostPDF-Converter\zip
 IPostPDF-Converter\trash
 Calendar-Infoscreen/src/pyqtdeploy/build-win-32/*
+
+Calendar-Infoscreen/src/logs/
+Calendar-Infoscreen/src/web/
+Crossbar-Server/.crossbar/
+Crossbar-Server/access_tokens.py
