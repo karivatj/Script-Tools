@@ -42,7 +42,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
         self.setupUi(self)
 
-        self.lblInfoScreen.setText("InfoScreen Setup 1.1")
+        self.lblInfoScreen.setText("InfoScreen Setup 1.1.1")
 
         # redirect stdout
         sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)
