@@ -3,10 +3,10 @@ template = """<!DOCTYPE html>
 <head>
     <meta charset="utf-8">
     <title>Neuvotteluhuoneet</title>
-    <meta http-equiv="refresh" content="120" >
     <link rel="stylesheet" href="./stylesheet.css"/>
 </head>
 <body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <div id="textbox">
     <p class="headline">NEUVOTTELUHUONEET</p>
     <p id="datetime" class="text"></p>
@@ -19,6 +19,9 @@ template = """<!DOCTYPE html>
     <script language="javascript">
         function init() {
             updateClock();
+            setInterval(function() {
+                location.reload();
+            }, 15000);
         }
 
         function updateClock() {

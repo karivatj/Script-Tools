@@ -20,11 +20,18 @@ parser.add_argument("--configuration", help="calendar configuration to be used",
 parser.add_argument("--daemon", help="run the program as daemon", action='store_true')
 parser.add_argument("--http", help="use simpleHttp to serve the content", action='store_true')
 parser.add_argument("--serverport", help="server port is mandatory if daemon is defined", type=int, default=8080)
-parser.add_argument("--workdir", help="working directory for the program", type=str, default=r'{0}'.format(sys.path[0]))
+parser.add_argument("--workdir", help="working directory for the program", type=str, default="")
 args = parser.parse_args()
 
+# pyinstaller workaround for determining the workdir
+if args.workdir == "":
+    if getattr(sys, 'frozen', False):
+        args.workdir = os.path.dirname(sys.executable)
+    else:
+        args.workdir = os.path.dirname(os.path.abspath(__file__))
+
 # change workdir to scripts location
-os.chdir(os.path.dirname(args.workdir))
+os.chdir(args.workdir)
 
 # setup logging
 if not os.path.exists(args.workdir + "/logs/"):
@@ -60,18 +67,18 @@ if __name__ == "__main__":
         app.exec_()
     else:
         logger.info("User request to run in headless mode")
-        logger.info("Reading preferences from {0}\{1}.".format(os.getcwd(), args.preferences))
+        logger.info("Reading preferences from {0}\{1}.".format(args.workdir, args.preferences))
 
-        preferences = HeadlessUtilities.headless_load_preferences(args.preferences)
+        preferences = HeadlessUtilities.headless_load_preferences(args.preferences, args.workdir)
 
         if preferences is None:
             logger.error("Failure while reading preferences. Check data integrity. Exiting.")
             sys.exit(0)
 
         logger.info("Preferences OK.")
-        logger.info("Reading calendar configuration from {0}\{1}.".format(os.getcwd(), args.configuration))
+        logger.info("Reading calendar configuration from {0}\{1}.".format(args.workdir, args.configuration))
 
-        calendars = HeadlessUtilities.headless_load_calendar_configuration(args.configuration)
+        calendars = HeadlessUtilities.headless_load_calendar_configuration(args.configuration, args.workdir)
 
         if calendars is None:
             logger.error("Failure while reading calendars. Check data integrity. Exiting")
@@ -79,7 +86,7 @@ if __name__ == "__main__":
 
         logger.info("Calendar data OK.")
 
-        if args.daemon:
+        if args.daemon or args.http:
             if args.http:
                 httpd = HttpDaemon(port=args.serverport, root=args.workdir)
                 httpd.start()

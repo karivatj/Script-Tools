@@ -205,8 +205,8 @@ class PageGeneratorThread(QtCore.QThread):
                 f.write(WebpageTemplate.css_template)
 
         except FileNotFoundError:
-            logger.error("Failed to open file ./web/index.html. No such file or directory")
-            self.statusupdate.emit(-1, "Failed to open file ./web/content.html. No such file or directory")
+            logger.error("Failed to open file /web/index.html. No such file or directory")
+            self.statusupdate.emit(-1, "Failed to open file /web/content.html. No such file or directory")
             self.progress.emit(100)
             return
 

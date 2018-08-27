@@ -113,7 +113,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
     def loadPreferences(self):
         try:
             items = []
-            with open("preferences.dat", "r", newline="\n", encoding="utf-8") as fileInput:
+            with open(self.workdir + "/preferences.dat", "r", newline="\n", encoding="utf-8") as fileInput:
                 while True:
                     line = fileInput.readline()
                     if not line:
@@ -144,6 +144,10 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
             self.notify("It seems that this is the first time you are launching this program. Please configure necessary connection parameters to get started")
             logger.debug("loadPreferences FileNotFoundError: {0}".format(traceback.print_exc()))
             self.preferencesActionTriggered()
+        except IndexError as e:
+            self.notify("Preferences file seems to be corrupt. Please reconfigure the software in the settings dialog")
+            logger.debug("loadPreferences IndexError: {0}".format(traceback.print_exc()))
+            self.preferencesActionTriggered()
 
     def savePreferences(self):
         try:
@@ -152,20 +156,20 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 temp_pw += chr(ord(c) + 5)
 
             if self.preferences["lastusedconfig"] == "":
-                self.preferences["lastusedconfig"] = "./calendar_configuration.conf"
+                self.preferences["lastusedconfig"] = self.workdir + "/calendar_configuration.conf"
 
             self.save(self.preferences["lastusedconfig"])
 
-            with open("preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
-                fileOutput.write(self.preferences["username"] + "\n")
-                fileOutput.write(temp_pw + "\n")
-                fileOutput.write(self.preferences["server"] + "\n")
-                fileOutput.write(self.preferences["serverport"] + "\n")
-                fileOutput.write(str(self.preferences["interval"]) + "\n")
-                fileOutput.write(str(self.preferences["updatedata"]) + "\n")
-                fileOutput.write(str(self.preferences["ignoreSSL"]) + "\n")
-                fileOutput.write(str(self.preferences["httpServer"]) + "\n")
-                fileOutput.write(self.preferences["lastusedconfig"] + "\n")
+            with open(self.workdir + "/preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
+                fileOutput.write(str(self.preferences["username"]).strip() + "\n")
+                fileOutput.write(str(temp_pw) + "\n")
+                fileOutput.write(str(self.preferences["server"]).strip() + "\n")
+                fileOutput.write(str(self.preferences["serverport"]).strip() + "\n")
+                fileOutput.write(str(self.preferences["interval"]).strip() + "\n")
+                fileOutput.write(str(self.preferences["updatedata"]).strip() + "\n")
+                fileOutput.write(str(self.preferences["ignoreSSL"]).strip() + "\n")
+                fileOutput.write(str(self.preferences["httpServer"]).strip() + "\n")
+                fileOutput.write(str(self.preferences["lastusedconfig"]).strip() + "\n")
 
         except FileNotFoundError as e:
             self.warning("Failed to save preferences: {0}".format(traceback.print_exc()))

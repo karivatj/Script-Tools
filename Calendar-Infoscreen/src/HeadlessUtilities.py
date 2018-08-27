@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-import argparse
 
+import os
 import csv
 import logging
 import traceback
 
 logger = logging.getLogger('infoscreen')
 
-def headless_load_preferences(fileinput):
+def headless_load_preferences(fileinput, workdir):
     try:
         prefs = {}
         items = []
         password = ""
-        with open("preferences.dat", "r", newline="\n", encoding="utf-8") as fileInput:
+        if not os.path.isabs(fileinput):
+            fileinput = workdir + "/" + fileinput
+        with open(fileinput, "r", newline="\n", encoding="utf-8") as fileInput:
             while True:
                 line = fileInput.readline()
                 if not line:
@@ -40,9 +43,11 @@ def headless_load_preferences(fileinput):
 def headless_save_preferences(filename):
     pass
 
-def headless_load_calendar_configuration(fileinput):
+def headless_load_calendar_configuration(fileinput, workdir):
     try:
         calendars = {}
+        if not os.path.isabs(fileinput):
+            fileinput = workdir + "/" + fileinput
         with open(fileinput, "r") as finput:
             reader = csv.reader(finput)
             for row in reader:
