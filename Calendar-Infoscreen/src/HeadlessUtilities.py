@@ -7,7 +7,7 @@ import traceback
 
 logger = logging.getLogger('infoscreen')
 
-def headless_load_preferences(fileinput, workdir):
+def headless_load_preferences(workdir, fileinput):
     try:
         prefs = {}
         items = []
@@ -43,7 +43,7 @@ def headless_load_preferences(fileinput, workdir):
 def headless_save_preferences(filename):
     pass
 
-def headless_load_calendar_configuration(fileinput, workdir):
+def headless_load_calendar_configuration(workdir, fileinput):
     try:
         calendars = {}
         if not os.path.isabs(fileinput):
