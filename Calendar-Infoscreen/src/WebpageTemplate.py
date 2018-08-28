@@ -21,7 +21,7 @@ template = """<!DOCTYPE html>
             updateClock();
             setInterval(function() {
                 location.reload();
-            }, 15000);
+            }, 30000);
         }
 
         function updateClock() {
