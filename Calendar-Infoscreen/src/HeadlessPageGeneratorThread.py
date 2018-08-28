@@ -185,5 +185,5 @@ class HeadlessPageGeneratorThread(Thread):
                 f.write(WebpageTemplate.css_template)
 
         except Exception:
-            logger.error("Failure during content output: {0}".format(traceback.print_exc()))
+            logger.error("Failed to open files for page generation.")
             return
