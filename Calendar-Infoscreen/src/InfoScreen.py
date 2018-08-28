@@ -37,7 +37,7 @@ class InvalidComboBoxValue(Exception):
 
 # main program
 class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
-    def __init__(self, workdir="", parent=None):
+    def __init__(self, rootdir="", workdir="", parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
 
         self.setupUi(self)
@@ -51,7 +51,8 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
         self.selectedRow  = -1
         self.selectedCol  = -1
         self.savePending  = False
-        self.workdir = workdir
+        self.rootdir = rootdir
+        self.siteroot = workdir
 
         # HTTP daemon
         self.httpd = None
@@ -113,7 +114,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
     def loadPreferences(self):
         try:
             items = []
-            with open(self.workdir + "/preferences.dat", "r", newline="\n", encoding="utf-8") as fileInput:
+            with open(self.rootdir + "/preferences.dat", "r", newline="\n", encoding="utf-8") as fileInput:
                 while True:
                     line = fileInput.readline()
                     if not line:
@@ -156,11 +157,11 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                 temp_pw += chr(ord(c) + 5)
 
             if self.preferences["lastusedconfig"] == "":
-                self.preferences["lastusedconfig"] = self.workdir + "/calendar_configuration.conf"
+                self.preferences["lastusedconfig"] = self.rootdir + "/calendar_configuration.conf"
 
             self.save(self.preferences["lastusedconfig"])
 
-            with open(self.workdir + "/preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
+            with open(self.rootdir + "/preferences.dat", "w", newline="\n", encoding="utf-8") as fileOutput:
                 fileOutput.write(str(self.preferences["username"]).strip() + "\n")
                 fileOutput.write(str(temp_pw) + "\n")
                 fileOutput.write(str(self.preferences["server"]).strip() + "\n")
@@ -243,13 +244,13 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
                                                      self.preferences["password"],
                                                      self.preferences["server"],
                                                      self.preferences["ignoreSSL"],
-                                                     self.workdir)
+                                                     self.siteroot)
 
     def buttonStartPressed(self):
         if self.preferences["httpServer"] == 2:
             if self.btnStart.text() == "Start":
                 self.btnStart.setText("Stop")
-                self.httpd = HttpDaemon(port=8080, root=self.workdir)
+                self.httpd = HttpDaemon(port=8080, root=self.siteroot)
                 self.httpd.set_port(self.preferences["serverport"])
                 self.httpd.start()
                 self.disableUI()

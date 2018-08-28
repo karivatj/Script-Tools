@@ -24,14 +24,16 @@ parser.add_argument("--workdir", help="working directory for the program", type=
 args = parser.parse_args()
 
 # pyinstaller workaround for determining the workdir
-if args.workdir == "":
-    if getattr(sys, 'frozen', False):
-        args.workdir = os.path.dirname(sys.executable)
-    else:
-        args.workdir = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, 'frozen', False):
+    rootdir = os.path.dirname(sys.executable)
+else:
+    rootdir = os.path.dirname(os.path.abspath(__file__))
 
 # change workdir to scripts location
-os.chdir(args.workdir)
+os.chdir(rootdir)
+
+if args.workdir == "":
+    args.workdir = rootdir
 
 # setup logging
 if not os.path.exists(args.workdir + "/logs/"):
@@ -62,23 +64,23 @@ import HeadlessUtilities
 if __name__ == "__main__":
     if not args.headless:
         app = QtWidgets.QApplication(sys.argv)
-        myWindow = Infoscreen(args.workdir, None)
+        myWindow = Infoscreen(rootdir, args.workdir, None)
         myWindow.show()
         app.exec_()
     else:
         logger.info("User request to run in headless mode")
-        logger.info("Reading preferences from {0}\{1}.".format(args.workdir, args.preferences))
+        logger.info("Reading preferences from {0}\{1}.".format(rootdir, args.preferences))
 
-        preferences = HeadlessUtilities.headless_load_preferences(args.preferences, args.workdir)
+        preferences = HeadlessUtilities.headless_load_preferences(rootdir, args.preferences)
 
         if preferences is None:
             logger.error("Failure while reading preferences. Check data integrity. Exiting.")
             sys.exit(0)
 
         logger.info("Preferences OK.")
-        logger.info("Reading calendar configuration from {0}\{1}.".format(args.workdir, args.configuration))
+        logger.info("Reading calendar configuration from {0}\{1}.".format(rootdir, args.configuration))
 
-        calendars = HeadlessUtilities.headless_load_calendar_configuration(args.configuration, args.workdir)
+        calendars = HeadlessUtilities.headless_load_calendar_configuration(rootdir, args.configuration)
 
         if calendars is None:
             logger.error("Failure while reading calendars. Check data integrity. Exiting")
