@@ -55,6 +55,11 @@ ch.setFormatter(formatter)
 logger.addHandler(fh)
 logger.addHandler(ch)
 
+# check that siteroot is absolute path to avoid future problems
+if not os.path.isabs(args.workdir):
+    logger.error("Invalid workdirectory. Please use an absolute path for http server workdirectory")
+    sys.exit()
+
 # workthread which executes calendar data fetching
 from HeadlessPageGeneratorThread import HeadlessPageGeneratorThread
 
