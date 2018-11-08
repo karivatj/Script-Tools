@@ -7,6 +7,7 @@ from builtins import str
 import codecs
 import logging
 import os
+import shutil
 import traceback
 
 import urllib3
@@ -199,10 +200,16 @@ class PageGeneratorThread(QtCore.QThread):
             webpage = WebpageTemplate.template
             webpage = webpage.replace("%REPLACE_THIS_WITH_CONTENT%", content)
 
-            with codecs.open(self.workdirectory + "/web/index.html", "w+", "utf-8") as f:
-                f.write(webpage)
-            with codecs.open(self.workdirectory + "/web/stylesheet.css", "w+", "utf-8") as f:
-                f.write(WebpageTemplate.css_template)
+
+            with codecs.open(self.workdirectory + "/updated_index.html", "w+", "utf-8") as f:
+                f.write(webpage) # write the file first
+
+            logger.debug("Updating webpage content!")
+            shutil.copyfile(self.workdirectory + "/updated_index.html", self.workdirectory + "/web/index.html") # then move it in place
+
+            if os.path.isfile(self.workdirectory + "/web/stylesheet.css") is False: # if the stylesheet already exists. Don't rewrite it constantly
+                with codecs.open(self.workdirectory + "/web/stylesheet.css", "w+", "utf-8") as f:
+                    f.write(WebpageTemplate.css_template)
 
         except FileNotFoundError:
             logger.error("Failed to open files for page generation.")
