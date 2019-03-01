@@ -12,16 +12,11 @@ template = """<!DOCTYPE html>
     <p id="datetime" class="text"></p>
     </div>
     <div style="clear: both;"></div>
-    <p id="meeting_content">
-    %REPLACE_THIS_WITH_CONTENT%
-    </p>
-
+    <p id="meeting_content"></p>
     <script language="javascript">
         function init() {
             updateClock();
-            setInterval(function() {
-                location.reload();
-            }, 30000);
+            autoReload();
         }
 
         function updateClock() {
@@ -44,10 +39,24 @@ template = """<!DOCTYPE html>
             setTimeout(updateClock, 1000);
         }
 
+        function autoReload() {
+            setTimeout(function() {
+                $.ajax({
+                    url: '/web/content.html',
+                    success: function(data) {
+                        document.getElementById("meeting_content").innerHTML = data;
+                }
+                });
+
+            autoReload();  // calling again after 10 seconds
+            }, 10000);
+        }
+
         window.onload = init();
     </script>
 </body>
-</html>"""
+</html>
+"""
 
 css_template = """html, body {
     position: relative;

@@ -177,14 +177,19 @@ class HeadlessPageGeneratorThread(Thread):
                 content += "</tr>\n"
             content += "</table>"
 
-            webpage = WebpageTemplate.template
-            webpage = webpage.replace("%REPLACE_THIS_WITH_CONTENT%", content)
-
-            with codecs.open(self.workdirectory + "/updated_index.html", "w+", "utf-8") as f:
-                f.write(webpage) # write the file first
+            #webpage = WebpageTemplate.template
+            #webpage = webpage.replace("%REPLACE_THIS_WITH_CONTENT%", content)
 
             logger.debug("Updating webpage content!")
-            shutil.copyfile(self.workdirectory + "/updated_index.html", self.workdirectory + "/web/index.html") # then move it in place
+
+            with codecs.open(self.workdirectory + "/web/content.html", "w+", "utf-8") as f:
+                f.write(content) # write the file first
+
+            #shutil.copyfile(self.workdirectory + "/updated_index.html", self.workdirectory + "/web/index.html") # then move it in place
+
+            if os.path.isfile(self.workdirectory + "/web/index.html") is False: # if index.html already exists. Don't rewrite it constantly
+                with codecs.open(self.workdirectory + "/web/index.html", "w+", "utf-8") as f:
+                    f.write(WebpageTemplate.template.replace("%REPLACE_THIS_WITH_CONTENT%", ""))
 
             if os.path.isfile(self.workdirectory + "/web/stylesheet.css") is False: # if the stylesheet already exists. Don't rewrite it constantly
                 with codecs.open(self.workdirectory + "/web/stylesheet.css", "w+", "utf-8") as f:
