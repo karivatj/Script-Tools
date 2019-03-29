@@ -6,7 +6,7 @@ import os
 import sys
 import time
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtWidgets
 
 from HttpDaemon import HttpDaemon
 from InfoScreen import Infoscreen

@@ -8,13 +8,11 @@ from threading import Thread
 import codecs
 import logging
 import os
-import shutil
 import traceback
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-from datetime import timedelta
 from exchangelib import EWSDateTime, EWSTimeZone, DELEGATE, Account, Credentials, NTLM, Configuration
 from exchangelib.protocol import BaseProtocol, NoVerifyHTTPAdapter
 
@@ -24,6 +22,7 @@ import WebpageTemplate
 logger = logging.getLogger('infoscreen')
 
 class HeadlessPageGeneratorThread(Thread):
+    tz = EWSTimeZone.timezone('Europe/Helsinki')
     exiting = False
     calendars = {}
     workdirectory = os.getcwd()
@@ -53,17 +52,14 @@ class HeadlessPageGeneratorThread(Thread):
         self.work()
 
     def get_appointments(self, acc):
-        # define the timezone
-        tz = EWSTimeZone.timezone('Europe/Helsinki')
-        now = tz.localize(EWSDateTime.now())
-
+        now = EWSDateTime.now(self.tz)
         items = {}
 
         try:
             logger.debug("Getting appointments")
             items = acc.calendar.view(
-                start=tz.localize(EWSDateTime(now.year, now.month, now.day, 6, 0)),
-                end=tz.localize(EWSDateTime(now.year, now.month, now.day, 18, 0)),
+                start=self.tz.localize(EWSDateTime(now.year, now.month, now.day, 4, 0)),
+                end=self.tz.localize(EWSDateTime(now.year, now.month, now.day, 22, 0)),
             )
             logger.debug("Getting appointments was a success")
             return items, True
@@ -100,7 +96,6 @@ class HeadlessPageGeneratorThread(Thread):
             return
 
         logger.debug("Calendar data retrieved. Outputting webpage...")
-        #calendar_data = collections.OrderedDict(sorted(calendar_data.items(), key=lambda t: t[0]))
 
         if not os.path.exists(self.workdirectory + "/web/"):
             os.makedirs(self.workdirectory + "/web/")
@@ -123,7 +118,7 @@ class HeadlessPageGeneratorThread(Thread):
             content += "<th></th>"
             content += "</tr>"
 
-            now = EWSDateTime.now()
+            now = self.tz.localize(EWSDateTime.utcnow())
 
             for calendar in calendar_data:
                 primary_event_found = False
@@ -131,30 +126,27 @@ class HeadlessPageGeneratorThread(Thread):
                 content += "<tr>\n"
                 content += "<td class=\"meetingroom\">" + calendar + "</td>\n"
 
-                delta = 2
-                if now > EWSDateTime(now.year, 3, 26, 3, 0, 0) and now < EWSDateTime(now.year, 10, 29, 4, 0, 0):
-                    delta = 3
-
                 try:
                     for item in calendar_data[calendar]:
-
-                        #logger.debug(item)
                         subject = item.subject
+
+                        item.start = item.start.astimezone(self.tz) #adjust timezone to local timezone
+                        item.end = item.end.astimezone(self.tz) #adjust timezone to local timezone
+
                         if subject is None or subject is "":
                             subject = "Varaus ilman otsikkoa"
 
-                        logger.debug(calendar + " " + subject)
-                        start_time = EWSDateTime(item.start.year, item.start.month, item.start.day, item.start.hour, item.start.minute, 0) + timedelta(hours=delta)
-                        end_time = EWSDateTime(item.end.year, item.end.month, item.end.day, item.end.hour, item.end.minute, 0) + timedelta(hours=delta)
-                        if(now < end_time and primary_event_found == False):
+                        if(now < item.end and primary_event_found == False):
                             primary_event_found = True
                             content += "<td class=\"event_primary\">" + str(subject) + "</td>\n"
-                            content += "<td class=\"eventdate_primary\">%d:%02d - %d:%02d</td>\n" % (start_time.hour, start_time.minute, end_time.hour, end_time.minute)
-                        elif(now < end_time and secondary_event_found == False):
+                            content += "<td class=\"eventdate_primary\">%s - %s</td>\n" % (item.start.strftime("%H:%M"), item.end.strftime("%H:%M"))
+
+                        elif(now < item.end and secondary_event_found == False):
                             secondary_event_found = True
                             content += "<td class=\"event_secondary\">" + str(subject) + "</td>\n"
-                            content += "<td class=\"eventdate_secondary\">%d:%02d - %d:%02d</td>\n" % (start_time.hour, start_time.minute, end_time.hour, end_time.minute)
+                            content += "<td class=\"eventdate_secondary\">%s - %s</td>\n" % (item.start.strftime("%H:%M"), item.end.strftime("%H:%M"))
                             break
+
                 except Exception as e: # failure in data communication
                     logger.error("Failed to parse calendar data: {0}".format(traceback.print_exc()))
                     content += "<td class=\"event_primary\">Virhe tiedonsiirrossa</td>\n"

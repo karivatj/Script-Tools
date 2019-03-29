@@ -42,7 +42,7 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
 
         self.setupUi(self)
 
-        self.lblInfoScreen.setText("InfoScreen Setup 1.1.1")
+        self.lblInfoScreen.setText("InfoScreen Setup 1.1.2")
 
         # redirect stdout
         sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)
@@ -305,8 +305,11 @@ class Infoscreen(QtWidgets.QMainWindow, Ui_InfoScreen_Window):
     def buttonUpdatePressed(self):
         if self.selectedRow != -1 and self.selectedCol != -1:
 
-            name = str(self.table.item(self.selectedRow, 0).text())
-            email = str(self.table.item(self.selectedRow, 1).text())
+            try:
+                name = str(self.table.item(self.selectedRow, 0).text())
+                email = str(self.table.item(self.selectedRow, 1).text())
+            except AttributeError:
+                return
 
             dialog = AddCalendar.AddCalendarDialog()
             dialog.setCalendar([name, email])

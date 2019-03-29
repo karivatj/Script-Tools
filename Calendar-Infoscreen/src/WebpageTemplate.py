@@ -40,16 +40,14 @@ template = """<!DOCTYPE html>
         }
 
         function autoReload() {
-            setTimeout(function() {
-                $.ajax({
-                    url: '/web/content.html',
-                    success: function(data) {
-                        document.getElementById("meeting_content").innerHTML = data;
-                }
-                });
+            $.ajax({
+                url: '/web/content.html',
+                success: function(data) {
+                    document.getElementById("meeting_content").innerHTML = data;
+            }
+            });
 
-            autoReload();  // calling again after 10 seconds
-            }, 10000);
+            setTimeout(autoReload, 10000);
         }
 
         window.onload = init();
