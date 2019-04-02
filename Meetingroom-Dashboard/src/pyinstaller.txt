@@ -1,0 +1,1 @@
+pyinstaller --specpath ./pyinstaller/spec --workpath ./pyinstaller/build --distpath ./pyinstaller/dist --clean --onefile --name InfoScreen Main.py

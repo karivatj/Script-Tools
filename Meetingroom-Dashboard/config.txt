@@ -1,0 +1,13 @@
+Laskimo
+RES_L3228Laskimo@ppshp.fi
+https://sposti.ppshp.fi/EWS/Exchange.asmx
+https://outlook.oysnet.ppshp.fi/EWS/Exchange.asmx
+OYSNET\TestLab_Res
+HU8:7:is*9}9
+CP3525dn%4x4
+
+PassLM          B2FF5C4E119425B052ACCF830FF8F3E4
+PassNT          FACFE65A0D7FBB8FB7E6C05C8F935E3B
+PassNTLMv2      114B70C87F238707299B667F6E7F5EBD    # Only for user 'TestLab_Res', domain 'OYSNET'
+
+sudo firewall-cmd --zone=public --add-port=80/tcp
