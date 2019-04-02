@@ -1,0 +1,352 @@
+2019-03-20 07:43:15,533 - infoscreen - DEBUG - HTTP Server Starting Up
+2019-03-20 07:43:15,549 - infoscreen - DEBUG - Changing siteroot to C:\Users\vatjuska.OYSNET\Github\Scripts\Calendar-Infoscreen\src
+2019-03-20 07:43:15,564 - infoscreen - DEBUG - Serving over HTTP
+2019-03-20 07:43:19,648 - infoscreen - INFO - Using unverified HTTP adapter. Please reconsider!
+2019-03-20 07:43:24,033 - infoscreen - DEBUG - Starting work thread
+2019-03-20 07:43:24,033 - infoscreen - DEBUG - Fetching data for calendar: OYS TestLab
+2019-03-20 07:43:24,033 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3TestLab@ppshp.fi
+2019-03-20 07:43:28,937 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:43:29,123 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:43:29,123 - infoscreen - DEBUG - Done with calendar: RES_L3TestLab@ppshp.fi
+2019-03-20 07:43:29,123 - infoscreen - DEBUG - Fetching data for calendar: Aortta
+2019-03-20 07:43:29,123 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3212Aortta@ppshp.fi
+2019-03-20 07:43:29,220 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:43:29,428 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:43:29,429 - infoscreen - DEBUG - Done with calendar: RES_L3212Aortta@ppshp.fi
+2019-03-20 07:43:29,430 - infoscreen - DEBUG - Fetching data for calendar: Cave
+2019-03-20 07:43:29,431 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3213Cave@ppshp.fi
+2019-03-20 07:43:29,538 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:43:29,679 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:43:29,679 - infoscreen - DEBUG - Done with calendar: RES_L3213Cave@ppshp.fi
+2019-03-20 07:43:29,681 - infoscreen - DEBUG - Fetching data for calendar: Läppä
+2019-03-20 07:43:29,682 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3215Lappa@ppshp.fi
+2019-03-20 07:43:29,786 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:43:29,965 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:43:29,966 - infoscreen - DEBUG - Done with calendar: RES_L3215Lappa@ppshp.fi
+2019-03-20 07:43:29,968 - infoscreen - DEBUG - Fetching data for calendar: Oikea Kammio
+2019-03-20 07:43:29,968 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3219OikKammio@ppshp.fi
+2019-03-20 07:43:30,088 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:43:30,262 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:43:30,263 - infoscreen - DEBUG - Done with calendar: RES_L3219OikKammio@ppshp.fi
+2019-03-20 07:43:30,264 - infoscreen - DEBUG - Fetching data for calendar: Vasen Kammio
+2019-03-20 07:43:30,265 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3219AVasKammio@ppshp.fi
+2019-03-20 07:43:30,396 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:43:30,548 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:43:30,548 - infoscreen - DEBUG - Done with calendar: RES_L3219AVasKammio@ppshp.fi
+2019-03-20 07:43:30,550 - infoscreen - DEBUG - Fetching data for calendar: Pulssi
+2019-03-20 07:43:30,551 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3223Pulssi@ppshp.fi
+2019-03-20 07:43:30,655 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:43:30,788 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:43:30,788 - infoscreen - DEBUG - Done with calendar: RES_L3223Pulssi@ppshp.fi
+2019-03-20 07:43:30,792 - infoscreen - DEBUG - Fetching data for calendar: Laskimo
+2019-03-20 07:43:30,792 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3228Laskimo@ppshp.fi
+2019-03-20 07:43:30,944 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:43:31,138 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:43:31,139 - infoscreen - DEBUG - Done with calendar: RES_L3228Laskimo@ppshp.fi
+2019-03-20 07:43:31,147 - infoscreen - DEBUG - Fetching data for calendar: Valtimo
+2019-03-20 07:43:31,148 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3229Valtimo@ppshp.fi
+2019-03-20 07:43:31,268 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:43:31,454 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:43:31,455 - infoscreen - DEBUG - Done with calendar: RES_L3229Valtimo@ppshp.fi
+2019-03-20 07:43:31,455 - infoscreen - DEBUG - Calendar data retrieved. Outputting webpage...
+2019-03-20 07:43:32,601 - infoscreen - DEBUG - OYS TestLab Työpajan valmistelu
+2019-03-20 07:43:32,617 - infoscreen - DEBUG - OYS TestLab A-talo 5. krs MALLINNUS, Arviointikeittiö ja Toimintaterapiahuone
+2019-03-20 07:43:33,054 - infoscreen - DEBUG - Aortta Allianssin viikkotyöskentely
+2019-03-20 07:43:33,054 - infoscreen - DEBUG - Ei toissijaisia kalenterille Aortta
+2019-03-20 07:43:33,241 - infoscreen - DEBUG - Ei varauksia kalenterille Cave
+2019-03-20 07:43:33,241 - infoscreen - DEBUG - Ei toissijaisia kalenterille Cave
+2019-03-20 07:43:33,818 - infoscreen - DEBUG - Läppä Tyyppihuonekatselmus; Tehohoito +wc+s (Vasy,Lapset,aikuiset)
+2019-03-20 07:43:33,834 - infoscreen - DEBUG - Läppä Innovaatioryhmä
+2019-03-20 07:43:34,371 - infoscreen - DEBUG - Oikea Kammio PJT
+2019-03-20 07:43:34,374 - infoscreen - DEBUG - Oikea Kammio OYS 3 osapuolen tarkastus
+2019-03-20 07:43:35,099 - infoscreen - DEBUG - Vasen Kammio Tuottavuustiimi
+2019-03-20 07:43:35,099 - infoscreen - DEBUG - Vasen Kammio A-talon keittiön laitteet
+2019-03-20 07:43:35,656 - infoscreen - DEBUG - Pulssi PJT
+2019-03-20 07:43:35,656 - infoscreen - DEBUG - Pulssi Tyyppihuonekatselmus; Leikkaussali ja heräämö
+2019-03-20 07:43:35,812 - infoscreen - DEBUG - Ei varauksia kalenterille Laskimo
+2019-03-20 07:43:35,812 - infoscreen - DEBUG - Ei toissijaisia kalenterille Laskimo
+2019-03-20 07:43:36,281 - infoscreen - DEBUG - Valtimo Smartsheet kustannustarkastelu
+2019-03-20 07:43:36,281 - infoscreen - DEBUG - Valtimo Tulsa / apteekin tilat
+2019-03-20 07:43:36,281 - infoscreen - DEBUG - Updating webpage content!
+2019-03-20 07:43:36,320 - infoscreen - DEBUG - Status: 1: Calendar data succesfully fetched!
+2019-03-20 07:44:15,565 - infoscreen - INFO - Using unverified HTTP adapter. Please reconsider!
+2019-03-20 07:44:15,565 - infoscreen - DEBUG - Starting work thread
+2019-03-20 07:44:15,565 - infoscreen - DEBUG - Fetching data for calendar: OYS TestLab
+2019-03-20 07:44:15,565 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3TestLab@ppshp.fi
+2019-03-20 07:44:15,690 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:44:15,864 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:44:15,864 - infoscreen - DEBUG - Done with calendar: RES_L3TestLab@ppshp.fi
+2019-03-20 07:44:15,864 - infoscreen - DEBUG - Fetching data for calendar: Aortta
+2019-03-20 07:44:15,864 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3212Aortta@ppshp.fi
+2019-03-20 07:44:15,906 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:44:16,108 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:44:16,109 - infoscreen - DEBUG - Done with calendar: RES_L3212Aortta@ppshp.fi
+2019-03-20 07:44:16,111 - infoscreen - DEBUG - Fetching data for calendar: Cave
+2019-03-20 07:44:16,112 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3213Cave@ppshp.fi
+2019-03-20 07:44:16,260 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:44:16,429 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:44:16,432 - infoscreen - DEBUG - Done with calendar: RES_L3213Cave@ppshp.fi
+2019-03-20 07:44:16,432 - infoscreen - DEBUG - Fetching data for calendar: Läppä
+2019-03-20 07:44:16,435 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3215Lappa@ppshp.fi
+2019-03-20 07:44:16,558 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:44:16,737 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:44:16,738 - infoscreen - DEBUG - Done with calendar: RES_L3215Lappa@ppshp.fi
+2019-03-20 07:44:16,740 - infoscreen - DEBUG - Fetching data for calendar: Oikea Kammio
+2019-03-20 07:44:16,741 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3219OikKammio@ppshp.fi
+2019-03-20 07:44:16,856 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:44:17,041 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:44:17,043 - infoscreen - DEBUG - Done with calendar: RES_L3219OikKammio@ppshp.fi
+2019-03-20 07:44:17,045 - infoscreen - DEBUG - Fetching data for calendar: Vasen Kammio
+2019-03-20 07:44:17,046 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3219AVasKammio@ppshp.fi
+2019-03-20 07:44:17,178 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:44:17,395 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:44:17,396 - infoscreen - DEBUG - Done with calendar: RES_L3219AVasKammio@ppshp.fi
+2019-03-20 07:44:17,398 - infoscreen - DEBUG - Fetching data for calendar: Pulssi
+2019-03-20 07:44:17,399 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3223Pulssi@ppshp.fi
+2019-03-20 07:44:17,528 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:44:17,788 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:44:17,789 - infoscreen - DEBUG - Done with calendar: RES_L3223Pulssi@ppshp.fi
+2019-03-20 07:44:17,792 - infoscreen - DEBUG - Fetching data for calendar: Laskimo
+2019-03-20 07:44:17,793 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3228Laskimo@ppshp.fi
+2019-03-20 07:44:17,914 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:44:18,071 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:44:18,072 - infoscreen - DEBUG - Done with calendar: RES_L3228Laskimo@ppshp.fi
+2019-03-20 07:44:18,075 - infoscreen - DEBUG - Fetching data for calendar: Valtimo
+2019-03-20 07:44:18,076 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3229Valtimo@ppshp.fi
+2019-03-20 07:44:18,213 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:44:18,418 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:44:18,419 - infoscreen - DEBUG - Done with calendar: RES_L3229Valtimo@ppshp.fi
+2019-03-20 07:44:18,437 - infoscreen - DEBUG - Calendar data retrieved. Outputting webpage...
+2019-03-20 07:44:19,309 - infoscreen - DEBUG - OYS TestLab Työpajan valmistelu
+2019-03-20 07:44:19,329 - infoscreen - DEBUG - OYS TestLab A-talo 5. krs MALLINNUS, Arviointikeittiö ja Toimintaterapiahuone
+2019-03-20 07:44:19,815 - infoscreen - DEBUG - Aortta Allianssin viikkotyöskentely
+2019-03-20 07:44:19,815 - infoscreen - DEBUG - Ei toissijaisia kalenterille Aortta
+2019-03-20 07:44:19,976 - infoscreen - DEBUG - Ei varauksia kalenterille Cave
+2019-03-20 07:44:19,976 - infoscreen - DEBUG - Ei toissijaisia kalenterille Cave
+2019-03-20 07:44:20,616 - infoscreen - DEBUG - Läppä Tyyppihuonekatselmus; Tehohoito +wc+s (Vasy,Lapset,aikuiset)
+2019-03-20 07:44:20,632 - infoscreen - DEBUG - Läppä Innovaatioryhmä
+2019-03-20 07:44:21,271 - infoscreen - DEBUG - Oikea Kammio PJT
+2019-03-20 07:44:21,271 - infoscreen - DEBUG - Oikea Kammio OYS 3 osapuolen tarkastus
+2019-03-20 07:44:21,976 - infoscreen - DEBUG - Vasen Kammio Tuottavuustiimi
+2019-03-20 07:44:21,991 - infoscreen - DEBUG - Vasen Kammio A-talon keittiön laitteet
+2019-03-20 07:44:22,713 - infoscreen - DEBUG - Pulssi PJT
+2019-03-20 07:44:22,713 - infoscreen - DEBUG - Pulssi Tyyppihuonekatselmus; Leikkaussali ja heräämö
+2019-03-20 07:44:22,856 - infoscreen - DEBUG - Ei varauksia kalenterille Laskimo
+2019-03-20 07:44:22,856 - infoscreen - DEBUG - Ei toissijaisia kalenterille Laskimo
+2019-03-20 07:44:23,334 - infoscreen - DEBUG - Valtimo Smartsheet kustannustarkastelu
+2019-03-20 07:44:23,350 - infoscreen - DEBUG - Valtimo Tulsa / apteekin tilat
+2019-03-20 07:44:23,350 - infoscreen - DEBUG - Updating webpage content!
+2019-03-20 07:44:23,366 - infoscreen - DEBUG - Status: 1: Calendar data succesfully fetched!
+2019-03-20 07:45:15,586 - infoscreen - INFO - Using unverified HTTP adapter. Please reconsider!
+2019-03-20 07:45:15,586 - infoscreen - DEBUG - Starting work thread
+2019-03-20 07:45:15,586 - infoscreen - DEBUG - Fetching data for calendar: OYS TestLab
+2019-03-20 07:45:15,586 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3TestLab@ppshp.fi
+2019-03-20 07:45:15,742 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:45:15,914 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:45:15,914 - infoscreen - DEBUG - Done with calendar: RES_L3TestLab@ppshp.fi
+2019-03-20 07:45:15,914 - infoscreen - DEBUG - Fetching data for calendar: Aortta
+2019-03-20 07:45:15,914 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3212Aortta@ppshp.fi
+2019-03-20 07:45:16,042 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:45:16,221 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:45:16,222 - infoscreen - DEBUG - Done with calendar: RES_L3212Aortta@ppshp.fi
+2019-03-20 07:45:16,225 - infoscreen - DEBUG - Fetching data for calendar: Cave
+2019-03-20 07:45:16,226 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3213Cave@ppshp.fi
+2019-03-20 07:45:16,360 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:45:16,520 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:45:16,521 - infoscreen - DEBUG - Done with calendar: RES_L3213Cave@ppshp.fi
+2019-03-20 07:45:16,524 - infoscreen - DEBUG - Fetching data for calendar: Läppä
+2019-03-20 07:45:16,525 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3215Lappa@ppshp.fi
+2019-03-20 07:45:16,680 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:45:16,853 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:45:16,854 - infoscreen - DEBUG - Done with calendar: RES_L3215Lappa@ppshp.fi
+2019-03-20 07:45:16,857 - infoscreen - DEBUG - Fetching data for calendar: Oikea Kammio
+2019-03-20 07:45:16,858 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3219OikKammio@ppshp.fi
+2019-03-20 07:45:16,990 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:45:17,242 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:45:17,246 - infoscreen - DEBUG - Done with calendar: RES_L3219OikKammio@ppshp.fi
+2019-03-20 07:45:17,247 - infoscreen - DEBUG - Fetching data for calendar: Vasen Kammio
+2019-03-20 07:45:17,247 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3219AVasKammio@ppshp.fi
+2019-03-20 07:45:17,401 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:45:17,565 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:45:17,566 - infoscreen - DEBUG - Done with calendar: RES_L3219AVasKammio@ppshp.fi
+2019-03-20 07:45:17,567 - infoscreen - DEBUG - Fetching data for calendar: Pulssi
+2019-03-20 07:45:17,567 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3223Pulssi@ppshp.fi
+2019-03-20 07:45:17,728 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:45:17,884 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:45:17,886 - infoscreen - DEBUG - Done with calendar: RES_L3223Pulssi@ppshp.fi
+2019-03-20 07:45:17,888 - infoscreen - DEBUG - Fetching data for calendar: Laskimo
+2019-03-20 07:45:17,889 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3228Laskimo@ppshp.fi
+2019-03-20 07:45:18,040 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:45:18,202 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:45:18,203 - infoscreen - DEBUG - Done with calendar: RES_L3228Laskimo@ppshp.fi
+2019-03-20 07:45:18,206 - infoscreen - DEBUG - Fetching data for calendar: Valtimo
+2019-03-20 07:45:18,207 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3229Valtimo@ppshp.fi
+2019-03-20 07:45:18,792 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:45:19,004 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:45:19,005 - infoscreen - DEBUG - Done with calendar: RES_L3229Valtimo@ppshp.fi
+2019-03-20 07:45:19,023 - infoscreen - DEBUG - Calendar data retrieved. Outputting webpage...
+2019-03-20 07:45:20,078 - infoscreen - DEBUG - OYS TestLab Työpajan valmistelu
+2019-03-20 07:45:20,078 - infoscreen - DEBUG - OYS TestLab A-talo 5. krs MALLINNUS, Arviointikeittiö ja Toimintaterapiahuone
+2019-03-20 07:45:20,520 - infoscreen - DEBUG - Aortta Allianssin viikkotyöskentely
+2019-03-20 07:45:20,520 - infoscreen - DEBUG - Ei toissijaisia kalenterille Aortta
+2019-03-20 07:45:20,707 - infoscreen - DEBUG - Ei varauksia kalenterille Cave
+2019-03-20 07:45:20,707 - infoscreen - DEBUG - Ei toissijaisia kalenterille Cave
+2019-03-20 07:45:21,273 - infoscreen - DEBUG - Läppä Tyyppihuonekatselmus; Tehohoito +wc+s (Vasy,Lapset,aikuiset)
+2019-03-20 07:45:21,288 - infoscreen - DEBUG - Läppä Innovaatioryhmä
+2019-03-20 07:45:21,959 - infoscreen - DEBUG - Oikea Kammio PJT
+2019-03-20 07:45:21,959 - infoscreen - DEBUG - Oikea Kammio OYS 3 osapuolen tarkastus
+2019-03-20 07:45:22,635 - infoscreen - DEBUG - Vasen Kammio Tuottavuustiimi
+2019-03-20 07:45:22,635 - infoscreen - DEBUG - Vasen Kammio A-talon keittiön laitteet
+2019-03-20 07:45:23,280 - infoscreen - DEBUG - Pulssi PJT
+2019-03-20 07:45:23,296 - infoscreen - DEBUG - Pulssi Tyyppihuonekatselmus; Leikkaussali ja heräämö
+2019-03-20 07:45:23,420 - infoscreen - DEBUG - Ei varauksia kalenterille Laskimo
+2019-03-20 07:45:23,420 - infoscreen - DEBUG - Ei toissijaisia kalenterille Laskimo
+2019-03-20 07:45:23,904 - infoscreen - DEBUG - Valtimo Smartsheet kustannustarkastelu
+2019-03-20 07:45:23,920 - infoscreen - DEBUG - Valtimo Tulsa / apteekin tilat
+2019-03-20 07:45:23,920 - infoscreen - DEBUG - Updating webpage content!
+2019-03-20 07:45:23,920 - infoscreen - DEBUG - Status: 1: Calendar data succesfully fetched!
+2019-03-20 07:46:15,618 - infoscreen - INFO - Using unverified HTTP adapter. Please reconsider!
+2019-03-20 07:46:15,618 - infoscreen - DEBUG - Starting work thread
+2019-03-20 07:46:15,618 - infoscreen - DEBUG - Fetching data for calendar: OYS TestLab
+2019-03-20 07:46:15,618 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3TestLab@ppshp.fi
+2019-03-20 07:46:15,774 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:46:15,989 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:46:15,989 - infoscreen - DEBUG - Done with calendar: RES_L3TestLab@ppshp.fi
+2019-03-20 07:46:16,004 - infoscreen - DEBUG - Fetching data for calendar: Aortta
+2019-03-20 07:46:16,004 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3212Aortta@ppshp.fi
+2019-03-20 07:46:16,134 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:46:16,291 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:46:16,292 - infoscreen - DEBUG - Done with calendar: RES_L3212Aortta@ppshp.fi
+2019-03-20 07:46:16,294 - infoscreen - DEBUG - Fetching data for calendar: Cave
+2019-03-20 07:46:16,295 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3213Cave@ppshp.fi
+2019-03-20 07:46:16,450 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:46:16,670 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:46:16,671 - infoscreen - DEBUG - Done with calendar: RES_L3213Cave@ppshp.fi
+2019-03-20 07:46:16,674 - infoscreen - DEBUG - Fetching data for calendar: Läppä
+2019-03-20 07:46:16,675 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3215Lappa@ppshp.fi
+2019-03-20 07:46:16,854 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:46:17,021 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:46:17,023 - infoscreen - DEBUG - Done with calendar: RES_L3215Lappa@ppshp.fi
+2019-03-20 07:46:17,025 - infoscreen - DEBUG - Fetching data for calendar: Oikea Kammio
+2019-03-20 07:46:17,026 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3219OikKammio@ppshp.fi
+2019-03-20 07:46:17,170 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:46:17,337 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:46:17,338 - infoscreen - DEBUG - Done with calendar: RES_L3219OikKammio@ppshp.fi
+2019-03-20 07:46:17,341 - infoscreen - DEBUG - Fetching data for calendar: Vasen Kammio
+2019-03-20 07:46:17,342 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3219AVasKammio@ppshp.fi
+2019-03-20 07:46:17,493 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:46:17,734 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:46:17,737 - infoscreen - DEBUG - Done with calendar: RES_L3219AVasKammio@ppshp.fi
+2019-03-20 07:46:17,742 - infoscreen - DEBUG - Fetching data for calendar: Pulssi
+2019-03-20 07:46:17,743 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3223Pulssi@ppshp.fi
+2019-03-20 07:46:17,890 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:46:18,132 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:46:18,132 - infoscreen - DEBUG - Done with calendar: RES_L3223Pulssi@ppshp.fi
+2019-03-20 07:46:18,134 - infoscreen - DEBUG - Fetching data for calendar: Laskimo
+2019-03-20 07:46:18,135 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3228Laskimo@ppshp.fi
+2019-03-20 07:46:18,290 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:46:18,455 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:46:18,456 - infoscreen - DEBUG - Done with calendar: RES_L3228Laskimo@ppshp.fi
+2019-03-20 07:46:18,457 - infoscreen - DEBUG - Fetching data for calendar: Valtimo
+2019-03-20 07:46:18,458 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3229Valtimo@ppshp.fi
+2019-03-20 07:46:18,620 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:46:18,776 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:46:18,777 - infoscreen - DEBUG - Done with calendar: RES_L3229Valtimo@ppshp.fi
+2019-03-20 07:46:18,778 - infoscreen - DEBUG - Calendar data retrieved. Outputting webpage...
+2019-03-20 07:46:19,663 - infoscreen - DEBUG - OYS TestLab Työpajan valmistelu
+2019-03-20 07:46:19,663 - infoscreen - DEBUG - OYS TestLab A-talo 5. krs MALLINNUS, Arviointikeittiö ja Toimintaterapiahuone
+2019-03-20 07:46:20,021 - infoscreen - DEBUG - Aortta Allianssin viikkotyöskentely
+2019-03-20 07:46:20,021 - infoscreen - DEBUG - Ei toissijaisia kalenterille Aortta
+2019-03-20 07:46:20,157 - infoscreen - DEBUG - Ei varauksia kalenterille Cave
+2019-03-20 07:46:20,160 - infoscreen - DEBUG - Ei toissijaisia kalenterille Cave
+2019-03-20 07:46:20,817 - infoscreen - DEBUG - Läppä Tyyppihuonekatselmus; Tehohoito +wc+s (Vasy,Lapset,aikuiset)
+2019-03-20 07:46:20,832 - infoscreen - DEBUG - Läppä Innovaatioryhmä
+2019-03-20 07:46:21,417 - infoscreen - DEBUG - Oikea Kammio PJT
+2019-03-20 07:46:21,419 - infoscreen - DEBUG - Oikea Kammio OYS 3 osapuolen tarkastus
+2019-03-20 07:46:22,170 - infoscreen - DEBUG - Vasen Kammio Tuottavuustiimi
+2019-03-20 07:46:22,175 - infoscreen - DEBUG - Vasen Kammio A-talon keittiön laitteet
+2019-03-20 07:46:22,865 - infoscreen - DEBUG - Pulssi PJT
+2019-03-20 07:46:22,875 - infoscreen - DEBUG - Pulssi Tyyppihuonekatselmus; Leikkaussali ja heräämö
+2019-03-20 07:46:23,047 - infoscreen - DEBUG - Ei varauksia kalenterille Laskimo
+2019-03-20 07:46:23,052 - infoscreen - DEBUG - Ei toissijaisia kalenterille Laskimo
+2019-03-20 07:46:23,457 - infoscreen - DEBUG - Valtimo Smartsheet kustannustarkastelu
+2019-03-20 07:46:23,465 - infoscreen - DEBUG - Valtimo Tulsa / apteekin tilat
+2019-03-20 07:46:23,465 - infoscreen - DEBUG - Updating webpage content!
+2019-03-20 07:46:23,470 - infoscreen - DEBUG - Status: 1: Calendar data succesfully fetched!
+2019-03-20 07:47:15,611 - infoscreen - INFO - Using unverified HTTP adapter. Please reconsider!
+2019-03-20 07:47:15,614 - infoscreen - DEBUG - Starting work thread
+2019-03-20 07:47:15,614 - infoscreen - DEBUG - Fetching data for calendar: OYS TestLab
+2019-03-20 07:47:15,614 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3TestLab@ppshp.fi
+2019-03-20 07:47:15,746 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:47:15,911 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:47:15,914 - infoscreen - DEBUG - Done with calendar: RES_L3TestLab@ppshp.fi
+2019-03-20 07:47:15,914 - infoscreen - DEBUG - Fetching data for calendar: Aortta
+2019-03-20 07:47:15,915 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3212Aortta@ppshp.fi
+2019-03-20 07:47:16,034 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:47:16,227 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:47:16,227 - infoscreen - DEBUG - Done with calendar: RES_L3212Aortta@ppshp.fi
+2019-03-20 07:47:16,230 - infoscreen - DEBUG - Fetching data for calendar: Cave
+2019-03-20 07:47:16,231 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3213Cave@ppshp.fi
+2019-03-20 07:47:16,364 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:47:16,545 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:47:16,547 - infoscreen - DEBUG - Done with calendar: RES_L3213Cave@ppshp.fi
+2019-03-20 07:47:16,550 - infoscreen - DEBUG - Fetching data for calendar: Läppä
+2019-03-20 07:47:16,551 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3215Lappa@ppshp.fi
+2019-03-20 07:47:16,711 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:47:16,869 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:47:16,870 - infoscreen - DEBUG - Done with calendar: RES_L3215Lappa@ppshp.fi
+2019-03-20 07:47:16,872 - infoscreen - DEBUG - Fetching data for calendar: Oikea Kammio
+2019-03-20 07:47:16,874 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3219OikKammio@ppshp.fi
+2019-03-20 07:47:17,021 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:47:17,198 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:47:17,199 - infoscreen - DEBUG - Done with calendar: RES_L3219OikKammio@ppshp.fi
+2019-03-20 07:47:17,202 - infoscreen - DEBUG - Fetching data for calendar: Vasen Kammio
+2019-03-20 07:47:17,202 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3219AVasKammio@ppshp.fi
+2019-03-20 07:47:17,344 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:47:17,513 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:47:17,514 - infoscreen - DEBUG - Done with calendar: RES_L3219AVasKammio@ppshp.fi
+2019-03-20 07:47:17,517 - infoscreen - DEBUG - Fetching data for calendar: Pulssi
+2019-03-20 07:47:17,518 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3223Pulssi@ppshp.fi
+2019-03-20 07:47:17,665 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:47:17,909 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:47:17,910 - infoscreen - DEBUG - Done with calendar: RES_L3223Pulssi@ppshp.fi
+2019-03-20 07:47:17,913 - infoscreen - DEBUG - Fetching data for calendar: Laskimo
+2019-03-20 07:47:17,914 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3228Laskimo@ppshp.fi
+2019-03-20 07:47:18,036 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:47:18,231 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:47:18,232 - infoscreen - DEBUG - Done with calendar: RES_L3228Laskimo@ppshp.fi
+2019-03-20 07:47:18,235 - infoscreen - DEBUG - Fetching data for calendar: Valtimo
+2019-03-20 07:47:18,236 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3229Valtimo@ppshp.fi
+2019-03-20 07:47:18,384 - infoscreen - DEBUG - Getting appointments
+2019-03-20 07:47:18,554 - infoscreen - DEBUG - Getting appointments was a success
+2019-03-20 07:47:18,555 - infoscreen - DEBUG - Done with calendar: RES_L3229Valtimo@ppshp.fi
+2019-03-20 07:47:18,557 - infoscreen - DEBUG - Calendar data retrieved. Outputting webpage...
+2019-03-20 07:47:19,603 - infoscreen - DEBUG - OYS TestLab Työpajan valmistelu
+2019-03-20 07:47:19,615 - infoscreen - DEBUG - OYS TestLab A-talo 5. krs MALLINNUS, Arviointikeittiö ja Toimintaterapiahuone
+2019-03-20 07:47:20,155 - infoscreen - DEBUG - Aortta Allianssin viikkotyöskentely
+2019-03-20 07:47:20,158 - infoscreen - DEBUG - Ei toissijaisia kalenterille Aortta
+2019-03-20 07:47:20,385 - infoscreen - DEBUG - Ei varauksia kalenterille Cave
+2019-03-20 07:47:20,385 - infoscreen - DEBUG - Ei toissijaisia kalenterille Cave
+2019-03-20 07:47:21,038 - infoscreen - DEBUG - Läppä Tyyppihuonekatselmus; Tehohoito +wc+s (Vasy,Lapset,aikuiset)
+2019-03-20 07:47:21,053 - infoscreen - DEBUG - Läppä Innovaatioryhmä
+2019-03-20 07:47:21,678 - infoscreen - DEBUG - Oikea Kammio PJT
+2019-03-20 07:47:21,685 - infoscreen - DEBUG - Oikea Kammio OYS 3 osapuolen tarkastus
+2019-03-20 07:47:22,398 - infoscreen - DEBUG - Vasen Kammio Tuottavuustiimi
+2019-03-20 07:47:22,405 - infoscreen - DEBUG - Vasen Kammio A-talon keittiön laitteet
+2019-03-20 07:47:22,966 - infoscreen - DEBUG - Pulssi PJT
+2019-03-20 07:47:22,973 - infoscreen - DEBUG - Pulssi Tyyppihuonekatselmus; Leikkaussali ja heräämö
+2019-03-20 07:47:23,103 - infoscreen - DEBUG - Ei varauksia kalenterille Laskimo
+2019-03-20 07:47:23,103 - infoscreen - DEBUG - Ei toissijaisia kalenterille Laskimo
+2019-03-20 07:47:23,673 - infoscreen - DEBUG - Valtimo Smartsheet kustannustarkastelu
+2019-03-20 07:47:23,681 - infoscreen - DEBUG - Valtimo Tulsa / apteekin tilat
+2019-03-20 07:47:23,683 - infoscreen - DEBUG - Updating webpage content!
+2019-03-20 07:47:23,688 - infoscreen - DEBUG - Status: 1: Calendar data succesfully fetched!
+2019-03-20 07:48:16,023 - infoscreen - INFO - Using unverified HTTP adapter. Please reconsider!
+2019-03-20 07:48:16,025 - infoscreen - DEBUG - Starting work thread
+2019-03-20 07:48:16,025 - infoscreen - DEBUG - Fetching data for calendar: OYS TestLab
+2019-03-20 07:48:16,025 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3TestLab@ppshp.fi
+2019-03-20 07:48:37,538 - infoscreen - ERROR - Failure: None
+2019-03-20 07:48:37,538 - infoscreen - DEBUG - Fetching data for calendar: Aortta
+2019-03-20 07:48:37,538 - infoscreen - DEBUG - Setting up EWS account for calendar: RES_L3212Aortta@ppshp.fi
+2019-03-20 07:48:47,432 - infoscreen - DEBUG - Requesting HTTP Server Shutdown
+2019-03-20 07:48:47,444 - infoscreen - DEBUG - HTTP Server Exiting
