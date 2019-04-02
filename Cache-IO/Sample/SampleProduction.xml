@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.1 (Build 108U)" ts="2018-10-12 15:06:23">
+<Class name="Testing.MyProduction">
+<Super>Ens.Production</Super>
+<TimeChanged>64924,34975.86855</TimeChanged>
+<TimeCreated>64173,706.689355</TimeCreated>
+
+<XData name="ProductionDefinition">
+<Data><![CDATA[
+<Production Name="Testing.MyProduction" TestingEnabled="true" LogGeneralTraceEvents="false">
+  <Description></Description>
+  <ActorPoolSize>2</ActorPoolSize>
+  <Item Name="MessagePreProcessor" Category="Routing,Process" ClassName="EnsLib.MsgRouter.RoutingEngine" PoolSize="1" Enabled="true" Foreground="false" Comment="Process" LogTraceEvents="false" Schedule="">
+    <Setting Target="Host" Name="Validation"></Setting>
+    <Setting Target="Host" Name="BusinessRuleName">Testing.GeneralRoutingRuleSet</Setting>
+    <Setting Target="Host" Name="ResponseFrom">To_LifeCare_MedicationService,To_LifeCare_PatientDataService,To_LifeCare_RiskService,To_LifeCare_DiagnosticService,To_Omni_MedicationService,To_NewIcon</Setting>
+  </Item>
+  <Item Name="To_LifeCare_MedicationService" Category="LifeCare,TCP/IP,SOAP,Operation" ClassName="Testing.Operations.LifecareMedOperation.BasicHttpBindingIMedicationService" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="WebServiceURL">https://lifecareintegrations-test.service.tieto.com/Effica/MedicationService/MedicationService.svc</Setting>
+    <Setting Target="Adapter" Name="WebServiceClientClass"></Setting>
+    <Setting Target="Host" Name="FailureTimeout">-1</Setting>
+    <Setting Target="Host" Name="RetryInterval">10</Setting>
+    <Setting Target="Host" Name="BusinessPartner"></Setting>
+    <Setting Target="Adapter" Name="SSLConfig">General SSL Config</Setting>
+    <Setting Target="Adapter" Name="SSLCheckServerIdentity">0</Setting>
+  </Item>
+  <Item Name="To_LifeCare_DiagnosticService" Category="LifeCare,TCP/IP,SOAP,Operation" ClassName="Testing.Operations.LifecareDiagOperation.BasicHttpBindingIDiagnosisService" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="WebServiceURL">https://lifecareintegrations-test.service.tieto.com/Effica/DiagnosisService/DiagnosisService.svc</Setting>
+    <Setting Target="Adapter" Name="WebServiceClientClass"></Setting>
+    <Setting Target="Host" Name="FailureTimeout">-1</Setting>
+    <Setting Target="Host" Name="RetryInterval">10</Setting>
+    <Setting Target="Host" Name="BusinessPartner"></Setting>
+    <Setting Target="Adapter" Name="SSLConfig">General SSL Config</Setting>
+    <Setting Target="Adapter" Name="SSLCheckServerIdentity">0</Setting>
+  </Item>
+  <Item Name="To_LifeCare_RiskService" Category="LifeCare,TCP/IP,SOAP,Operation" ClassName="Testing.Operations.LifecareRiskOperation.BasicHttpBindingIRiskDataIntegrationService" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="WebServiceURL">https://lifecareintegrations-test.service.tieto.com/Effica/RiskDataService/RiskDataIntegrationService.svc</Setting>
+    <Setting Target="Adapter" Name="WebServiceClientClass"></Setting>
+    <Setting Target="Host" Name="FailureTimeout">-1</Setting>
+    <Setting Target="Host" Name="RetryInterval">10</Setting>
+    <Setting Target="Host" Name="BusinessPartner"></Setting>
+    <Setting Target="Adapter" Name="SSLConfig">General SSL Config</Setting>
+    <Setting Target="Adapter" Name="SSLCheckServerIdentity">0</Setting>
+  </Item>
+  <Item Name="To_LifeCare_PatientDataService" Category="LifeCare,TCP/IP,SOAP,Operation" ClassName="Testing.Operations.LifecarePatientDataOperation.BasicHttpBindingPatientDataIntegrationService" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="WebServiceURL">https://lifecareintegrations-test.service.tieto.com/Effica/PatientDataIntegrationService_v_2_0/PatientDataService.svc</Setting>
+    <Setting Target="Adapter" Name="WebServiceClientClass"></Setting>
+    <Setting Target="Host" Name="FailureTimeout">-1</Setting>
+    <Setting Target="Host" Name="RetryInterval">10</Setting>
+    <Setting Target="Host" Name="BusinessPartner"></Setting>
+    <Setting Target="Adapter" Name="SSLConfig">General SSL Config</Setting>
+    <Setting Target="Adapter" Name="SSLCheckServerIdentity">0</Setting>
+  </Item>
+  <Item Name="To_Omni_MedicationService" Category="CGI Omni,TCP/IP,SOAP,Operation" ClassName="Testing.Operations.OmniMedOperation.MedicationIntegrationWebServiceBean" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="WebServiceURL">http://213.139.181.95:7777/ASTE1/app-medicationintegration-ws/MedicationIntegrationWebServiceBean</Setting>
+    <Setting Target="Adapter" Name="WebServiceClientClass"></Setting>
+    <Setting Target="Host" Name="FailureTimeout">-1</Setting>
+    <Setting Target="Host" Name="RetryInterval">10</Setting>
+    <Setting Target="Host" Name="BusinessPartner"></Setting>
+    <Setting Target="Adapter" Name="SSLConfig"></Setting>
+    <Setting Target="Adapter" Name="SSLCheckServerIdentity">0</Setting>
+  </Item>
+  <Item Name="To_HTTPEskoMedication" Category="Esko,TCP/IP,XML,Operation" ClassName="EnsLib.HTTP.GenericOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+  </Item>
+  <Item Name="From_HTTPTestLabIISToLifecare" Category="IIS,TCP/IP,JSON,Service" ClassName="Testing.Services.IISHTTPServiceToLifecare" PoolSize="1" Enabled="true" Foreground="false" Comment="Service" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="Port">9980</Setting>
+    <Setting Target="Adapter" Name="Charset">utf-8</Setting>
+    <Setting Target="Host" Name="TargetConfigName">MessagePreProcessor</Setting>
+  </Item>
+  <Item Name="From_HTTPTestLabIISToOmni" Category="IIS,TCP/IP,JSON,Service" ClassName="Testing.Services.IISHTTPServiceToOmni" PoolSize="1" Enabled="true" Foreground="false" Comment="Service" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="Port">9981</Setting>
+    <Setting Target="Host" Name="TargetConfigName">MessagePreProcessor</Setting>
+  </Item>
+  <Item Name="To_LifeCare_SchedulingService" Category="LifeCare,TCP/IP,SOAP,Operation" ClassName="Testing.Operations.LifecareSchedOperation.BasicHttpBindingScheduleIntegrService" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="WebServiceURL">https://lifecareintegrations-test.service.tieto.com/Effica/ScheduleDataIntegration_v_2.0/ScheduleDataService.svc</Setting>
+    <Setting Target="Adapter" Name="SSLConfig">General SSL Config</Setting>
+  </Item>
+  <Item Name="From_Innofactor" Category="Innofactor,TCP/IP,HL7,Service" ClassName="Testing.Services.InnofactorHTTPService" PoolSize="1" Enabled="true" Foreground="false" Comment="Service" LogTraceEvents="false" Schedule="">
+    <Setting Target="Host" Name="TargetConfigName">MessagePreProcessor</Setting>
+    <Setting Target="Adapter" Name="Port">9984</Setting>
+  </Item>
+  <Item Name="From_GoogleInbox" Category="Google,TCP/IP,Email,Service" ClassName="Testing.Services.GmailEmailService" PoolSize="1" Enabled="true" Foreground="false" Comment="Service" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="CallInterval">10</Setting>
+    <Setting Target="Adapter" Name="Credentials">Gmail_Credentials</Setting>
+    <Setting Target="Adapter" Name="POP3Port">995</Setting>
+    <Setting Target="Adapter" Name="POP3Server">pop.gmail.com</Setting>
+    <Setting Target="Host" Name="ThrottleDelay">500</Setting>
+    <Setting Target="Adapter" Name="MatchSubject">Saapumisilmoitus</Setting>
+    <Setting Target="Adapter" Name="SSLConfig">Empty SSL Config</Setting>
+    <Setting Target="Host" Name="TargetConfigName">To_SMS_Gateway</Setting>
+  </Item>
+  <Item Name="To_SMS_Gateway" Category="SMS Gateway,TCP/IP,HTTP,Operation" ClassName="Testing.Operations.ToSMSGateway" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="HTTPPort">5000</Setting>
+    <Setting Target="Adapter" Name="HTTPServer">10.135.1.106</Setting>
+    <Setting Target="Adapter" Name="URL"></Setting>
+  </Item>
+  <Item Name="To_CGI_PRSC_Interface" Category="CGI Oberon (DMZ),TCP/IP,HL7,Operation" ClassName="CGI.AAV.Operation.PRSCAR030101Port" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="WebServiceURL">http://213.139.181.95:7777/ASTE4/ReservationASTE4/services/PRSC_AR030101_Service</Setting>
+  </Item>
+  <Item Name="To_CGI_QUSC_Interface" Category="CGI Oberon (DMZ),TCP/IP,HL7,Operation" ClassName="CGI.AAV.Operation.QUSCAR040102FI01Port" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="WebServiceURL">http://213.139.181.95:7777/ASTE4/ReservationASTE4/services/QUSC_AR040102FI01_Service</Setting>
+  </Item>
+  <Item Name="To_CGI_PRSC_Interface_Generic" Category="CGI Oberon (DMZ),TCP/IP,HL7,Operation" ClassName="EnsLib.HTTP.GenericOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="HTTPPort">7777</Setting>
+    <Setting Target="Adapter" Name="HTTPServer">213.139.181.95</Setting>
+    <Setting Target="Adapter" Name="URL">/ASTE4/ReservationASTE4/services/PRSC_AR030101_Service</Setting>
+  </Item>
+  <Item Name="From_Innofactor_PRSC_GenericHTTP" Category="Innofactor,TCP/IP,HL7,Service" ClassName="EnsLib.HTTP.GenericService" PoolSize="1" Enabled="true" Foreground="false" Comment="Service" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="Port">9985</Setting>
+    <Setting Target="Host" Name="TargetConfigName">To_CGI_PRSC_Interface_Generic</Setting>
+  </Item>
+  <Item Name="From_Innofactor_QUSC_GenericHTTP" Category="Innofactor,TCP/IP,HL7,Service" ClassName="EnsLib.HTTP.GenericService" PoolSize="1" Enabled="true" Foreground="false" Comment="Service" LogTraceEvents="false" Schedule="">
+    <Setting Target="Host" Name="TargetConfigName">To_CGI_QUSC_Interface_Generic</Setting>
+    <Setting Target="Adapter" Name="Port">9986</Setting>
+  </Item>
+  <Item Name="To_CGI_QUSC_Interface_Generic" Category="CGI Oberon (DMZ),TCP/IP,HL7,Operation" ClassName="EnsLib.HTTP.GenericOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="HTTPPort">7777</Setting>
+    <Setting Target="Adapter" Name="HTTPServer">213.139.181.95</Setting>
+    <Setting Target="Adapter" Name="URL">/ASTE4/ReservationASTE4/services/QUSC_AR040102FI01_Service</Setting>
+  </Item>
+  <Item Name="From_Codeserver" Category="Codeserver,TCP/IP,XML,Service" ClassName="Codeserver.Services.CodeserverInboundService" PoolSize="1" Enabled="true" Foreground="false" Comment="Service" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="Port">9987</Setting>
+    <Setting Target="Host" Name="TargetConfigName">To_Codeserver_File</Setting>
+  </Item>
+  <Item Name="To_Codeserver_File" Category="File,File,Text,Operation" ClassName="Codeserver.Operations.CodeserverToFile" PoolSize="1" Enabled="true" Foreground="false" Comment="Operation" LogTraceEvents="false" Schedule="">
+  </Item>
+</Production>
+]]></Data>
+</XData>
+</Class>
+</Export>
